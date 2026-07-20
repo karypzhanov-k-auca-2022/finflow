@@ -1,14 +1,19 @@
 import 'package:finflow/core/error/result.dart';
+import 'package:finflow/features/categories/data/datasources/category_local_data_source.dart';
 import 'package:finflow/features/transactions/domain/entities/transaction.dart';
 import 'package:finflow/features/transactions/domain/repositories/transaction_repository.dart';
 import 'package:mocktail/mocktail.dart';
+
+final testGroceriesCategory = defaultCategoryModels.firstWhere((c) => c.id == 'groceries');
+final testSalaryCategory = defaultCategoryModels.firstWhere((c) => c.id == 'salary');
+final testCafeCategory = defaultCategoryModels.firstWhere((c) => c.id == 'cafe');
 
 FinanceTransaction transaction({
   String id = '1',
   String title = 'Продукты',
   double amount = 1000,
   TransactionType type = TransactionType.expense,
-  AppCategory category = AppCategory.groceries,
+  Category? category,
   DateTime? date,
   String note = '',
 }) {
@@ -18,7 +23,7 @@ FinanceTransaction transaction({
     title: title,
     amount: amount,
     type: type,
-    category: category,
+    category: category ?? testGroceriesCategory,
     date: valueDate,
     note: note,
     createdAt: valueDate,

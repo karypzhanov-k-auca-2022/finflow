@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/utils/category_x.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/currency_text.dart';
 import '../../domain/entities/transaction.dart';
@@ -27,7 +26,7 @@ class TransactionTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        '${transaction.category.label} • ${formatDate(transaction.date)}',
+        '${transaction.category.name} • ${formatDate(transaction.date)}',
       ),
       trailing: CurrencyText(
         income ? transaction.amount : -transaction.amount,

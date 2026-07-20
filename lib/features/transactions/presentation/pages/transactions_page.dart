@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/utils/category_x.dart';
+import '../../../../app/dependency_injection.dart';
+import '../../../../core/error/result.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/state_views.dart';
+import '../../../categories/data/datasources/category_local_data_source.dart';
+import '../../../categories/domain/usecases/category_use_cases.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/usecases/transaction_use_cases.dart';
 import '../bloc/transactions_bloc.dart';
@@ -17,6 +20,23 @@ class TransactionsPage extends StatefulWidget {
 
 class _TransactionsPageState extends State<TransactionsPage> {
   final search = TextEditingController();
+  List<Category> availableCategories = defaultCategoryModels;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    final res = await getIt<CategoryUseCases>().load();
+    if (res is Success<List<Category>> && mounted) {
+      setState(() {
+        availableCategories = res.data;
+      });
+    }
+  }
+
   @override
   void dispose() {
     search.dispose();
@@ -150,7 +170,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                DropdownButtonFormField<AppCategory?>(
+                DropdownButtonFormField<Category?>(
                   initialValue: draft.category,
                   decoration: const InputDecoration(labelText: 'Категория'),
                   items: [
@@ -158,10 +178,10 @@ class _TransactionsPageState extends State<TransactionsPage> {
                       value: null,
                       child: Text('Все категории'),
                     ),
-                    ...AppCategory.values.map(
+                    ...availableCategories.map(
                       (value) => DropdownMenuItem(
                         value: value,
-                        child: Text(value.label),
+                        child: Text(value.name),
                       ),
                     ),
                   ],

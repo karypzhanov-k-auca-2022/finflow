@@ -2,7 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/utils/category_x.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/currency_text.dart';
 import '../../../../core/widgets/state_views.dart';
@@ -147,35 +146,73 @@ class _DashboardContent extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            height: 220,
-            child: data.expensesByCategory.isEmpty
-                ? const EmptyState(
-                    title: 'Нет расходов',
-                    message: 'За этот месяц расходов ещё не было.',
-                  )
-                : PieChart(
-                    PieChartData(
-                      centerSpaceRadius: 46,
-                      sectionsSpace: 3,
-                      sections: data.expensesByCategory.entries
-                          .map(
-                            (entry) => PieChartSectionData(
-                              value: entry.value,
-                              title: entry.key.label,
-                              radius: 68,
-                              color: entry.key.color,
-                              titleStyle: const TextStyle(
-                                fontSize: 10,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          )
-                          .toList(),
+          if (data.expensesByCategory.isEmpty)
+            const SizedBox(
+              height: 220,
+              child: EmptyState(
+                title: 'Нет расходов',
+                message: 'За этот месяц расходов ещё не было.',
+              ),
+            )
+          else ...[
+            SizedBox(
+              height: 200,
+              child: PieChart(
+                PieChartData(
+                  startDegreeOffset: 270,
+                  centerSpaceRadius: 46,
+                  sectionsSpace: 3,
+                  sections: data.expensesByCategory.entries
+                      .map(
+                        (entry) => PieChartSectionData(
+                          value: entry.value,
+                          showTitle: false,
+                          radius: 68,
+                          color: entry.key.color,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: data.expensesByCategory.entries.map((entry) {
+                final category = entry.key;
+                final amount = entry.value;
+                final percentage =
+                    data.monthlyExpense > 0 ? (amount / data.monthlyExpense) * 100 : 0;
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: category.color,
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                  ),
-          ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${category.name} (${percentage.toStringAsFixed(0)}%)',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      formatMoney(amount),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ],
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

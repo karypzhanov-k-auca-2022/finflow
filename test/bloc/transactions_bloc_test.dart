@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:finflow/core/error/failure.dart';
 import 'package:finflow/core/error/result.dart';
-import 'package:finflow/features/transactions/domain/entities/transaction.dart';
+import 'package:finflow/features/categories/data/datasources/category_local_data_source.dart';
 import 'package:finflow/features/transactions/domain/usecases/transaction_use_cases.dart';
 import 'package:finflow/features/transactions/presentation/bloc/transaction_form_cubit.dart';
 import 'package:finflow/features/transactions/presentation/bloc/transactions_bloc.dart';
@@ -13,6 +13,7 @@ void main() {
   late MockTransactionRepository repository;
   late TransactionUseCases useCases;
   final item = transaction();
+  final transportCategory = defaultCategoryModels.firstWhere((c) => c.id == 'transport');
 
   setUpAll(() {
     registerFallbackValue(item);
@@ -112,14 +113,14 @@ void main() {
       status: TransactionsStatus.success,
       all: [
         item,
-        transaction(id: '2', title: 'Такси', category: AppCategory.transport),
+        transaction(id: '2', title: 'Такси', category: transportCategory),
       ],
       visible: [item],
     ),
     build: () => TransactionsBloc(useCases),
     act: (bloc) => bloc.add(
-      const TransactionFilterChanged(
-        TransactionFilter(category: AppCategory.transport),
+      TransactionFilterChanged(
+        TransactionFilter(category: transportCategory),
       ),
     ),
     expect: () => [

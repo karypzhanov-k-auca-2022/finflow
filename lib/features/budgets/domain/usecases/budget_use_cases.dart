@@ -24,7 +24,7 @@ class BudgetUseCases {
         .where(
           (item) =>
               item.type == TransactionType.expense &&
-              item.category == budget.categoryId &&
+              item.category.id == budget.categoryId &&
               item.date.month == budget.month &&
               item.date.year == budget.year,
         )

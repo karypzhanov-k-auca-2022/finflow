@@ -1,18 +1,9 @@
 import 'package:equatable/equatable.dart';
+import '../../../categories/domain/entities/category.dart';
+
+export '../../../categories/domain/entities/category.dart';
 
 enum TransactionType { income, expense }
-
-enum AppCategory {
-  salary,
-  groceries,
-  transport,
-  rent,
-  cafe,
-  subscriptions,
-  health,
-  entertainment,
-  transfers,
-}
 
 enum TransactionPeriod { all, month, threeMonths, sixMonths }
 
@@ -37,7 +28,7 @@ class FinanceTransaction extends Equatable {
   final String title;
   final double amount;
   final TransactionType type;
-  final AppCategory category;
+  final Category category;
   final DateTime date;
   final String note;
   final DateTime createdAt;
@@ -48,7 +39,7 @@ class FinanceTransaction extends Equatable {
     String? title,
     double? amount,
     TransactionType? type,
-    AppCategory? category,
+    Category? category,
     DateTime? date,
     String? note,
     DateTime? createdAt,
@@ -77,22 +68,4 @@ class FinanceTransaction extends Equatable {
     createdAt,
     updatedAt,
   ];
-}
-
-class Category extends Equatable {
-  const Category({
-    required this.id,
-    required this.name,
-    required this.icon,
-    required this.type,
-    required this.colorValue,
-  });
-  final AppCategory id;
-  final String name;
-  final int icon;
-  final TransactionType type;
-  final int colorValue;
-
-  @override
-  List<Object?> get props => [id, name, icon, type, colorValue];
 }

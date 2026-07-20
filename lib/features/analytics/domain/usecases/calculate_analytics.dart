@@ -32,7 +32,7 @@ AnalyticsData calculateAnalytics(
         ),
       )
       .toList();
-  final byCategory = <AppCategory, double>{};
+  final byCategory = <Category, double>{};
   for (final item in expenses) {
     byCategory.update(
       item.category,
@@ -40,7 +40,7 @@ AnalyticsData calculateAnalytics(
       ifAbsent: () => item.amount,
     );
   }
-  AppCategory? top;
+  Category? top;
   if (byCategory.isNotEmpty) {
     top = byCategory.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
   }

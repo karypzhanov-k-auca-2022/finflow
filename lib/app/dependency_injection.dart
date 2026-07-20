@@ -9,6 +9,10 @@ import '../features/budgets/data/repositories/budget_repository_impl.dart';
 import '../features/budgets/domain/repositories/budget_repository.dart';
 import '../features/budgets/domain/usecases/budget_use_cases.dart';
 import '../features/budgets/presentation/bloc/budgets_bloc.dart';
+import '../features/categories/data/datasources/category_local_data_source.dart';
+import '../features/categories/data/repositories/category_repository_impl.dart';
+import '../features/categories/domain/repositories/category_repository.dart';
+import '../features/categories/domain/usecases/category_use_cases.dart';
 import '../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../features/settings/data/settings_repository_impl.dart';
 import '../features/settings/domain/settings_repository.dart';
@@ -30,8 +34,14 @@ Future<void> configureDependencies() async {
   getIt
     ..registerSingleton<SharedPreferences>(preferences)
     ..registerLazySingleton<Dio>(createDio)
+    ..registerLazySingleton<CategoryLocalDataSource>(
+      () => CategoryLocalDataSourceImpl(getIt()),
+    )
+    ..registerLazySingleton<CategoryRepository>(
+      () => CategoryRepositoryImpl(local: getIt()),
+    )
     ..registerLazySingleton<TransactionLocalDataSource>(
-      () => TransactionLocalDataSourceImpl(getIt()),
+      () => TransactionLocalDataSourceImpl(getIt(), getIt()),
     )
     ..registerLazySingleton<TransactionRemoteDataSource>(
       () => TransactionRemoteDataSourceImpl(getIt()),
@@ -51,9 +61,10 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton<SettingsRepository>(
       () => SettingsRepositoryImpl(getIt()),
     )
+    ..registerLazySingleton(() => CategoryUseCases(getIt()))
     ..registerLazySingleton(() => TransactionUseCases(getIt()))
     ..registerLazySingleton(() => BudgetUseCases(getIt()))
-    ..registerLazySingleton(() => AppInitializer(getIt(), getIt()))
+    ..registerLazySingleton(() => AppInitializer(getIt(), getIt(), getIt()))
     ..registerFactory(() => DashboardBloc(getIt(), getIt()))
     ..registerFactory(() => TransactionsBloc(getIt()))
     ..registerFactory(() => TransactionFormCubit(getIt()))

@@ -15,7 +15,7 @@ class DashboardData extends Equatable {
   final double monthlyExpense;
   final double budgetLimit;
   final List<FinanceTransaction> recent;
-  final Map<AppCategory, double> expensesByCategory;
+  final Map<Category, double> expensesByCategory;
   double get budgetProgress =>
       budgetLimit <= 0 ? 0 : monthlyExpense / budgetLimit;
 

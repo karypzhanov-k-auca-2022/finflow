@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import '../../../transactions/domain/entities/transaction.dart';
 
 class Budget extends Equatable {
   const Budget({
@@ -11,7 +10,7 @@ class Budget extends Equatable {
     this.spent = 0,
   });
   final String id;
-  final AppCategory categoryId;
+  final String categoryId;
   final double limit;
   final double spent;
   final int month;
@@ -23,7 +22,7 @@ class Budget extends Equatable {
 
   Budget copyWith({
     String? id,
-    AppCategory? categoryId,
+    String? categoryId,
     double? limit,
     double? spent,
     int? month,

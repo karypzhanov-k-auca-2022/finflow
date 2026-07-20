@@ -1,5 +1,4 @@
 import '../../domain/entities/budget.dart';
-import '../../../transactions/domain/entities/transaction.dart';
 
 class BudgetModel extends Budget {
   const BudgetModel({
@@ -22,7 +21,7 @@ class BudgetModel extends Budget {
 
   factory BudgetModel.fromJson(Map<String, dynamic> json) => BudgetModel(
     id: json['id'] as String,
-    categoryId: AppCategory.values.byName(json['categoryId'] as String),
+    categoryId: json['categoryId'] as String,
     limit: (json['limit'] as num).toDouble(),
     spent: (json['spent'] as num? ?? 0).toDouble(),
     month: json['month'] as int,
@@ -31,7 +30,7 @@ class BudgetModel extends Budget {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'categoryId': categoryId.name,
+    'categoryId': categoryId,
     'limit': limit,
     'spent': spent,
     'month': month,

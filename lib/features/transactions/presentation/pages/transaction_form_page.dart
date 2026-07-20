@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/utils/category_x.dart';
+import '../../../../app/dependency_injection.dart';
+import '../../../../core/error/result.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../../analytics/presentation/bloc/analytics_bloc.dart';
-import '../../../budgets/presentation/bloc/budgets_bloc.dart';
-import '../../../dashboard/presentation/bloc/dashboard_bloc.dart';
+import '../../../categories/data/datasources/category_local_data_source.dart';
+import '../../../categories/domain/usecases/category_use_cases.dart';
 import '../../domain/entities/transaction.dart';
 import '../bloc/transaction_form_cubit.dart';
-import '../bloc/transactions_bloc.dart';
 
 class TransactionFormPage extends StatefulWidget {
   const TransactionFormPage({super.key, this.transaction});
@@ -23,8 +22,9 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
   late final TextEditingController amount;
   late final TextEditingController note;
   late TransactionType type;
-  late AppCategory category;
+  late Category category;
   late DateTime date;
+  List<Category> availableCategories = defaultCategoryModels;
   bool dirty = false;
   bool saved = false;
 
@@ -38,11 +38,24 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
     );
     note = TextEditingController(text: item?.note ?? '');
     type = item?.type ?? TransactionType.expense;
-    category = item?.category ?? AppCategory.groceries;
+    category = item?.category ?? defaultCategoryModels.firstWhere((c) => c.id == 'groceries');
     date = item?.date ?? DateTime.now();
     title.addListener(markDirty);
     amount.addListener(markDirty);
     note.addListener(markDirty);
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    final res = await getIt<CategoryUseCases>().load();
+    if (res is Success<List<Category>> && mounted) {
+      setState(() {
+        availableCategories = res.data;
+        if (!availableCategories.any((c) => c.id == category.id)) {
+          availableCategories = [...availableCategories, category];
+        }
+      });
+    }
   }
 
   void markDirty() {
@@ -116,7 +129,12 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
             key: formKey,
             child: ListView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
               children: [
                 TextFormField(
                   controller: title,
@@ -166,40 +184,60 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                   onSelectionChanged: (values) => setState(() {
                     type = values.first;
                     if (type == TransactionType.income) {
-                      category = AppCategory.salary;
-                    }
-                    if (type == TransactionType.expense &&
-                        category == AppCategory.salary) {
-                      category = AppCategory.groceries;
+                      category = availableCategories.firstWhere(
+                        (c) => c.id == 'salary',
+                        orElse: () => availableCategories.first,
+                      );
+                    } else if (category.id == 'salary') {
+                      category = availableCategories.firstWhere(
+                        (c) => c.id == 'groceries',
+                        orElse: () => availableCategories.first,
+                      );
                     }
                     dirty = true;
                   }),
                 ),
                 const SizedBox(height: 14),
-                DropdownButtonFormField<AppCategory>(
-                  initialValue: category,
-                  decoration: const InputDecoration(
-                    labelText: 'Категория',
-                    prefixIcon: Icon(Icons.category_outlined),
-                  ),
-                  items: AppCategory.values
-                      .where(
-                        (value) => type == TransactionType.income
-                            ? value == AppCategory.salary ||
-                                  value == AppCategory.transfers
-                            : value != AppCategory.salary,
-                      )
-                      .map(
-                        (value) => DropdownMenuItem(
-                          value: value,
-                          child: Text(value.label),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<Category>(
+                        initialValue: availableCategories.any((c) => c.id == category.id)
+                            ? availableCategories.firstWhere((c) => c.id == category.id)
+                            : category,
+                        decoration: const InputDecoration(
+                          labelText: 'Категория',
+                          prefixIcon: Icon(Icons.category_outlined),
                         ),
-                      )
-                      .toList(),
-                  onChanged: (value) => setState(() {
-                    category = value!;
-                    dirty = true;
-                  }),
+                        items: availableCategories
+                            .where(
+                              (val) => type == TransactionType.income
+                                  ? val.id == 'salary' || val.id == 'transfers'
+                                  : val.id != 'salary',
+                            )
+                            .map(
+                              (val) => DropdownMenuItem(
+                                value: val,
+                                child: Text(val.name),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              category = value;
+                              dirty = true;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      tooltip: 'Создать категорию',
+                      onPressed: () => _showAddCategoryDialog(context),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 14),
                 InkWell(
@@ -263,6 +301,52 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
       ),
     ),
   );
+
+  Future<void> _showAddCategoryDialog(BuildContext context) async {
+    final nameController = TextEditingController();
+    final created = await showDialog<Category>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Новая категория'),
+        content: TextField(
+          controller: nameController,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'Название категории'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Отмена'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              final text = nameController.text.trim();
+              if (text.isEmpty) return;
+              final newCat = Category(
+                id: 'cat_${DateTime.now().millisecondsSinceEpoch}',
+                name: text,
+                iconCodePoint: Icons.category_outlined.codePoint,
+                colorValue: 0xFF2196F3,
+              );
+              await getIt<CategoryUseCases>().save(newCat);
+              if (dialogContext.mounted) {
+                Navigator.pop(dialogContext, newCat);
+              }
+            },
+            child: const Text('Создать'),
+          ),
+        ],
+      ),
+    );
+
+    if (created != null && mounted) {
+      await _loadCategories();
+      setState(() {
+        category = created;
+        dirty = true;
+      });
+    }
+  }
 
   void submit() {
     FocusScope.of(context).unfocus();

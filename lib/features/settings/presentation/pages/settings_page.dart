@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/widgets/state_views.dart';
-import '../../../analytics/presentation/bloc/analytics_bloc.dart';
-import '../../../budgets/presentation/bloc/budgets_bloc.dart';
-import '../../../dashboard/presentation/bloc/dashboard_bloc.dart';
-import '../../../transactions/presentation/bloc/transactions_bloc.dart';
 import '../bloc/settings_cubit.dart';
 import '../bloc/theme_cubit.dart';
 

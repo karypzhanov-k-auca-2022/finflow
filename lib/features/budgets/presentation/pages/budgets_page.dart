@@ -1,20 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/utils/category_x.dart';
+import '../../../../app/dependency_injection.dart';
+import '../../../../core/error/result.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/state_views.dart';
-import '../../../transactions/domain/entities/transaction.dart';
+import '../../../categories/data/datasources/category_local_data_source.dart';
+import '../../../categories/domain/entities/category.dart';
+import '../../../categories/domain/usecases/category_use_cases.dart';
 import '../../domain/entities/budget.dart';
 import '../bloc/budgets_bloc.dart';
 
-class BudgetsPage extends StatelessWidget {
+Category _resolveCategory(String categoryId, List<Category> categories) {
+  return categories.firstWhere(
+    (c) => c.id == categoryId,
+    orElse: () => Category(
+      id: categoryId,
+      name: categoryId,
+      iconCodePoint: 0xe59a,
+      colorValue: 0xFF9E9E9E,
+    ),
+  );
+}
+
+class BudgetsPage extends StatefulWidget {
   const BudgetsPage({super.key});
+
+  @override
+  State<BudgetsPage> createState() => _BudgetsPageState();
+}
+
+class _BudgetsPageState extends State<BudgetsPage> {
+  List<Category> availableCategories = defaultCategoryModels;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    final res = await getIt<CategoryUseCases>().load();
+    if (res is Success<List<Category>> && mounted) {
+      setState(() {
+        availableCategories = res.data;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Бюджеты')),
     floatingActionButton: FloatingActionButton.extended(
       heroTag: 'budgets_fab',
-      onPressed: () => _openForm(context),
+      onPressed: () => _openForm(context, null, availableCategories),
       icon: const Icon(Icons.add),
       label: const Text('Бюджет'),
     ),
@@ -30,7 +68,7 @@ class BudgetsPage extends StatelessWidget {
           title: 'Бюджеты не заданы',
           message: 'Установите лимит для категории и следите за прогрессом.',
           action: FilledButton(
-            onPressed: () => _openForm(context),
+            onPressed: () => _openForm(context, null, availableCategories),
             child: const Text('Создать бюджет'),
           ),
         ),
@@ -46,32 +84,41 @@ class BudgetsPage extends StatelessWidget {
           child: ListView.builder(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
             itemCount: state.budgets.length,
-            itemBuilder: (context, index) =>
-                _BudgetCard(budget: state.budgets[index]),
+            itemBuilder: (context, index) => _BudgetCard(
+              budget: state.budgets[index],
+              categories: availableCategories,
+            ),
           ),
         ),
       },
     ),
   );
-}
 
-Future<void> _openForm(BuildContext context, [Budget? budget]) async {
-  final result = await showModalBottomSheet<Budget>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    builder: (_) => _BudgetForm(budget: budget),
-  );
-  if (result != null && context.mounted) {
-    context.read<BudgetsBloc>().add(BudgetSaved(result));
+  Future<void> _openForm(
+    BuildContext context,
+    Budget? budget,
+    List<Category> categories,
+  ) async {
+    final result = await showModalBottomSheet<Budget>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _BudgetForm(budget: budget, categories: categories),
+    );
+    if (result != null && context.mounted) {
+      context.read<BudgetsBloc>().add(BudgetSaved(result));
+    }
   }
 }
 
 class _BudgetCard extends StatelessWidget {
-  const _BudgetCard({required this.budget});
+  const _BudgetCard({required this.budget, required this.categories});
   final Budget budget;
+  final List<Category> categories;
+
   @override
   Widget build(BuildContext context) {
+    final cat = _resolveCategory(budget.categoryId, categories);
     final scheme = Theme.of(context).colorScheme;
     final color = budget.isExceeded
         ? scheme.error
@@ -88,12 +135,10 @@ class _BudgetCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: budget.categoryId.color.withValues(
-                    alpha: .15,
-                  ),
+                  backgroundColor: cat.color.withValues(alpha: .15),
                   child: Icon(
-                    budget.categoryId.icon,
-                    color: budget.categoryId.color,
+                    cat.icon,
+                    color: cat.color,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -102,7 +147,7 @@ class _BudgetCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        budget.categoryId.label,
+                        cat.name,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       Text(
@@ -113,14 +158,27 @@ class _BudgetCard extends StatelessWidget {
                 ),
                 PopupMenuButton<String>(
                   onSelected: (value) async {
-                    if (value == 'edit') await _openForm(context, budget);
+                    if (value == 'edit') {
+                      final result = await showModalBottomSheet<Budget>(
+                        context: context,
+                        isScrollControlled: true,
+                        showDragHandle: true,
+                        builder: (_) => _BudgetForm(
+                          budget: budget,
+                          categories: categories,
+                        ),
+                      );
+                      if (result != null && context.mounted) {
+                        context.read<BudgetsBloc>().add(BudgetSaved(result));
+                      }
+                    }
                     if (value == 'delete' &&
                         context.mounted &&
                         await showConfirmation(
                           context,
                           title: 'Удалить бюджет?',
                           message:
-                              'Лимит для категории «${budget.categoryId.label}» будет удалён.',
+                              'Лимит для категории «${cat.name}» будет удалён.',
                         )) {
                       if (context.mounted) {
                         context.read<BudgetsBloc>().add(
@@ -160,8 +218,10 @@ class _BudgetCard extends StatelessWidget {
 }
 
 class _BudgetForm extends StatefulWidget {
-  const _BudgetForm({this.budget});
+  const _BudgetForm({this.budget, required this.categories});
   final Budget? budget;
+  final List<Category> categories;
+
   @override
   State<_BudgetForm> createState() => _BudgetFormState();
 }
@@ -169,14 +229,18 @@ class _BudgetForm extends StatefulWidget {
 class _BudgetFormState extends State<_BudgetForm> {
   final key = GlobalKey<FormState>();
   late final TextEditingController limit;
-  late AppCategory category;
+  late String categoryId;
+
   @override
   void initState() {
     super.initState();
     limit = TextEditingController(
       text: widget.budget?.limit.toStringAsFixed(0) ?? '',
     );
-    category = widget.budget?.categoryId ?? AppCategory.groceries;
+    categoryId = widget.budget?.categoryId ??
+        (widget.categories.any((c) => c.id != 'salary')
+            ? widget.categories.firstWhere((c) => c.id != 'salary').id
+            : widget.categories.first.id);
   }
 
   @override
@@ -205,19 +269,19 @@ class _BudgetFormState extends State<_BudgetForm> {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<AppCategory>(
-              initialValue: category,
+            DropdownButtonFormField<String>(
+              initialValue: categoryId,
               decoration: const InputDecoration(labelText: 'Категория'),
-              items: AppCategory.values
-                  .where((value) => value != AppCategory.salary)
+              items: widget.categories
+                  .where((c) => c.id != 'salary')
                   .map(
-                    (value) => DropdownMenuItem(
-                      value: value,
-                      child: Text(value.label),
+                    (c) => DropdownMenuItem(
+                      value: c.id,
+                      child: Text(c.name),
                     ),
                   )
                   .toList(),
-              onChanged: (value) => setState(() => category = value!),
+              onChanged: (value) => setState(() => categoryId = value!),
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -250,7 +314,7 @@ class _BudgetFormState extends State<_BudgetForm> {
                     id:
                         widget.budget?.id ??
                         'budget-${now.microsecondsSinceEpoch}',
-                    categoryId: category,
+                    categoryId: categoryId,
                     limit: double.parse(limit.text.replaceAll(',', '.')),
                     month: widget.budget?.month ?? now.month,
                     year: widget.budget?.year ?? now.year,

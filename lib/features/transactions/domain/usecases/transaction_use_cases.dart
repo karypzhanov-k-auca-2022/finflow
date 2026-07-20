@@ -14,7 +14,7 @@ class TransactionFilter {
   });
   final String query;
   final TransactionType? type;
-  final AppCategory? category;
+  final Category? category;
   final DateTime? from;
   final DateTime? to;
   final TransactionSort sort;
@@ -24,7 +24,7 @@ class TransactionFilter {
     String? query,
     TransactionType? type,
     bool clearType = false,
-    AppCategory? category,
+    Category? category,
     bool clearCategory = false,
     DateTime? from,
     DateTime? to,
@@ -53,7 +53,7 @@ List<FinanceTransaction> filterTransactions(
         item.note.toLowerCase().contains(query);
     final matchesType = filter.type == null || item.type == filter.type;
     final matchesCategory =
-        filter.category == null || item.category == filter.category;
+        filter.category == null || item.category.id == filter.category!.id || item.category == filter.category;
     final matchesFrom =
         filter.from == null || !item.date.isBefore(filter.from!);
     final end = filter.to == null

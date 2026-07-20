@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/budget_model.dart';
-import '../../../transactions/domain/entities/transaction.dart';
 
 abstract interface class BudgetLocalDataSource {
   Future<List<BudgetModel>> getBudgets();
@@ -68,28 +67,28 @@ class BudgetLocalDataSourceImpl implements BudgetLocalDataSource {
     await _write([
       BudgetModel(
         id: 'budget-groceries',
-        categoryId: AppCategory.groceries,
+        categoryId: 'groceries',
         limit: 24000,
         month: now.month,
         year: now.year,
       ),
       BudgetModel(
         id: 'budget-cafe',
-        categoryId: AppCategory.cafe,
+        categoryId: 'cafe',
         limit: 5000,
         month: now.month,
         year: now.year,
       ),
       BudgetModel(
         id: 'budget-entertainment',
-        categoryId: AppCategory.entertainment,
+        categoryId: 'entertainment',
         limit: 3500,
         month: now.month,
         year: now.year,
       ),
       BudgetModel(
         id: 'budget-transport',
-        categoryId: AppCategory.transport,
+        categoryId: 'transport',
         limit: 4500,
         month: now.month,
         year: now.year,

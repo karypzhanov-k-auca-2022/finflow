@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../transactions/domain/entities/transaction.dart';
+import '../../../categories/domain/entities/category.dart';
 
 class MonthlyExpense extends Equatable {
   const MonthlyExpense(this.month, this.amount);
@@ -17,9 +17,9 @@ class AnalyticsData extends Equatable {
     this.topCategory,
   });
   final List<MonthlyExpense> monthlyExpenses;
-  final Map<AppCategory, double> byCategory;
+  final Map<Category, double> byCategory;
   final double averageMonthly;
-  final AppCategory? topCategory;
+  final Category? topCategory;
   @override
   List<Object?> get props => [
     monthlyExpenses,

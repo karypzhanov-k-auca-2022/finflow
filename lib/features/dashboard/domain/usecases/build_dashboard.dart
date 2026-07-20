@@ -25,7 +25,7 @@ DashboardData buildDashboardData(
       .where((item) => item.type == TransactionType.expense)
       .toList();
   final expense = expenses.fold<double>(0, (sum, item) => sum + item.amount);
-  final byCategory = <AppCategory, double>{};
+  final byCategory = <Category, double>{};
   for (final item in expenses) {
     byCategory.update(
       item.category,

@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../categories/data/datasources/category_local_data_source.dart';
+import '../../../categories/data/models/category_model.dart';
 import '../models/transaction_model.dart';
 import '../../domain/entities/transaction.dart';
 
@@ -13,8 +15,9 @@ abstract interface class TransactionLocalDataSource {
 }
 
 class TransactionLocalDataSourceImpl implements TransactionLocalDataSource {
-  TransactionLocalDataSourceImpl(this.preferences);
+  TransactionLocalDataSourceImpl(this.preferences, [this.categoryDataSource]);
   final SharedPreferences preferences;
+  final CategoryLocalDataSource? categoryDataSource;
   static const _key = 'finflow_transactions_v1';
   static const _seededKey = 'finflow_seeded_v1';
 
@@ -23,9 +26,28 @@ class TransactionLocalDataSourceImpl implements TransactionLocalDataSource {
     final raw = preferences.getString(_key);
     if (raw == null || raw.isEmpty) return [];
     final list = jsonDecode(raw) as List<dynamic>;
-    return list
-        .map((item) => TransactionModel.fromJson(item as Map<String, dynamic>))
-        .toList();
+    
+    List<CategoryModel> categories = defaultCategoryModels;
+    if (categoryDataSource != null) {
+      try {
+        categories = await categoryDataSource!.getCategories();
+      } catch (_) {}
+    }
+
+    var needsMigration = false;
+    final transactions = list.map((item) {
+      final jsonMap = item as Map<String, dynamic>;
+      if (jsonMap['category'] is String) {
+        needsMigration = true;
+      }
+      return TransactionModel.fromJson(jsonMap, categories);
+    }).toList();
+
+    if (needsMigration) {
+      await _write(transactions);
+    }
+
+    return transactions;
   }
 
   Future<void> _write(List<TransactionModel> values) async {
@@ -70,6 +92,13 @@ class TransactionLocalDataSourceImpl implements TransactionLocalDataSource {
   }
 }
 
+CategoryModel _getCat(String id) {
+  return defaultCategoryModels.firstWhere(
+    (c) => c.id == id,
+    orElse: () => defaultCategoryModels.first,
+  );
+}
+
 List<TransactionModel> _demoTransactions() {
   final now = DateTime.now();
   final start = DateTime(now.year, now.month, 1);
@@ -81,7 +110,7 @@ List<TransactionModel> _demoTransactions() {
     String title,
     double amount,
     TransactionType type,
-    AppCategory category, [
+    String categoryId, [
     String note = '',
   ]) {
     final effectiveDay = offset == 0 && day > now.day ? now.day : day;
@@ -93,7 +122,7 @@ List<TransactionModel> _demoTransactions() {
         title: title,
         amount: amount,
         type: type,
-        category: category,
+        category: _getCat(categoryId),
         date: date,
         note: note,
         createdAt: stamp,
@@ -109,7 +138,7 @@ List<TransactionModel> _demoTransactions() {
       'Зарплата',
       125000,
       TransactionType.income,
-      AppCategory.salary,
+      'salary',
       'Основная работа',
     );
     add(
@@ -118,7 +147,7 @@ List<TransactionModel> _demoTransactions() {
       'Аренда квартиры',
       42000,
       TransactionType.expense,
-      AppCategory.rent,
+      'rent',
     );
     add(
       month,
@@ -126,7 +155,7 @@ List<TransactionModel> _demoTransactions() {
       'Супермаркет',
       7800 + month * 190,
       TransactionType.expense,
-      AppCategory.groceries,
+      'groceries',
     );
     add(
       month,
@@ -134,7 +163,7 @@ List<TransactionModel> _demoTransactions() {
       'Проездной',
       2400,
       TransactionType.expense,
-      AppCategory.transport,
+      'transport',
     );
     add(
       month,
@@ -142,7 +171,7 @@ List<TransactionModel> _demoTransactions() {
       'Кофе с друзьями',
       1800,
       TransactionType.expense,
-      AppCategory.cafe,
+      'cafe',
     );
     add(
       month,
@@ -150,7 +179,7 @@ List<TransactionModel> _demoTransactions() {
       'Музыка и кино',
       990,
       TransactionType.expense,
-      AppCategory.subscriptions,
+      'subscriptions',
     );
     add(
       month,
@@ -158,7 +187,7 @@ List<TransactionModel> _demoTransactions() {
       'Развлечения',
       4200 + month * 250,
       TransactionType.expense,
-      AppCategory.entertainment,
+      'entertainment',
     );
     add(
       month,
@@ -166,17 +195,17 @@ List<TransactionModel> _demoTransactions() {
       'Перевод семье',
       6000,
       TransactionType.expense,
-      AppCategory.transfers,
+      'transfers',
     );
   }
-  add(0, 9, 'Аптека', 3600, TransactionType.expense, AppCategory.health);
+  add(0, 9, 'Аптека', 3600, TransactionType.expense, 'health');
   add(
     0,
     20,
     'Большая закупка',
     19500,
     TransactionType.expense,
-    AppCategory.groceries,
+    'groceries',
     'Запасы на месяц',
   );
   return values;
