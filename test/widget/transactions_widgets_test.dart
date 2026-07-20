@@ -4,6 +4,7 @@ import 'package:finflow/core/error/failure.dart';
 import 'package:finflow/features/categories/data/datasources/category_local_data_source.dart';
 import 'package:finflow/features/categories/data/repositories/category_repository_impl.dart';
 import 'package:finflow/features/categories/domain/usecases/category_use_cases.dart';
+import 'package:finflow/features/categories/presentation/bloc/categories_bloc.dart';
 import 'package:finflow/features/transactions/domain/usecases/transaction_use_cases.dart';
 import 'package:finflow/features/transactions/presentation/bloc/transaction_form_cubit.dart';
 import 'package:finflow/features/transactions/presentation/bloc/transactions_bloc.dart';
@@ -82,10 +83,14 @@ void main() {
   testWidgets('форма показывает ошибки валидации', (tester) async {
     final repository = MockTransactionRepository();
     final cubit = TransactionFormCubit(TransactionUseCases(repository));
+    final catBloc = CategoriesBloc(getIt())..add(const CategoriesRequested());
     await tester.pumpWidget(
       MaterialApp(
-        home: BlocProvider.value(
-          value: cubit,
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: cubit),
+            BlocProvider.value(value: catBloc),
+          ],
           child: const TransactionFormPage(),
         ),
       ),
@@ -97,6 +102,7 @@ void main() {
     expect(find.text('Введите название'), findsOneWidget);
     expect(find.text('Введите положительную сумму'), findsOneWidget);
     await cubit.close();
+    await catBloc.close();
   });
 }
 
@@ -111,8 +117,13 @@ MockTransactionsBloc _bloc(TransactionsState state) {
 }
 
 Widget _transactionsApp(TransactionsBloc bloc) => MaterialApp(
-  home: BlocProvider<TransactionsBloc>.value(
-    value: bloc,
+  home: MultiBlocProvider(
+    providers: [
+      BlocProvider<TransactionsBloc>.value(value: bloc),
+      BlocProvider<CategoriesBloc>(
+        create: (_) => CategoriesBloc(getIt())..add(const CategoriesRequested()),
+      ),
+    ],
     child: const TransactionsPage(),
   ),
 );

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/theme/app_theme.dart';
 import '../features/analytics/presentation/bloc/analytics_bloc.dart';
 import '../features/budgets/presentation/bloc/budgets_bloc.dart';
+import '../features/categories/presentation/bloc/categories_bloc.dart';
 import '../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../features/settings/presentation/bloc/settings_cubit.dart';
 import '../features/settings/presentation/bloc/theme_cubit.dart';
@@ -28,6 +29,7 @@ class _FinFlowAppState extends State<FinFlowApp> {
   @override
   Widget build(BuildContext context) => MultiBlocProvider(
     providers: [
+      BlocProvider<CategoriesBloc>(create: (_) => getIt()),
       BlocProvider<DashboardBloc>(create: (_) => getIt()),
       BlocProvider<TransactionsBloc>(create: (_) => getIt()),
       BlocProvider<BudgetsBloc>(create: (_) => getIt()),

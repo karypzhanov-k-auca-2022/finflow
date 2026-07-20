@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../features/analytics/presentation/pages/analytics_page.dart';
 import '../features/budgets/presentation/pages/budgets_page.dart';
+import '../features/categories/presentation/pages/categories_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/settings/presentation/pages/about_page.dart';
 import '../features/settings/presentation/pages/settings_page.dart';
@@ -101,6 +102,7 @@ GoRouter createRouter(AppInitializer initializer) => GoRouter(
         );
       },
     ),
+    GoRoute(path: '/categories', builder: (_, _) => const CategoriesPage()),
     GoRoute(path: '/about', builder: (_, _) => const AboutPage()),
   ],
 );

@@ -50,6 +50,18 @@ class SettingsPage extends StatelessWidget {
                   context.read<ThemeCubit>().setMode(value.first),
             ),
           ),
+          const SizedBox(height: 20),
+          Text('Категории', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.category_outlined),
+              title: const Text('Управление категориями'),
+              subtitle: const Text('Просмотр и создание категорий'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/categories'),
+            ),
+          ),
           const SizedBox(height: 28),
           Text('Данные', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),

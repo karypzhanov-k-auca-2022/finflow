@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/dependency_injection.dart';
-import '../../../../core/error/result.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../categories/data/datasources/category_local_data_source.dart';
-import '../../../categories/domain/usecases/category_use_cases.dart';
+import '../../../categories/presentation/bloc/categories_bloc.dart';
+import '../../../categories/presentation/widgets/add_category_bottom_sheet.dart';
 import '../../domain/entities/transaction.dart';
 import '../bloc/transaction_form_cubit.dart';
 
@@ -24,7 +23,6 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
   late TransactionType type;
   late Category category;
   late DateTime date;
-  List<Category> availableCategories = defaultCategoryModels;
   bool dirty = false;
   bool saved = false;
 
@@ -43,19 +41,6 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
     title.addListener(markDirty);
     amount.addListener(markDirty);
     note.addListener(markDirty);
-    _loadCategories();
-  }
-
-  Future<void> _loadCategories() async {
-    final res = await getIt<CategoryUseCases>().load();
-    if (res is Success<List<Category>> && mounted) {
-      setState(() {
-        availableCategories = res.data;
-        if (!availableCategories.any((c) => c.id == category.id)) {
-          availableCategories = [...availableCategories, category];
-        }
-      });
-    }
   }
 
   void markDirty() {
@@ -167,77 +152,125 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                   },
                 ),
                 const SizedBox(height: 14),
-                SegmentedButton<TransactionType>(
-                  segments: const [
-                    ButtonSegment(
-                      value: TransactionType.expense,
-                      icon: Icon(Icons.arrow_upward),
-                      label: Text('Расход'),
-                    ),
-                    ButtonSegment(
-                      value: TransactionType.income,
-                      icon: Icon(Icons.arrow_downward),
-                      label: Text('Доход'),
-                    ),
-                  ],
-                  selected: {type},
-                  onSelectionChanged: (values) => setState(() {
-                    type = values.first;
-                    if (type == TransactionType.income) {
-                      category = availableCategories.firstWhere(
-                        (c) => c.id == 'salary',
-                        orElse: () => availableCategories.first,
-                      );
-                    } else if (category.id == 'salary') {
-                      category = availableCategories.firstWhere(
-                        (c) => c.id == 'groceries',
-                        orElse: () => availableCategories.first,
-                      );
-                    }
-                    dirty = true;
-                  }),
+                BlocBuilder<CategoriesBloc, CategoriesState>(
+                  builder: (context, catState) {
+                    final categoriesList = catState.categories.isNotEmpty
+                        ? catState.categories
+                        : defaultCategoryModels;
+                    return SegmentedButton<TransactionType>(
+                      segments: const [
+                        ButtonSegment(
+                          value: TransactionType.expense,
+                          icon: Icon(Icons.arrow_upward),
+                          label: Text('Расход'),
+                        ),
+                        ButtonSegment(
+                          value: TransactionType.income,
+                          icon: Icon(Icons.arrow_downward),
+                          label: Text('Доход'),
+                        ),
+                      ],
+                      selected: {type},
+                      onSelectionChanged: (values) => setState(() {
+                        type = values.first;
+                        if (type == TransactionType.income) {
+                          category = categoriesList.firstWhere(
+                            (c) => c.id == 'salary',
+                            orElse: () => categoriesList.first,
+                          );
+                        } else if (category.id == 'salary') {
+                          category = categoriesList.firstWhere(
+                            (c) => c.id == 'groceries',
+                            orElse: () => categoriesList.first,
+                          );
+                        }
+                        dirty = true;
+                      }),
+                    );
+                  },
                 ),
                 const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<Category>(
-                        initialValue: availableCategories.any((c) => c.id == category.id)
-                            ? availableCategories.firstWhere((c) => c.id == category.id)
-                            : category,
-                        decoration: const InputDecoration(
-                          labelText: 'Категория',
-                          prefixIcon: Icon(Icons.category_outlined),
-                        ),
-                        items: availableCategories
-                            .where(
-                              (val) => type == TransactionType.income
-                                  ? val.id == 'salary' || val.id == 'transfers'
-                                  : val.id != 'salary',
-                            )
-                            .map(
-                              (val) => DropdownMenuItem(
-                                value: val,
-                                child: Text(val.name),
+                BlocBuilder<CategoriesBloc, CategoriesState>(
+                  builder: (context, catState) {
+                    final categoriesList = catState.categories.isNotEmpty
+                        ? catState.categories
+                        : defaultCategoryModels;
+
+                    final filtered = categoriesList.where(
+                      (val) => type == TransactionType.income
+                          ? val.id == 'salary' || val.id == 'transfers'
+                          : val.id != 'salary',
+                    ).toList();
+
+                    final selectedCat = filtered.any((c) => c.id == category.id)
+                        ? filtered.firstWhere((c) => c.id == category.id)
+                        : (filtered.isNotEmpty ? filtered.first : category);
+
+                    const addNewSentinel = Category(
+                      id: '__add_new__',
+                      name: '+ Создать категорию',
+                      iconCodePoint: 0xe047,
+                      colorValue: 0xFF2196F3,
+                    );
+
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<Category>(
+                            initialValue: selectedCat,
+                            decoration: const InputDecoration(
+                              labelText: 'Категория',
+                              prefixIcon: Icon(Icons.category_outlined),
+                            ),
+                            items: [
+                              ...filtered.map(
+                                (val) => DropdownMenuItem(
+                                  value: val,
+                                  child: Row(
+                                    children: [
+                                      Icon(val.icon, color: val.color, size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(val.name),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            )
-                            .toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              category = value;
-                              dirty = true;
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline),
-                      tooltip: 'Создать категорию',
-                      onPressed: () => _showAddCategoryDialog(context),
-                    ),
-                  ],
+                              DropdownMenuItem(
+                                value: addNewSentinel,
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.add_circle_outline, color: Colors.blue, size: 20),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      '+ Создать категорию',
+                                      style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            onChanged: (value) async {
+                              if (value == null) return;
+                              if (value.id == '__add_new__') {
+                                final created = await showAddCategoryBottomSheet(context);
+                                if (created != null && mounted) {
+                                  setState(() {
+                                    category = created;
+                                    dirty = true;
+                                  });
+                                }
+                              } else {
+                                setState(() {
+                                  category = value;
+                                  dirty = true;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 14),
                 InkWell(
@@ -301,52 +334,6 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
       ),
     ),
   );
-
-  Future<void> _showAddCategoryDialog(BuildContext context) async {
-    final nameController = TextEditingController();
-    final created = await showDialog<Category>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Новая категория'),
-        content: TextField(
-          controller: nameController,
-          autofocus: true,
-          decoration: const InputDecoration(labelText: 'Название категории'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Отмена'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final text = nameController.text.trim();
-              if (text.isEmpty) return;
-              final newCat = Category(
-                id: 'cat_${DateTime.now().millisecondsSinceEpoch}',
-                name: text,
-                iconCodePoint: Icons.category_outlined.codePoint,
-                colorValue: 0xFF2196F3,
-              );
-              await getIt<CategoryUseCases>().save(newCat);
-              if (dialogContext.mounted) {
-                Navigator.pop(dialogContext, newCat);
-              }
-            },
-            child: const Text('Создать'),
-          ),
-        ],
-      ),
-    );
-
-    if (created != null && mounted) {
-      await _loadCategories();
-      setState(() {
-        category = created;
-        dirty = true;
-      });
-    }
-  }
 
   void submit() {
     FocusScope.of(context).unfocus();

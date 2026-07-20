@@ -13,6 +13,7 @@ import '../features/categories/data/datasources/category_local_data_source.dart'
 import '../features/categories/data/repositories/category_repository_impl.dart';
 import '../features/categories/domain/repositories/category_repository.dart';
 import '../features/categories/domain/usecases/category_use_cases.dart';
+import '../features/categories/presentation/bloc/categories_bloc.dart';
 import '../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../features/settings/data/settings_repository_impl.dart';
 import '../features/settings/domain/settings_repository.dart';
@@ -65,6 +66,7 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton(() => TransactionUseCases(getIt()))
     ..registerLazySingleton(() => BudgetUseCases(getIt()))
     ..registerLazySingleton(() => AppInitializer(getIt(), getIt(), getIt()))
+    ..registerFactory(() => CategoriesBloc(getIt())..add(const CategoriesRequested()))
     ..registerFactory(() => DashboardBloc(getIt(), getIt()))
     ..registerFactory(() => TransactionsBloc(getIt()))
     ..registerFactory(() => TransactionFormCubit(getIt()))
