@@ -26,6 +26,7 @@ class DashboardPage extends StatelessWidget {
       ],
     ),
     floatingActionButton: FloatingActionButton.extended(
+      heroTag: 'dashboard_fab',
       onPressed: () => context.push('/transactions/new'),
       icon: const Icon(Icons.add),
       label: const Text('Операция'),

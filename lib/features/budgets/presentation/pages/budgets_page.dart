@@ -13,6 +13,7 @@ class BudgetsPage extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Бюджеты')),
     floatingActionButton: FloatingActionButton.extended(
+      heroTag: 'budgets_fab',
       onPressed: () => _openForm(context),
       icon: const Icon(Icons.add),
       label: const Text('Бюджет'),

@@ -36,6 +36,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
       ],
     ),
     floatingActionButton: FloatingActionButton(
+      heroTag: 'transactions_fab',
       onPressed: () => context.push('/transactions/new'),
       tooltip: 'Добавить транзакцию',
       child: const Icon(Icons.add),
