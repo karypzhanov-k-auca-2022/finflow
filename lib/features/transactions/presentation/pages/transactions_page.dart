@@ -193,44 +193,99 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () async {
-                          final range = await showDateRangePicker(
-                            context: context,
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime.now().add(
-                              const Duration(days: 365),
-                            ),
-                            initialDateRange:
-                                draft.from != null && draft.to != null
-                                ? DateTimeRange(
-                                    start: draft.from!,
-                                    end: draft.to!,
-                                  )
-                                : null,
-                          );
-                          if (range != null) {
-                            setModalState(
-                              () => draft = draft.copyWith(
-                                from: range.start,
-                                to: range.end,
-                              ),
-                            );
-                          }
-                        },
-                        icon: const Icon(Icons.date_range),
-                        label: Text(
-                          draft.from == null
-                              ? 'Период'
-                              : '${formatDate(draft.from!)} — ${formatDate(draft.to!)}',
-                        ),
-                      ),
+                DropdownButtonFormField<TransactionPeriod>(
+                  initialValue: draft.period,
+                  decoration: const InputDecoration(
+                    labelText: 'Период',
+                    prefixIcon: Icon(Icons.date_range),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: TransactionPeriod.all,
+                      child: Text('За всё время'),
+                    ),
+                    DropdownMenuItem(
+                      value: TransactionPeriod.month,
+                      child: Text('Текущий месяц'),
+                    ),
+                    DropdownMenuItem(
+                      value: TransactionPeriod.threeMonths,
+                      child: Text('3 месяца'),
+                    ),
+                    DropdownMenuItem(
+                      value: TransactionPeriod.sixMonths,
+                      child: Text('6 месяцев'),
+                    ),
+                    DropdownMenuItem(
+                      value: TransactionPeriod.year,
+                      child: Text('Год'),
+                    ),
+                    DropdownMenuItem(
+                      value: TransactionPeriod.customRange,
+                      child: Text('Выбрать период'),
                     ),
                   ],
+                  onChanged: (value) async {
+                    if (value == null) return;
+                    if (value == TransactionPeriod.customRange) {
+                      final range = await showDateRangePicker(
+                        context: context,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                        initialDateRange: draft.from != null && draft.to != null
+                            ? DateTimeRange(start: draft.from!, end: draft.to!)
+                            : null,
+                      );
+                      if (range != null) {
+                        setModalState(
+                          () => draft = draft.copyWith(
+                            period: TransactionPeriod.customRange,
+                            from: range.start,
+                            to: range.end,
+                          ),
+                        );
+                      }
+                    } else {
+                      setModalState(
+                        () => draft = draft.copyWith(
+                          period: value,
+                          clearFrom: true,
+                          clearTo: true,
+                        ),
+                      );
+                    }
+                  },
                 ),
+                if (draft.period == TransactionPeriod.customRange) ...[
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final range = await showDateRangePicker(
+                        context: context,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                        initialDateRange: draft.from != null && draft.to != null
+                            ? DateTimeRange(start: draft.from!, end: draft.to!)
+                            : null,
+                      );
+                      if (range != null) {
+                        setModalState(
+                          () => draft = draft.copyWith(
+                            period: TransactionPeriod.customRange,
+                            from: range.start,
+                            to: range.end,
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.edit_calendar),
+                    label: Text(
+                      draft.from != null && draft.to != null
+                          ? '${formatDate(draft.from!)} — ${formatDate(draft.to!)}'
+                          : 'Выберите даты диапазона',
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -299,6 +354,7 @@ class _ActiveFilters extends StatelessWidget {
           final active =
               state.filter.type != null ||
               state.filter.category != null ||
+              state.filter.period != TransactionPeriod.all ||
               state.filter.from != null ||
               state.filter.query.isNotEmpty;
           return active

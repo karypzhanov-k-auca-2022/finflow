@@ -55,6 +55,31 @@ void main() {
     expect(result.map((e) => e.id), ['food']);
   });
 
+  test('фильтрует по кастомному периоду customRange', () {
+    final result = filterTransactions(
+      values,
+      TransactionFilter(
+        period: TransactionPeriod.customRange,
+        from: DateTime(2026, 6, 1),
+        to: DateTime(2026, 6, 30),
+      ),
+    );
+    expect(result.map((e) => e.id), ['cafe']);
+  });
+
+  test('рассчитывает дашборд для выбранного диапазона customRange', () {
+    final data = buildDashboardData(
+      values,
+      const [],
+      now: now,
+      period: TransactionPeriod.customRange,
+      from: DateTime(2026, 6, 1),
+      to: DateTime(2026, 6, 30),
+    );
+    expect(data.monthlyExpense, 3000);
+    expect(data.monthlyIncome, 0);
+  });
+
   test('сортирует по сумме по возрастанию', () {
     final result = filterTransactions(
       values,

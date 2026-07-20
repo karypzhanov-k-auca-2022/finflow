@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/currency_text.dart';
 import '../../../../core/widgets/state_views.dart';
+import '../../../transactions/domain/entities/transaction.dart';
 import '../../../transactions/presentation/widgets/transaction_tile.dart';
 import '../bloc/dashboard_bloc.dart';
 
@@ -73,6 +74,8 @@ class _DashboardContent extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
         children: [
+          _PeriodSelector(state: state),
+          const SizedBox(height: 12),
           Card(
             color: Theme.of(context).colorScheme.primaryContainer,
             child: Padding(
@@ -123,7 +126,7 @@ class _DashboardContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Бюджет месяца',
+                    'Бюджет периода',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
@@ -151,7 +154,7 @@ class _DashboardContent extends StatelessWidget {
               height: 220,
               child: EmptyState(
                 title: 'Нет расходов',
-                message: 'За этот месяц расходов ещё не было.',
+                message: 'За выбранный период расходов ещё не было.',
               ),
             )
           else ...[
@@ -239,6 +242,86 @@ class _DashboardContent extends StatelessWidget {
                   )
                   .toList(),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PeriodSelector extends StatelessWidget {
+  const _PeriodSelector({required this.state});
+  final DashboardState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final period = state.period;
+    final from = state.from;
+    final to = state.to;
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          FilterChip(
+            label: const Text('Месяц'),
+            selected: period == TransactionPeriod.month,
+            onSelected: (_) => context.read<DashboardBloc>().add(
+                  const DashboardPeriodChanged(period: TransactionPeriod.month),
+                ),
+          ),
+          const SizedBox(width: 8),
+          FilterChip(
+            label: const Text('3 мес.'),
+            selected: period == TransactionPeriod.threeMonths,
+            onSelected: (_) => context.read<DashboardBloc>().add(
+                  const DashboardPeriodChanged(period: TransactionPeriod.threeMonths),
+                ),
+          ),
+          const SizedBox(width: 8),
+          FilterChip(
+            label: const Text('6 мес.'),
+            selected: period == TransactionPeriod.sixMonths,
+            onSelected: (_) => context.read<DashboardBloc>().add(
+                  const DashboardPeriodChanged(period: TransactionPeriod.sixMonths),
+                ),
+          ),
+          const SizedBox(width: 8),
+          FilterChip(
+            label: const Text('Год'),
+            selected: period == TransactionPeriod.year,
+            onSelected: (_) => context.read<DashboardBloc>().add(
+                  const DashboardPeriodChanged(period: TransactionPeriod.year),
+                ),
+          ),
+          const SizedBox(width: 8),
+          FilterChip(
+            avatar: const Icon(Icons.date_range, size: 16),
+            label: Text(
+              period == TransactionPeriod.customRange && from != null && to != null
+                  ? '${formatDate(from)} — ${formatDate(to)}'
+                  : 'Выбрать период',
+            ),
+            selected: period == TransactionPeriod.customRange,
+            onSelected: (_) async {
+              final range = await showDateRangePicker(
+                context: context,
+                firstDate: DateTime(2020),
+                lastDate: DateTime.now().add(const Duration(days: 365)),
+                initialDateRange: from != null && to != null
+                    ? DateTimeRange(start: from, end: to)
+                    : null,
+              );
+              if (range != null && context.mounted) {
+                context.read<DashboardBloc>().add(
+                      DashboardPeriodChanged(
+                        period: TransactionPeriod.customRange,
+                        from: range.start,
+                        to: range.end,
+                      ),
+                    );
+              }
+            },
           ),
         ],
       ),

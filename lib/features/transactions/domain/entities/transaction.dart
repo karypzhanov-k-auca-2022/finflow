@@ -5,7 +5,7 @@ export '../../../categories/domain/entities/category.dart';
 
 enum TransactionType { income, expense }
 
-enum TransactionPeriod { all, month, threeMonths, sixMonths }
+enum TransactionPeriod { all, month, threeMonths, sixMonths, year, customRange }
 
 enum SortDirection { ascending, descending }
 
