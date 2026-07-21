@@ -12,30 +12,30 @@ class CategoriesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Категории'),
+      title: const Text('Categories'),
       ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'categories_fab',
         onPressed: () => showAddCategoryBottomSheet(context),
         icon: const Icon(Icons.add),
-        label: const Text('Новая категория'),
+        label: const Text('New category'),
       ),
       body: BlocBuilder<CategoriesBloc, CategoriesState>(
         builder: (context, state) => switch (state.status) {
           CategoriesStatus.initial ||
           CategoriesStatus.loading => const LoadingView(),
           CategoriesStatus.failure => ErrorState(
-            message: state.failure?.message ?? 'Не удалось загрузить категории',
+          message: state.failure?.message ?? 'Failed to load categories',
             onRetry: () => context.read<CategoriesBloc>().add(
               const CategoriesRequested(),
             ),
           ),
           CategoriesStatus.success when state.categories.isEmpty => EmptyState(
-            title: 'Нет категорий',
-            message: 'Создайте первую категорию для учёта финансов.',
+          title: 'No categories',
+          message: 'Create your first category to track finances.',
             action: FilledButton(
               onPressed: () => showAddCategoryBottomSheet(context),
-              child: const Text('Создать категорию'),
+            child: const Text('Create category'),
             ),
           ),
           CategoriesStatus.success => ListView.builder(
@@ -57,7 +57,7 @@ class CategoriesPage extends StatelessWidget {
                   ),
                   subtitle: isDefault
                       ? Text(
-                          'Системная категория',
+                      'System category',
                           style: Theme.of(context).textTheme.bodySmall,
                         )
                       : null,
@@ -66,7 +66,7 @@ class CategoriesPage extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit_outlined, size: 20),
-                        tooltip: 'Редактировать',
+                        tooltip: 'Edit',
                         onPressed: () => showAddCategoryBottomSheet(
                           context,
                           category: cat,
@@ -79,12 +79,12 @@ class CategoriesPage extends StatelessWidget {
                             size: 20,
                             color: Theme.of(context).colorScheme.error,
                           ),
-                          tooltip: 'Удалить',
+                          tooltip: 'Delete',
                           onPressed: () async {
                             final confirm = await showConfirmation(
                               context,
-                              title: 'Удалить категорию?',
-                              message: 'Категория «${cat.name}» будет удалена.',
+                              title: 'Delete category?',
+                              message: 'Category "${cat.name}" will be deleted.',
                             );
                             if (confirm && context.mounted) {
                               context.read<CategoriesBloc>().add(

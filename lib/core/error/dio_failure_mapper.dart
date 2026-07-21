@@ -9,10 +9,10 @@ Failure mapDioException(DioException exception) => switch (exception.type) {
   DioExceptionType.connectionError => const NetworkFailure(),
   DioExceptionType.badResponse => ServerFailure(
     exception.response?.statusCode == 401
-        ? 'Требуется авторизация'
-        : 'Сервис временно недоступен',
+        ? 'Authorization required'
+        : 'Service temporarily unavailable',
   ),
-  DioExceptionType.cancel => const NetworkFailure('Запрос отменён'),
+  DioExceptionType.cancel => const NetworkFailure('Request cancelled'),
   DioExceptionType.badCertificate ||
   DioExceptionType.unknown => const UnknownFailure(),
 };

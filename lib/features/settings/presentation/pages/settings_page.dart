@@ -20,11 +20,11 @@ class SettingsPage extends StatelessWidget {
       }
     },
     child: Scaffold(
-      appBar: AppBar(title: const Text('Настройки')),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Тема', style: Theme.of(context).textTheme.titleMedium),
+          Text('Theme', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 10),
           BlocBuilder<ThemeCubit, ThemeMode>(
             builder: (context, mode) => SegmentedButton<ThemeMode>(
@@ -32,17 +32,17 @@ class SettingsPage extends StatelessWidget {
                 ButtonSegment(
                   value: ThemeMode.system,
                   icon: Icon(Icons.settings_suggest_outlined),
-                  label: Text('Система'),
+                  label: Text('System'),
                 ),
                 ButtonSegment(
                   value: ThemeMode.light,
                   icon: Icon(Icons.light_mode_outlined),
-                  label: Text('Светлая'),
+                  label: Text('Light'),
                 ),
                 ButtonSegment(
                   value: ThemeMode.dark,
                   icon: Icon(Icons.dark_mode_outlined),
-                  label: Text('Тёмная'),
+                  label: Text('Dark'),
                 ),
               ],
               selected: {mode},
@@ -51,19 +51,19 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Text('Категории', style: Theme.of(context).textTheme.titleMedium),
+          Text('Categories', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Card(
             child: ListTile(
               leading: const Icon(Icons.category_outlined),
-              title: const Text('Управление категориями'),
-              subtitle: const Text('Просмотр и создание категорий'),
+              title: const Text('Manage categories'),
+              subtitle: const Text('View and create categories'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/categories'),
             ),
           ),
           const SizedBox(height: 28),
-          Text('Данные', style: Theme.of(context).textTheme.titleMedium),
+          Text('Data', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           BlocBuilder<SettingsCubit, SettingsActionState>(
             builder: (context, state) {
@@ -74,17 +74,17 @@ class SettingsPage extends StatelessWidget {
                     ListTile(
                       enabled: !disabled,
                       leading: const Icon(Icons.delete_sweep_outlined),
-                      title: const Text('Очистить данные'),
-                      subtitle: const Text('Удалить транзакции и бюджеты'),
+                      title: const Text('Clear data'),
+                      subtitle: const Text('Delete transactions and budgets'),
                       onTap: disabled
                           ? null
                           : () async {
                               if (await showConfirmation(
                                     context,
-                                    title: 'Очистить все данные?',
+                                    title: 'Clear all data?',
                                     message:
-                                        'Транзакции и бюджеты будут удалены.',
-                                    confirmLabel: 'Очистить',
+                                        'Transactions and budgets will be deleted.',
+                                    confirmLabel: 'Clear',
                                   ) &&
                                   context.mounted) {
                                 await context.read<SettingsCubit>().clearData();
@@ -95,9 +95,9 @@ class SettingsPage extends StatelessWidget {
                     ListTile(
                       enabled: !disabled,
                       leading: const Icon(Icons.restart_alt),
-                      title: const Text('Восстановить демо-данные'),
+                      title: const Text('Restore demo data'),
                       subtitle: const Text(
-                        'Заменить текущие данные демонстрационными',
+                        'Replace current data with demo data',
                       ),
                       trailing: disabled
                           ? const SizedBox.square(
@@ -110,10 +110,10 @@ class SettingsPage extends StatelessWidget {
                           : () async {
                               if (await showConfirmation(
                                     context,
-                                    title: 'Восстановить демо-данные?',
+                                    title: 'Restore demo data?',
                                     message:
-                                        'Текущие транзакции и бюджеты будут заменены.',
-                                    confirmLabel: 'Восстановить',
+                                        'Current transactions and budgets will be replaced.',
+                                    confirmLabel: 'Restore',
                                   ) &&
                                   context.mounted) {
                                 await context.read<SettingsCubit>().seedData();
@@ -129,7 +129,7 @@ class SettingsPage extends StatelessWidget {
           Card(
             child: ListTile(
               leading: const Icon(Icons.info_outline),
-              title: const Text('О приложении'),
+              title: const Text('About'),
               subtitle: const Text('FinFlow 1.0.0'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/about'),

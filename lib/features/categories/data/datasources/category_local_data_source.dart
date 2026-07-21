@@ -14,55 +14,55 @@ abstract interface class CategoryLocalDataSource {
 const List<CategoryModel> defaultCategoryModels = [
   CategoryModel(
     id: 'salary',
-    name: 'Зарплата',
+    name: 'Salary',
     iconCodePoint: 0xe481, // Icons.payments_outlined
     colorValue: 0xFF009688, // Teal
   ),
   CategoryModel(
     id: 'groceries',
-    name: 'Продукты',
+    name: 'Groceries',
     iconCodePoint: 0xe59a, // Icons.shopping_basket_outlined
     colorValue: 0xFFFF9800, // Orange
   ),
   CategoryModel(
     id: 'transport',
-    name: 'Транспорт',
+    name: 'Transport',
     iconCodePoint: 0xe1d5, // Icons.directions_bus_outlined
     colorValue: 0xFF2196F3, // Blue
   ),
   CategoryModel(
     id: 'rent',
-    name: 'Аренда',
+    name: 'Rent',
     iconCodePoint: 0xe318, // Icons.home_outlined
     colorValue: 0xFF9C27B0, // Purple
   ),
   CategoryModel(
     id: 'cafe',
-    name: 'Кафе',
+    name: 'Cafe',
     iconCodePoint: 0xe380, // Icons.local_cafe_outlined
     colorValue: 0xFFFFC107, // Amber
   ),
   CategoryModel(
     id: 'subscriptions',
-    name: 'Подписки',
+    name: 'Subscriptions', 
     iconCodePoint: 0xe616, // Icons.subscriptions_outlined
     colorValue: 0xFFF44336, // Red
   ),
   CategoryModel(
     id: 'health',
-    name: 'Здоровье',
+    name: 'Health',
     iconCodePoint: 0xe25b, // Icons.favorite_outline
     colorValue: 0xFFE91E63, // Pink
   ),
   CategoryModel(
     id: 'entertainment',
-    name: 'Развлечения',
+    name: 'Entertainment',
     iconCodePoint: 0xe404, // Icons.movie_outlined
     colorValue: 0xFF3F51B5, // Indigo
   ),
   CategoryModel(
     id: 'transfers',
-    name: 'Переводы',
+    name: 'Transfers',
     iconCodePoint: 0xe627, // Icons.swap_horiz
     colorValue: 0xFF00BCD4, // Cyan
   ),

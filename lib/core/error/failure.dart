@@ -10,19 +10,19 @@ sealed class Failure extends Equatable {
 }
 
 final class NetworkFailure extends Failure {
-  const NetworkFailure([super.message = 'Проверьте подключение к интернету']);
+  const NetworkFailure([super.message = 'Check your internet connection']);
 }
 
 final class TimeoutFailure extends Failure {
-  const TimeoutFailure([super.message = 'Истекло время ожидания']);
+  const TimeoutFailure([super.message = 'Request timed out']);
 }
 
 final class ServerFailure extends Failure {
-  const ServerFailure([super.message = 'Сервис временно недоступен']);
+  const ServerFailure([super.message = 'Service temporarily unavailable']);
 }
 
 final class CacheFailure extends Failure {
-  const CacheFailure([super.message = 'Не удалось загрузить локальные данные']);
+  const CacheFailure([super.message = 'Failed to load local data']);
 }
 
 final class ValidationFailure extends Failure {
@@ -31,6 +31,6 @@ final class ValidationFailure extends Failure {
 
 final class UnknownFailure extends Failure {
   const UnknownFailure([
-    super.message = 'Что-то пошло не так. Попробуйте ещё раз',
+    super.message = 'Something went wrong. Please try again',
   ]);
 }

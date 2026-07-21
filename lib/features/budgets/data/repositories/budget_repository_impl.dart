@@ -53,7 +53,7 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
   @override
   Future<Result<Budget>> saveBudget(Budget budget) async {
     if (budget.limit <= 0) {
-      return const Error(ValidationFailure('Лимит должен быть больше нуля'));
+      return const Error(ValidationFailure('Limit must be greater than zero'));
     }
     try {
       final model = BudgetModel.fromEntity(budget);
@@ -71,7 +71,7 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
       _changeController.add(null);
       return Success(budget);
     } catch (_) {
-      return const Error(CacheFailure('Не удалось сохранить бюджет'));
+      return const Error(CacheFailure('Failed to save budget'));
     }
   }
 
@@ -89,7 +89,7 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
       _changeController.add(null);
       return const Success(null);
     } catch (_) {
-      return const Error(CacheFailure('Не удалось удалить бюджет'));
+      return const Error(CacheFailure('Failed to delete budget'));
     }
   }
 

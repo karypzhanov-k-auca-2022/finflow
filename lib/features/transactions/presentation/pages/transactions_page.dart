@@ -46,19 +46,19 @@ class _TransactionsPageState extends State<TransactionsPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('Транзакции'),
+    title: const Text('Transactions'),
       actions: [
         IconButton(
           onPressed: _showFilters,
           icon: const Icon(Icons.tune),
-          tooltip: 'Фильтры',
+        tooltip: 'Filters',
         ),
       ],
     ),
     floatingActionButton: FloatingActionButton(
       heroTag: 'transactions_fab',
       onPressed: () => context.push('/transactions/new'),
-      tooltip: 'Добавить транзакцию',
+      tooltip: 'Add transaction',
       child: const Icon(Icons.add),
     ),
     body: Column(
@@ -70,7 +70,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
             textInputAction: TextInputAction.search,
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.search),
-              hintText: 'Поиск по названию или заметке',
+              hintText: 'Search by title or note',
             ),
             onChanged: (value) {
               final bloc = context.read<TransactionsBloc>();
@@ -96,23 +96,23 @@ class _TransactionsPageState extends State<TransactionsPage> {
               TransactionsStatus.initial ||
               TransactionsStatus.loading => const LoadingView(),
               TransactionsStatus.failure => ErrorState(
-                message: state.failure?.message ?? 'Попробуйте ещё раз',
+                message: state.failure?.message ?? 'Please try again',
                 onRetry: () => context.read<TransactionsBloc>().add(
                   const TransactionsRequested(),
                 ),
               ),
               TransactionsStatus.empty => EmptyState(
-                title: 'Нет транзакций',
-                message: 'Добавьте первую операцию, чтобы начать учёт.',
+                title: 'No transactions',
+                message: 'Add your first transaction to start tracking.',
                 action: FilledButton(
                   onPressed: () => context.push('/transactions/new'),
-                  child: const Text('Добавить'),
+                  child: const Text('Add'),
                 ),
               ),
               TransactionsStatus.success when state.visible.isEmpty =>
                 const EmptyState(
-                  title: 'Ничего не найдено',
-                  message: 'Измените поисковый запрос или фильтры.',
+                  title: 'Nothing found',
+                  message: 'Change the search query or filters.',
                 ),
               TransactionsStatus.success => _TransactionList(
                 values: state.visible,
@@ -145,20 +145,20 @@ class _TransactionsPageState extends State<TransactionsPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Фильтры и сортировка',
+ 'Filters & sorting',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 16),
                 SegmentedButton<TransactionType?>(
                   segments: const [
-                    ButtonSegment(value: null, label: Text('Все')),
+                    ButtonSegment(value: null, label: Text('All')),
                     ButtonSegment(
                       value: TransactionType.income,
-                      label: Text('Доходы'),
+                      label: Text('Income'),
                     ),
                     ButtonSegment(
                       value: TransactionType.expense,
-                      label: Text('Расходы'),
+                      label: Text('Expenses'),
                     ),
                   ],
                   selected: {draft.type},
@@ -172,11 +172,11 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 const SizedBox(height: 12),
                 DropdownButtonFormField<Category?>(
                   initialValue: draft.category,
-                  decoration: const InputDecoration(labelText: 'Категория'),
+                  decoration: const InputDecoration(labelText: 'Category'),
                   items: [
                     const DropdownMenuItem(
                       value: null,
-                      child: Text('Все категории'),
+                    child: Text('All categories'),
                     ),
                     ...availableCategories.map(
                       (value) => DropdownMenuItem(
@@ -196,33 +196,33 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 DropdownButtonFormField<TransactionPeriod>(
                   initialValue: draft.period,
                   decoration: const InputDecoration(
-                    labelText: 'Период',
+                    labelText: 'Period',
                     prefixIcon: Icon(Icons.date_range),
                   ),
                   items: const [
                     DropdownMenuItem(
                       value: TransactionPeriod.all,
-                      child: Text('За всё время'),
+                      child: Text('All time'),
                     ),
                     DropdownMenuItem(
                       value: TransactionPeriod.month,
-                      child: Text('Текущий месяц'),
+                      child: Text('Current month'),
                     ),
                     DropdownMenuItem(
                       value: TransactionPeriod.threeMonths,
-                      child: Text('3 месяца'),
+                      child: Text('3 months'),
                     ),
                     DropdownMenuItem(
                       value: TransactionPeriod.sixMonths,
-                      child: Text('6 месяцев'),
+                      child: Text('6 months'),
                     ),
                     DropdownMenuItem(
                       value: TransactionPeriod.year,
-                      child: Text('Год'),
+                      child: Text('Year'),
                     ),
                     DropdownMenuItem(
                       value: TransactionPeriod.customRange,
-                      child: Text('Выбрать период'),
+                      child: Text('Select range'),
                     ),
                   ],
                   onChanged: (value) async {
@@ -282,7 +282,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                     label: Text(
                       draft.from != null && draft.to != null
                           ? '${formatDate(draft.from!)} — ${formatDate(draft.to!)}'
-                          : 'Выберите даты диапазона',
+                          : 'Select date range',
                     ),
                   ),
                 ],
@@ -293,16 +293,16 @@ class _TransactionsPageState extends State<TransactionsPage> {
                       child: DropdownButtonFormField<TransactionSort>(
                         initialValue: draft.sort,
                         decoration: const InputDecoration(
-                          labelText: 'Сортировать по',
+                          labelText: 'Sort by',
                         ),
                         items: const [
                           DropdownMenuItem(
                             value: TransactionSort.date,
-                            child: Text('Дате'),
+                            child: Text('Date'),
                           ),
                           DropdownMenuItem(
                             value: TransactionSort.amount,
-                            child: Text('Сумме'),
+                            child: Text('Amount'),
                           ),
                         ],
                         onChanged: (value) => setModalState(
@@ -324,14 +324,14 @@ class _TransactionsPageState extends State<TransactionsPage> {
                             ? Icons.arrow_upward
                             : Icons.arrow_downward,
                       ),
-                      tooltip: 'Направление',
+                tooltip: 'Direction',
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
                 FilledButton(
                   onPressed: () => Navigator.pop(context, draft),
-                  child: const Text('Применить'),
+                  child: const Text('Apply'),
                 ),
               ],
             ),
@@ -365,7 +365,7 @@ class _ActiveFilters extends StatelessWidget {
                     child: TextButton.icon(
                       onPressed: onClear,
                       icon: const Icon(Icons.clear, size: 18),
-                      label: const Text('Сбросить фильтры'),
+                      label: const Text('Clear filters'),
                     ),
                   ),
                 )
@@ -428,8 +428,8 @@ class _TransactionList extends StatelessWidget {
             ),
             confirmDismiss: (_) => showConfirmation(
               context,
-              title: 'Удалить транзакцию?',
-              message: '«${tx.title}» нельзя будет восстановить.',
+              title: 'Delete transaction?',
+              message: '"${tx.title}" cannot be restored.',
             ),
             onDismissed: (_) => context.read<TransactionsBloc>().add(
               TransactionDeleteRequested(tx.id),

@@ -10,20 +10,20 @@ class AnalyticsPage extends StatelessWidget {
   const AnalyticsPage({super.key});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Аналитика')),
+    appBar: AppBar(title: const Text('Analytics')),
     body: BlocBuilder<AnalyticsBloc, AnalyticsState>(
       builder: (context, state) => switch (state.status) {
         AnalyticsStatus.initial ||
         AnalyticsStatus.loading => const LoadingView(),
         AnalyticsStatus.failure => ErrorState(
-          message: state.failure?.message ?? 'Попробуйте ещё раз',
+          message: state.failure?.message ?? 'Please try again',
           onRetry: () => context.read<AnalyticsBloc>().add(
             AnalyticsRequested(months: state.months),
           ),
         ),
         AnalyticsStatus.empty => const EmptyState(
-          title: 'Недостаточно данных',
-          message: 'Добавьте расходы, чтобы увидеть аналитику.',
+          title: 'Not enough data',
+          message: 'Add expenses to see analytics.',
         ),
         AnalyticsStatus.success => _AnalyticsContent(state: state),
       },
@@ -48,9 +48,9 @@ class _AnalyticsContent extends StatelessWidget {
       children: [
         SegmentedButton<int>(
           segments: const [
-            ButtonSegment(value: 3, label: Text('3 мес.')),
-            ButtonSegment(value: 6, label: Text('6 мес.')),
-            ButtonSegment(value: 12, label: Text('Год')),
+            ButtonSegment(value: 3, label: Text('3 mo')),
+            ButtonSegment(value: 6, label: Text('6 mo')),
+            ButtonSegment(value: 12, label: Text('Year')),
           ],
           selected: {state.months},
           onSelectionChanged: (value) => context.read<AnalyticsBloc>().add(
@@ -62,7 +62,7 @@ class _AnalyticsContent extends StatelessWidget {
           children: [
             Expanded(
               child: _SummaryCard(
-                label: 'Средние расходы',
+                label: 'Average expenses',
                 value: formatMoney(data.averageMonthly),
                 icon: Icons.insights_outlined,
               ),
@@ -70,7 +70,7 @@ class _AnalyticsContent extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _SummaryCard(
-                label: 'Топ-категория',
+                label: 'Top category',
                 value: data.topCategory?.name ?? '—',
                 icon: Icons.star_outline,
               ),
@@ -79,7 +79,7 @@ class _AnalyticsContent extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          'Расходы по месяцам',
+        'Monthly expenses',
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 16),
@@ -116,7 +116,7 @@ class _AnalyticsContent extends StatelessWidget {
                             meta: meta,
                             child: Text(
                               DateFormat.MMM(
-                                'ru',
+                                'en',
                               ).format(data.monthlyExpenses[index].month),
                               style: const TextStyle(fontSize: 11),
                             ),
@@ -147,7 +147,7 @@ class _AnalyticsContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Text('По категориям', style: Theme.of(context).textTheme.titleLarge),
+        Text('By category', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         Card(
           child: Column(

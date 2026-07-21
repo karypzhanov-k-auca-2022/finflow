@@ -34,7 +34,7 @@ class _SplashPageState extends State<SplashPage> {
       }
     } catch (_) {
       if (mounted) {
-        setState(() => error = 'Не удалось подготовить локальное хранилище');
+        setState(() => error = 'Failed to prepare local storage');
       }
     }
   }
@@ -68,7 +68,7 @@ class _SplashPageState extends State<SplashPage> {
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: initialize,
-                  child: const Text('Повторить'),
+                  child: const Text('Retry'),
                 ),
               ],
             ],

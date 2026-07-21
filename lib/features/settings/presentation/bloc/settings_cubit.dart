@@ -35,7 +35,7 @@ class SettingsCubit extends Cubit<SettingsActionState> {
         status: failed == null
             ? SettingsActionStatus.success
             : SettingsActionStatus.failure,
-        message: failed ?? 'Данные очищены',
+        message: failed ?? 'Data cleared',
       ),
     );
   }
@@ -53,7 +53,7 @@ class SettingsCubit extends Cubit<SettingsActionState> {
         status: failed == null
             ? SettingsActionStatus.success
             : SettingsActionStatus.failure,
-        message: failed ?? 'Демо-данные восстановлены',
+        message: failed ?? 'Demo data restored',
       ),
     );
   }

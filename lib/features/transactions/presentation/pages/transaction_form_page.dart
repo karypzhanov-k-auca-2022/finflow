@@ -63,7 +63,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
       if (state.status == FormStatus.failure) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(state.failure?.message ?? 'Не удалось сохранить'),
+           content: Text(state.failure?.message ?? 'Failed to save'),
           ),
         );
       }
@@ -71,7 +71,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
         saved = true;
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Транзакция сохранена')));
+        ).showSnackBar(const SnackBar(content: Text('Transaction saved')));
         context.pop();
       }
     },
@@ -83,16 +83,16 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
             await showDialog<bool>(
               context: context,
               builder: (dialogContext) => AlertDialog(
-                title: const Text('Выйти без сохранения?'),
-                content: const Text('Внесённые изменения будут потеряны.'),
+                title: const Text('Exit without saving?'),
+                content: const Text('Changes will be lost.'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(dialogContext, false),
-                    child: const Text('Остаться'),
+                    child: const Text('Stay'),
                   ),
                   FilledButton(
                     onPressed: () => Navigator.pop(dialogContext, true),
-                    child: const Text('Выйти'),
+                    child: const Text('Exit'),
                   ),
                 ],
               ),
@@ -106,7 +106,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            widget.transaction == null ? 'Новая транзакция' : 'Редактирование',
+            widget.transaction == null ? 'New transaction' : 'Edit',
           ),
         ),
         body: SafeArea(
@@ -125,11 +125,11 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                   controller: title,
                   textCapitalization: TextCapitalization.sentences,
                   decoration: const InputDecoration(
-                    labelText: 'Название',
+                    labelText: 'Title',
                     prefixIcon: Icon(Icons.edit_outlined),
                   ),
                   validator: (value) => value == null || value.trim().isEmpty
-                      ? 'Введите название'
+                      ? 'Enter title'
                       : null,
                 ),
                 const SizedBox(height: 14),
@@ -139,7 +139,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                     decimal: true,
                   ),
                   decoration: const InputDecoration(
-                    labelText: 'Сумма',
+                    labelText: 'Amount',
                     prefixIcon: Icon(Icons.currency_ruble),
                   ),
                   validator: (value) {
@@ -147,7 +147,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                       (value ?? '').replaceAll(',', '.'),
                     );
                     return parsed == null || parsed <= 0
-                        ? 'Введите положительную сумму'
+                        ? 'Enter a positive amount'
                         : null;
                   },
                 ),
@@ -162,12 +162,12 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                         ButtonSegment(
                           value: TransactionType.expense,
                           icon: Icon(Icons.arrow_upward),
-                          label: Text('Расход'),
+                          label: Text('Expense'),
                         ),
                         ButtonSegment(
                           value: TransactionType.income,
                           icon: Icon(Icons.arrow_downward),
-                          label: Text('Доход'),
+                          label: Text('Income'),
                         ),
                       ],
                       selected: {type},
@@ -208,7 +208,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
 
                     const addNewSentinel = Category(
                       id: '__add_new__',
-                      name: '+ Создать категорию',
+                      name: '+ Create category',
                       iconCodePoint: 0xe047,
                       colorValue: 0xFF2196F3,
                     );
@@ -219,7 +219,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                           child: DropdownButtonFormField<Category>(
                             initialValue: selectedCat,
                             decoration: const InputDecoration(
-                              labelText: 'Категория',
+                              labelText: 'Category',
                               prefixIcon: Icon(Icons.category_outlined),
                             ),
                             items: [
@@ -242,7 +242,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                                     Icon(Icons.add_circle_outline, color: Colors.blue, size: 20),
                                     SizedBox(width: 8),
                                     Text(
-                                      '+ Создать категорию',
+                                    '+ Create category',
                                       style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
                                     ),
                                   ],
@@ -291,10 +291,11 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                   },
                   child: InputDecorator(
                     decoration: const InputDecoration(
-                      labelText: 'Дата',
+                      labelText: 'Date',
                       prefixIcon: Icon(Icons.calendar_today_outlined),
                     ),
                     child: Text(formatDate(date)),
+                  ),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -303,7 +304,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                   maxLines: 3,
                   textCapitalization: TextCapitalization.sentences,
                   decoration: const InputDecoration(
-                    labelText: 'Заметка (необязательно)',
+                  labelText: 'Note (optional)',
                     alignLabelWithHint: true,
                     prefixIcon: Icon(Icons.notes),
                   ),
@@ -322,8 +323,8 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                         : const Icon(Icons.check),
                     label: Text(
                       state.status == FormStatus.saving
-                          ? 'Сохраняем…'
-                          : 'Сохранить',
+                          ? 'Saving…'
+                          : 'Save',
                     ),
                   ),
                 ),

@@ -49,27 +49,27 @@ class _BudgetsPageState extends State<BudgetsPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Бюджеты')),
+    appBar: AppBar(title: const Text('Budgets')),
     floatingActionButton: FloatingActionButton.extended(
       heroTag: 'budgets_fab',
       onPressed: () => _openForm(context, null, availableCategories),
       icon: const Icon(Icons.add),
-      label: const Text('Бюджет'),
+      label: const Text('New budget'),
     ),
     body: BlocBuilder<BudgetsBloc, BudgetsState>(
       builder: (context, state) => switch (state.status) {
         BudgetsStatus.initial || BudgetsStatus.loading => const LoadingView(),
         BudgetsStatus.failure => ErrorState(
-          message: state.failure?.message ?? 'Попробуйте ещё раз',
+        message: state.failure?.message ?? 'Please try again',
           onRetry: () =>
               context.read<BudgetsBloc>().add(const BudgetsRequested()),
         ),
         BudgetsStatus.empty => EmptyState(
-          title: 'Бюджеты не заданы',
-          message: 'Установите лимит для категории и следите за прогрессом.',
+        title: 'No budgets set',
+        message: 'Set a limit for a category and track progress.',
           action: FilledButton(
             onPressed: () => _openForm(context, null, availableCategories),
-            child: const Text('Создать бюджет'),
+          child: const Text('Create budget'),
           ),
         ),
         BudgetsStatus.success => RefreshIndicator(
@@ -151,7 +151,7 @@ class _BudgetCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       Text(
-                        '${formatMoney(budget.spent)} из ${formatMoney(budget.limit)}',
+                        '${formatMoney(budget.spent)} of ${formatMoney(budget.limit)}',
                       ),
                     ],
                   ),
@@ -176,9 +176,9 @@ class _BudgetCard extends StatelessWidget {
                         context.mounted &&
                         await showConfirmation(
                           context,
-                          title: 'Удалить бюджет?',
+                          title: 'Delete budget?',
                           message:
-                              'Лимит для категории «${cat.name}» будет удалён.',
+                              'Limit for category "${cat.name}" will be removed.',
                         )) {
                       if (context.mounted) {
                         context.read<BudgetsBloc>().add(
@@ -188,8 +188,8 @@ class _BudgetCard extends StatelessWidget {
                     }
                   },
                   itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'edit', child: Text('Редактировать')),
-                    PopupMenuItem(value: 'delete', child: Text('Удалить')),
+                    PopupMenuItem(value: 'edit', child: Text('Edit')),
+                    PopupMenuItem(value: 'delete', child: Text('Delete')),
                   ],
                 ),
               ],
@@ -204,10 +204,10 @@ class _BudgetCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               budget.isExceeded
-                  ? 'Лимит превышен на ${formatMoney(budget.spent - budget.limit)}'
+                  ? 'Limit exceeded by ${formatMoney(budget.spent - budget.limit)}'
                   : budget.isWarning
-                  ? 'Использовано более 80% бюджета'
-                  : 'Осталось ${formatMoney(budget.limit - budget.spent)}',
+                  ? 'More than 80% of budget used'
+                  : 'Remaining ${formatMoney(budget.limit - budget.spent)}',
               style: TextStyle(color: color, fontWeight: FontWeight.w600),
             ),
           ],
@@ -265,13 +265,13 @@ class _BudgetFormState extends State<_BudgetForm> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              widget.budget == null ? 'Новый бюджет' : 'Редактирование бюджета',
+              widget.budget == null ? 'New budget' : 'Edit budget',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               initialValue: categoryId,
-              decoration: const InputDecoration(labelText: 'Категория'),
+              decoration: const InputDecoration(labelText: 'Category'),
               items: widget.categories
                   .where((c) => c.id != 'salary')
                   .map(
@@ -291,7 +291,7 @@ class _BudgetFormState extends State<_BudgetForm> {
                 decimal: true,
               ),
               decoration: const InputDecoration(
-                labelText: 'Месячный лимит',
+                labelText: 'Monthly limit',
                 prefixIcon: Icon(Icons.currency_ruble),
               ),
               validator: (value) {
@@ -299,7 +299,7 @@ class _BudgetFormState extends State<_BudgetForm> {
                   (value ?? '').replaceAll(',', '.'),
                 );
                 return number == null || number <= 0
-                    ? 'Введите положительный лимит'
+                    ? 'Enter a positive limit'
                     : null;
               },
             ),
@@ -321,7 +321,7 @@ class _BudgetFormState extends State<_BudgetForm> {
                   ),
                 );
               },
-              child: const Text('Сохранить'),
+              child: const Text('Save'),
             ),
           ],
         ),

@@ -23,14 +23,14 @@ class CategoryRepositoryImpl with LoggerMixin implements CategoryRepository {
       return Success(models);
     } catch (e, stack) {
       logError('Failed to get categories', e, stack);
-      return const Error(CacheFailure('Не удалось загрузить категории'));
+      return const Error(CacheFailure('Failed to load categories'));
     }
   }
 
   @override
   Future<Result<Category>> saveCategory(Category category) async {
     if (category.name.trim().isEmpty) {
-      return const Error(ValidationFailure('Укажите название категории'));
+      return const Error(ValidationFailure('Please provide a category name'));
     }
     try {
       final model = CategoryModel.fromEntity(category);
@@ -39,7 +39,7 @@ class CategoryRepositoryImpl with LoggerMixin implements CategoryRepository {
       return Success(category);
     } catch (e, stack) {
       logError('Failed to save category', e, stack);
-      return const Error(CacheFailure('Не удалось сохранить категорию'));
+      return const Error(CacheFailure('Failed to save category'));
     }
   }
 
@@ -51,7 +51,7 @@ class CategoryRepositoryImpl with LoggerMixin implements CategoryRepository {
       return const Success(null);
     } catch (e, stack) {
       logError('Failed to delete category', e, stack);
-      return const Error(CacheFailure('Не удалось удалить категорию'));
+      return const Error(CacheFailure('Failed to delete category'));
     }
   }
 

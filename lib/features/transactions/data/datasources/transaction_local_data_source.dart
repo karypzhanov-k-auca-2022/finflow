@@ -135,16 +135,16 @@ List<TransactionModel> _demoTransactions() {
     add(
       month,
       2,
-      'Зарплата',
+      'Salary',
       125000,
       TransactionType.income,
       'salary',
-      'Основная работа',
+      'Main job',
     );
     add(
       month,
       4,
-      'Аренда квартиры',
+      'Apartment rent',
       42000,
       TransactionType.expense,
       'rent',
@@ -152,7 +152,7 @@ List<TransactionModel> _demoTransactions() {
     add(
       month,
       7,
-      'Супермаркет',
+      'Supermarket',
       7800 + month * 190,
       TransactionType.expense,
       'groceries',
@@ -160,7 +160,7 @@ List<TransactionModel> _demoTransactions() {
     add(
       month,
       11,
-      'Проездной',
+      'Transport pass',
       2400,
       TransactionType.expense,
       'transport',
@@ -168,7 +168,7 @@ List<TransactionModel> _demoTransactions() {
     add(
       month,
       15,
-      'Кофе с друзьями',
+      'Coffee with friends',
       1800,
       TransactionType.expense,
       'cafe',
@@ -176,7 +176,7 @@ List<TransactionModel> _demoTransactions() {
     add(
       month,
       18,
-      'Музыка и кино',
+      'Music and movies',
       990,
       TransactionType.expense,
       'subscriptions',
@@ -184,7 +184,7 @@ List<TransactionModel> _demoTransactions() {
     add(
       month,
       22,
-      'Развлечения',
+      'Entertainment',
       4200 + month * 250,
       TransactionType.expense,
       'entertainment',
@@ -192,21 +192,21 @@ List<TransactionModel> _demoTransactions() {
     add(
       month,
       25,
-      'Перевод семье',
+      'Transfer to family',
       6000,
       TransactionType.expense,
       'transfers',
     );
   }
-  add(0, 9, 'Аптека', 3600, TransactionType.expense, 'health');
+  add(0, 9, 'Pharmacy', 3600, TransactionType.expense, 'health');
   add(
     0,
     20,
-    'Большая закупка',
+  'Big grocery shop',
     19500,
     TransactionType.expense,
     'groceries',
-    'Запасы на месяц',
+  'Supplies for the month',
   );
   return values;
 }

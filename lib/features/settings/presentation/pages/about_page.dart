@@ -4,7 +4,7 @@ class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('О приложении')),
+    appBar: AppBar(title: const Text('About')),
     body: SafeArea(
       child: Center(
         child: SingleChildScrollView(
@@ -32,10 +32,10 @@ class AboutPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text('Personal Finance Tracker • версия 1.0.0'),
+              const Text('Personal Finance Tracker • version 1.0.0'),
               const SizedBox(height: 24),
               const Text(
-                'Учебный pet-проект уровня сильного Junior Flutter Developer: офлайн-first хранение, Clean Architecture, BLoC, GoRouter, Dio и тесты.',
+              'Sample project for a strong Junior Flutter Developer: offline-first storage, Clean Architecture, BLoC, GoRouter, Dio, and tests.',
                 textAlign: TextAlign.center,
               ),
             ],

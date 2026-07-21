@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class LoadingView extends StatelessWidget {
-  const LoadingView({super.key, this.label = 'Загружаем данные…'});
+  const LoadingView({super.key, this.label = 'Loading data…'});
   final String label;
   @override
   Widget build(BuildContext context) => Center(
@@ -64,7 +64,7 @@ class ErrorState extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Не удалось загрузить данные',
+            'Failed to load data',
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
@@ -73,7 +73,7 @@ class ErrorState extends StatelessWidget {
           FilledButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
-            label: const Text('Повторить'),
+            label: const Text('Retry'),
           ),
         ],
       ),
@@ -85,7 +85,7 @@ Future<bool> showConfirmation(
   BuildContext context, {
   required String title,
   required String message,
-  String confirmLabel = 'Удалить',
+  String confirmLabel = 'Delete',
 }) async =>
     await showDialog<bool>(
       context: context,
@@ -95,7 +95,7 @@ Future<bool> showConfirmation(
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Отмена'),
+          child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),

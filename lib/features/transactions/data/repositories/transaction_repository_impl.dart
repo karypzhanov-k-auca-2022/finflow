@@ -62,7 +62,7 @@ class TransactionRepositoryImpl with LoggerMixin implements TransactionRepositor
     FinanceTransaction transaction,
   ) async {
     if (transaction.title.trim().isEmpty || transaction.amount <= 0) {
-      return const Error(ValidationFailure('Проверьте название и сумму'));
+      return const Error(ValidationFailure('Check title and amount'));
     }
     try {
       final model = TransactionModel.fromEntity(transaction);
@@ -80,7 +80,7 @@ class TransactionRepositoryImpl with LoggerMixin implements TransactionRepositor
       _changeController.add(null);
       return Success(transaction);
     } catch (_) {
-      return const Error(CacheFailure('Не удалось сохранить транзакцию'));
+      return const Error(CacheFailure('Failed to save transaction'));
     }
   }
 
@@ -98,7 +98,7 @@ class TransactionRepositoryImpl with LoggerMixin implements TransactionRepositor
       _changeController.add(null);
       return const Success(null);
     } catch (_) {
-      return const Error(CacheFailure('Не удалось удалить транзакцию'));
+      return const Error(CacheFailure('Failed to delete transaction'));
     }
   }
 

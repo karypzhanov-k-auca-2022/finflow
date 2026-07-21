@@ -19,18 +19,18 @@ import 'splash_page.dart';
 GoRouter createRouter(AppInitializer initializer) => GoRouter(
   initialLocation: '/splash',
   errorBuilder: (context, state) => Scaffold(
-    appBar: AppBar(title: const Text('Страница не найдена')),
+    appBar: AppBar(title: const Text('Page not found')),
     body: Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.explore_off_outlined, size: 64),
           const SizedBox(height: 16),
-          Text('Маршрут ${state.uri} не существует'),
+          Text('Route ${state.uri} does not exist'),
           const SizedBox(height: 16),
           FilledButton(
             onPressed: () => context.go('/dashboard'),
-            child: const Text('На главную'),
+            child: const Text('Home'),
           ),
         ],
       ),
@@ -122,27 +122,27 @@ class _AppShell extends StatelessWidget {
         NavigationDestination(
           icon: Icon(Icons.space_dashboard_outlined),
           selectedIcon: Icon(Icons.space_dashboard),
-          label: 'Главная',
+        label: 'Home',
         ),
         NavigationDestination(
           icon: Icon(Icons.receipt_long_outlined),
           selectedIcon: Icon(Icons.receipt_long),
-          label: 'Операции',
+        label: 'Transactions',
         ),
         NavigationDestination(
           icon: Icon(Icons.savings_outlined),
           selectedIcon: Icon(Icons.savings),
-          label: 'Бюджеты',
+        label: 'Budgets',
         ),
         NavigationDestination(
           icon: Icon(Icons.bar_chart_outlined),
           selectedIcon: Icon(Icons.bar_chart),
-          label: 'Аналитика',
+        label: 'Analytics',
         ),
         NavigationDestination(
           icon: Icon(Icons.settings_outlined),
           selectedIcon: Icon(Icons.settings),
-          label: 'Настройки',
+        label: 'Settings',
         ),
       ],
     ),
@@ -158,11 +158,11 @@ class _MissingTransactionPage extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Транзакция не найдена'),
+          const Text('Transaction not found'),
           const SizedBox(height: 12),
           FilledButton(
             onPressed: () => context.go('/transactions'),
-            child: const Text('К списку'),
+            child: const Text('Back to transactions'),
           ),
         ],
       ),

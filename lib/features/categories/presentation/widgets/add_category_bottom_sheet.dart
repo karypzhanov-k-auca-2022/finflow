@@ -99,7 +99,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                isEditing ? 'Редактировать категорию' : 'Новая категория',
+                isEditing ? 'Edit category' : 'New category',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
@@ -108,16 +108,16 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                 autofocus: !isEditing,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: const InputDecoration(
-                  labelText: 'Название категории',
+                  labelText: 'Category name',
                   prefixIcon: Icon(Icons.label_outlined),
                 ),
                 validator: (value) => value == null || value.trim().isEmpty
-                    ? 'Введите название категории'
+                    ? 'Enter category name'
                     : null,
               ),
               const SizedBox(height: 16),
               Text(
-                'Цвет',
+                'Color',
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 8),
@@ -152,7 +152,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Иконка',
+                'Icon',
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 8),
@@ -194,7 +194,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
               FilledButton.icon(
                 onPressed: _submit,
                 icon: const Icon(Icons.check),
-                label: Text(isEditing ? 'Сохранить' : 'Создать категорию'),
+                label: Text(isEditing ? 'Save' : 'Create category'),
               ),
             ],
           ),
