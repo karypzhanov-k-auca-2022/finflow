@@ -5,6 +5,7 @@ import '../../../../core/error/result.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../categories/data/datasources/category_local_data_source.dart';
+import '../../../categories/data/models/category_model.dart';
 import '../../../categories/domain/entities/category.dart';
 import '../../../categories/domain/usecases/category_use_cases.dart';
 import '../../domain/entities/budget.dart';
@@ -13,7 +14,7 @@ import '../bloc/budgets_bloc.dart';
 Category _resolveCategory(String categoryId, List<Category> categories) {
   return categories.firstWhere(
     (c) => c.id == categoryId,
-    orElse: () => Category(
+    orElse: () => CategoryModel(
       id: categoryId,
       name: categoryId,
       iconCodePoint: 0xe59a,

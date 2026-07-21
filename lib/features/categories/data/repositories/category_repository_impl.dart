@@ -56,6 +56,18 @@ class CategoryRepositoryImpl with LoggerMixin implements CategoryRepository {
   }
 
   @override
+  Future<Result<void>> clear() async {
+    try {
+      await local.clear();
+      _changeController.add(null);
+      return const Success(null);
+    } catch (e, stack) {
+      logError('Failed to clear categories', e, stack);
+      return const Error(CacheFailure());
+    }
+  }
+
+  @override
   Future<Result<void>> reseed() async {
     try {
       await local.reseed();

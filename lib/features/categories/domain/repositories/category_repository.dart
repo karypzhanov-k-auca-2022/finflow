@@ -6,5 +6,6 @@ abstract interface class CategoryRepository {
   Future<Result<List<Category>>> getCategories();
   Future<Result<Category>> saveCategory(Category category);
   Future<Result<void>> deleteCategory(String id);
+  Future<Result<void>> clear();
   Future<Result<void>> reseed();
 }

@@ -55,12 +55,6 @@ class CategoriesPage extends StatelessWidget {
                     cat.name,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  subtitle: isDefault
-                      ? Text(
-                      'System category',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        )
-                      : null,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -72,27 +66,26 @@ class CategoriesPage extends StatelessWidget {
                           category: cat,
                         ),
                       ),
-                      if (!isDefault)
-                        IconButton(
-                          icon: Icon(
-                            Icons.delete_outline,
-                            size: 20,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          tooltip: 'Delete',
-                          onPressed: () async {
-                            final confirm = await showConfirmation(
-                              context,
-                              title: 'Delete category?',
-                              message: 'Category "${cat.name}" will be deleted.',
-                            );
-                            if (confirm && context.mounted) {
-                              context.read<CategoriesBloc>().add(
-                                CategoryDeleted(cat.id),
-                              );
-                            }
-                          },
+                      IconButton(
+                        icon: Icon(
+                          Icons.delete_outline,
+                          size: 20,
+                          color: Theme.of(context).colorScheme.error,
                         ),
+                        tooltip: 'Delete',
+                        onPressed: () async {
+                          final confirm = await showConfirmation(
+                            context,
+                            title: 'Delete category?',
+                            message: 'Category "${cat.name}" will be deleted.',
+                          );
+                          if (confirm && context.mounted) {
+                            context.read<CategoriesBloc>().add(
+                              CategoryDeleted(cat.id),
+                            );
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),

@@ -73,5 +73,5 @@ Future<void> configureDependencies() async {
     ..registerFactory(() => BudgetsBloc(getIt(), getIt()))
     ..registerFactory(() => AnalyticsBloc(getIt()))
     ..registerFactory(() => ThemeCubit(getIt()))
-    ..registerFactory(() => SettingsCubit(getIt(), getIt()));
+    ..registerFactory(() => SettingsCubit(getIt(), getIt(), getIt()));
 }

@@ -217,6 +217,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                       children: [
                         Expanded(
                           child: DropdownButtonFormField<Category>(
+                            key: ValueKey(type),
                             initialValue: selectedCat,
                             decoration: const InputDecoration(
                               labelText: 'Category',
@@ -295,7 +296,6 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                       prefixIcon: Icon(Icons.calendar_today_outlined),
                     ),
                     child: Text(formatDate(date)),
-                  ),
                   ),
                 ),
                 const SizedBox(height: 14),
