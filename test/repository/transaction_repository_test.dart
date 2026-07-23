@@ -34,14 +34,14 @@ void main() {
     model = TransactionModel.fromEntity(transaction());
   });
 
-  test('получает локальные данные без refresh', () async {
+  test('gets local data when refresh is false', () async {
     when(() => local.getTransactions()).thenAnswer((_) async => [model]);
     final result = await repository.getTransactions();
     expect(result, isA<Success<TransactionsResult>>());
     verifyNever(() => remote.getTransactions());
   });
 
-  test('сохраняет транзакцию локально и удалённо', () async {
+  test('saves transaction locally and remotely', () async {
     when(() => local.getTransactions()).thenAnswer((_) async => []);
     when(() => local.saveTransaction(any())).thenAnswer((_) async {});
     when(
@@ -53,7 +53,7 @@ void main() {
     verify(() => remote.saveTransaction(any(), isNew: true)).called(1);
   });
 
-  test('при ошибке remote возвращает cache', () async {
+  test('returns cached data on remote error', () async {
     when(() => remote.getTransactions()).thenThrow(
       DioException(requestOptions: RequestOptions(path: '/transactions')),
     );
@@ -62,7 +62,7 @@ void main() {
     expect(result.fold((_) => const [], (data) => data.transactions), [model]);
   });
 
-  test('преобразует ошибку local в CacheFailure', () async {
+  test('transforms local exception into CacheFailure', () async {
     when(() => local.getTransactions()).thenThrow(const FormatException());
     final result = await repository.getTransactions();
     expect(result, isA<Error>());

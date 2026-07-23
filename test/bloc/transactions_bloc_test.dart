@@ -18,13 +18,14 @@ void main() {
   setUpAll(() {
     registerFallbackValue(item);
   });
+
   setUp(() {
     repository = MockTransactionRepository();
     useCases = TransactionUseCases(repository);
   });
 
   blocTest<TransactionsBloc, TransactionsState>(
-    'успешная загрузка',
+    'successful load of transactions',
     build: () {
       stubLoad(repository, [item]);
       return TransactionsBloc(useCases);
@@ -43,7 +44,7 @@ void main() {
   );
 
   blocTest<TransactionsBloc, TransactionsState>(
-    'empty state',
+    'emits empty status when list is empty',
     build: () {
       stubLoad(repository, []);
       return TransactionsBloc(useCases);
@@ -64,7 +65,7 @@ void main() {
   );
 
   blocTest<TransactionsBloc, TransactionsState>(
-    'ошибка загрузки',
+    'emits failure status on repository error',
     build: () {
       when(
         () => repository.getTransactions(refresh: any(named: 'refresh')),
@@ -87,7 +88,7 @@ void main() {
   );
 
   blocTest<TransactionsBloc, TransactionsState>(
-    'удаление транзакции',
+    'handles transaction deletion',
     seed: () => TransactionsState(
       status: TransactionsStatus.success,
       all: [item],
@@ -108,12 +109,12 @@ void main() {
   );
 
   blocTest<TransactionsBloc, TransactionsState>(
-    'изменение фильтра',
+    'applies category filter update',
     seed: () => TransactionsState(
       status: TransactionsStatus.success,
       all: [
         item,
-        transaction(id: '2', title: 'Такси', category: transportCategory),
+        transaction(id: '2', title: 'Taxi', category: transportCategory),
       ],
       visible: [item],
     ),
@@ -129,7 +130,7 @@ void main() {
   );
 
   blocTest<TransactionFormCubit, TransactionFormState>(
-    'создание транзакции',
+    'submits transaction successfully',
     build: () {
       when(
         () => repository.saveTransaction(any()),

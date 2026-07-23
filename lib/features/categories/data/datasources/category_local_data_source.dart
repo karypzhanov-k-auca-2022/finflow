@@ -77,9 +77,9 @@ class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   @override
   Future<List<CategoryModel>> getCategories() async {
     final raw = preferences.getString(_key);
-    if (raw == null || raw.isEmpty) return defaultCategoryModels;
+    if (raw == null || raw.isEmpty) return List<CategoryModel>.from(defaultCategoryModels);
     final list = jsonDecode(raw) as List<dynamic>;
-    if (list.isEmpty) return defaultCategoryModels;
+    if (list.isEmpty) return List<CategoryModel>.from(defaultCategoryModels);
     return list
         .map((item) => CategoryModel.fromJson(item as Map<String, dynamic>))
         .toList();

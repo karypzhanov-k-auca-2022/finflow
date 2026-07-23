@@ -28,7 +28,7 @@ void main() {
   });
 
   blocTest<CategoriesBloc, CategoriesState>(
-    'успешная загрузка категорий',
+    'successfully loads categories',
     build: () {
       when(() => repository.getCategories())
           .thenAnswer((_) async => Success([testCategory]));
@@ -48,7 +48,7 @@ void main() {
   );
 
   blocTest<CategoriesBloc, CategoriesState>(
-    'ошибка загрузки категорий',
+    'emits failure state on category load error',
     build: () {
       when(() => repository.getCategories())
           .thenAnswer((_) async => const Error(CacheFailure()));
@@ -70,7 +70,7 @@ void main() {
   );
 
   blocTest<CategoriesBloc, CategoriesState>(
-    'сохранение категории',
+    'saves category and reloads list',
     build: () {
       when(() => repository.saveCategory(any()))
           .thenAnswer((_) async => Success(testCategory));
@@ -92,7 +92,7 @@ void main() {
   );
 
   blocTest<CategoriesBloc, CategoriesState>(
-    'удаление категории',
+    'deletes category and reloads list',
     build: () {
       when(() => repository.deleteCategory(any()))
           .thenAnswer((_) async => const Success(null));

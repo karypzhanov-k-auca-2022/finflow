@@ -10,7 +10,7 @@ final testCafeCategory = defaultCategoryModels.firstWhere((c) => c.id == 'cafe')
 
 FinanceTransaction transaction({
   String id = '1',
-  String title = 'Продукты',
+  String title = 'Groceries',
   double amount = 1000,
   TransactionType type = TransactionType.expense,
   Category? category,

@@ -27,7 +27,7 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
-    await initializeDateFormatting('ru_RU');
+    await initializeDateFormatting('en_US');
     registerFallbackValue(const TransactionsRequested());
     if (!getIt.isRegistered<CategoryUseCases>()) {
       final catLocal = CategoryLocalDataSourceImpl(prefs);
@@ -36,7 +36,7 @@ void main() {
     }
   });
 
-  testWidgets('отображает loading', (tester) async {
+  testWidgets('displays loading progress indicator', (tester) async {
     final bloc = _bloc(
       const TransactionsState(status: TransactionsStatus.loading),
     );
@@ -44,16 +44,16 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('отображает empty state', (tester) async {
+  testWidgets('displays empty state widget when no transactions', (tester) async {
     final bloc = _bloc(
       const TransactionsState(status: TransactionsStatus.empty),
     );
     await tester.pumpWidget(_transactionsApp(bloc));
-    expect(find.text('Нет транзакций'), findsOneWidget);
+    expect(find.text('No transactions'), findsOneWidget);
   });
 
-  testWidgets('отображает список транзакций', (tester) async {
-    final item = transaction(title: 'Проверочная покупка');
+  testWidgets('displays transaction list items', (tester) async {
+    final item = transaction(title: 'Supermarket Purchase');
     final bloc = _bloc(
       TransactionsState(
         status: TransactionsStatus.success,
@@ -62,10 +62,10 @@ void main() {
       ),
     );
     await tester.pumpWidget(_transactionsApp(bloc));
-    expect(find.text('Проверочная покупка'), findsOneWidget);
+    expect(find.text('Supermarket Purchase'), findsOneWidget);
   });
 
-  testWidgets('error state содержит Retry и отправляет событие', (
+  testWidgets('error state contains Retry button and dispatches reload event', (
     tester,
   ) async {
     final bloc = _bloc(
@@ -75,12 +75,12 @@ void main() {
       ),
     );
     await tester.pumpWidget(_transactionsApp(bloc));
-    expect(find.text('Повторить'), findsOneWidget);
-    await tester.tap(find.text('Повторить'));
+    expect(find.text('Retry'), findsOneWidget);
+    await tester.tap(find.text('Retry'));
     verify(() => bloc.add(any(that: isA<TransactionsRequested>()))).called(1);
   });
 
-  testWidgets('форма показывает ошибки валидации', (tester) async {
+  testWidgets('form displays validation errors when fields are empty', (tester) async {
     final repository = MockTransactionRepository();
     final cubit = TransactionFormCubit(TransactionUseCases(repository));
     final catBloc = CategoriesBloc(getIt())..add(const CategoriesRequested());
@@ -96,11 +96,12 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Сохранить'));
-    await tester.tap(find.text('Сохранить'));
+    await tester.drag(find.byType(ListView), const Offset(0, -300));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
     await tester.pump();
-    expect(find.text('Введите название'), findsOneWidget);
-    expect(find.text('Введите положительную сумму'), findsOneWidget);
+    expect(find.text('Enter title'), findsOneWidget);
+    expect(find.text('Enter a positive amount'), findsOneWidget);
     await cubit.close();
     await catBloc.close();
   });
