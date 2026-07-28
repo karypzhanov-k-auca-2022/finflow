@@ -8,6 +8,7 @@ import '../../../../core/utils/csv_exporter.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../transactions/domain/repositories/transaction_repository.dart';
 import '../../../transactions/domain/usecases/transaction_use_cases.dart';
+import '../../../auth/presentation/bloc/auth_cubit.dart';
 import '../bloc/settings_cubit.dart';
 import '../bloc/theme_cubit.dart';
 
@@ -30,6 +31,34 @@ class SettingsPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          Text('Account', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, authState) {
+              final user = authState.user;
+              return Card(
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: Icon(user?.isAnonymous ?? true ? Icons.person_outline : Icons.account_circle),
+                  ),
+                  title: Text(user?.displayName ?? 'Not logged in'),
+                  subtitle: Text(user?.isAnonymous ?? true ? 'Guest Account' : 'Cloud Sync Active'),
+                  trailing: TextButton.icon(
+                    onPressed: () {
+                      if (user != null) {
+                        context.read<AuthCubit>().signOut();
+                      } else {
+                        context.push('/login');
+                      }
+                    },
+                    icon: Icon(user != null ? Icons.logout : Icons.login, size: 18),
+                    label: Text(user != null ? 'Sign Out' : 'Sign In'),
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 20),
           Text('Theme', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 10),
           BlocBuilder<ThemeCubit, ThemeMode>(

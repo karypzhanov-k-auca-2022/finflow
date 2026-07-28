@@ -26,6 +26,9 @@ import '../features/transactions/domain/repositories/transaction_repository.dart
 import '../features/transactions/domain/usecases/transaction_use_cases.dart';
 import '../features/transactions/presentation/bloc/transaction_form_cubit.dart';
 import '../features/transactions/presentation/bloc/transactions_bloc.dart';
+import '../features/auth/data/repositories/firebase_auth_repository_impl.dart';
+import '../features/auth/domain/repositories/auth_repository.dart';
+import '../features/auth/presentation/bloc/auth_cubit.dart';
 import 'app_initializer.dart';
 
 final getIt = GetIt.instance;
@@ -35,6 +38,7 @@ Future<void> configureDependencies() async {
   getIt
     ..registerSingleton<SharedPreferences>(preferences)
     ..registerLazySingleton<Dio>(createDio)
+    ..registerLazySingleton<AuthRepository>(() => FirebaseAuthRepositoryImpl())
     ..registerLazySingleton<CategoryLocalDataSource>(
       () => CategoryLocalDataSourceImpl(getIt()),
     )
@@ -66,6 +70,7 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton(() => TransactionUseCases(getIt()))
     ..registerLazySingleton(() => BudgetUseCases(getIt()))
     ..registerLazySingleton(() => AppInitializer(getIt(), getIt(), getIt()))
+    ..registerLazySingleton(() => AuthCubit(getIt()))
     ..registerFactory(() => CategoriesBloc(getIt())..add(const CategoriesRequested()))
     ..registerFactory(() => DashboardBloc(getIt(), getIt()))
     ..registerFactory(() => TransactionsBloc(getIt()))

@@ -8,6 +8,7 @@ import '../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../features/settings/presentation/bloc/settings_cubit.dart';
 import '../features/settings/presentation/bloc/theme_cubit.dart';
 import '../features/transactions/presentation/bloc/transactions_bloc.dart';
+import '../features/auth/presentation/bloc/auth_cubit.dart';
 import 'app_initializer.dart';
 import 'dependency_injection.dart';
 import 'router.dart';
@@ -29,6 +30,7 @@ class _FinFlowAppState extends State<FinFlowApp> {
   @override
   Widget build(BuildContext context) => MultiBlocProvider(
     providers: [
+      BlocProvider<AuthCubit>(create: (_) => getIt()),
       BlocProvider<CategoriesBloc>(create: (_) => getIt()),
       BlocProvider<DashboardBloc>(create: (_) => getIt()),
       BlocProvider<TransactionsBloc>(create: (_) => getIt()),
