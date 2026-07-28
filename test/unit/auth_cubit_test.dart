@@ -35,5 +35,29 @@ void main() {
       expect(cubit.state.status, AuthStatus.authenticated);
       expect(cubit.state.user, user);
     });
+
+    test('sign up with email succeeds', () async {
+      const user = AppUser(uid: 'u2', email: 'new@example.com');
+      when(() => repository.signUpWithEmail('new@example.com', '123456'))
+          .thenAnswer((_) async => const Success(user));
+
+      final cubit = AuthCubit(repository);
+      await cubit.signUpWithEmail('new@example.com', '123456');
+
+      expect(cubit.state.status, AuthStatus.authenticated);
+      expect(cubit.state.user, user);
+    });
+
+    test('sign in anonymously succeeds', () async {
+      const user = AppUser(uid: 'guest_1', isAnonymous: true);
+      when(() => repository.signInAnonymously())
+          .thenAnswer((_) async => const Success(user));
+
+      final cubit = AuthCubit(repository);
+      await cubit.signInAnonymously();
+
+      expect(cubit.state.status, AuthStatus.authenticated);
+      expect(cubit.state.user, user);
+    });
   });
 }

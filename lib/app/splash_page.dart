@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../features/analytics/presentation/bloc/analytics_bloc.dart';
+import '../features/auth/presentation/bloc/auth_cubit.dart';
 import '../features/budgets/presentation/bloc/budgets_bloc.dart';
 import '../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../features/transactions/presentation/bloc/transactions_bloc.dart';
@@ -30,7 +31,13 @@ class _SplashPageState extends State<SplashPage> {
         context.read<TransactionsBloc>().add(const TransactionsRequested());
         context.read<BudgetsBloc>().add(const BudgetsRequested());
         context.read<AnalyticsBloc>().add(const AnalyticsRequested());
-        context.go('/dashboard');
+
+        final authState = context.read<AuthCubit>().state;
+        if (authState.status == AuthStatus.authenticated) {
+          context.go('/dashboard');
+        } else {
+          context.go('/login');
+        }
       }
     } catch (_) {
       if (mounted) {
