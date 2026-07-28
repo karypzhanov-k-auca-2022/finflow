@@ -19,7 +19,7 @@ class TransactionLocalDataSourceImpl implements TransactionLocalDataSource {
   final SharedPreferences preferences;
   final CategoryLocalDataSource? categoryDataSource;
   static const _key = 'finflow_transactions_v1';
-  static const _seededKey = 'finflow_seeded_v1';
+  static const _seededKey = 'finflow_seeded_v2';
 
   @override
   Future<List<TransactionModel>> getTransactions() async {

@@ -1,24 +1,24 @@
-# Архитектура FinFlow
+# FinFlow Architecture
 
-## Цель
+## Goal
 
-Архитектура показывает production-подход, но остаётся объяснимой Junior-разработчиком. Код организован по feature, а внутри основных feature разделён на Data, Domain и Presentation.
+The architecture demonstrates a production-ready approach while remaining understandable for a Junior developer. The code is organized by feature, and within each major feature, it is divided into Data, Domain, and Presentation layers.
 
-## Слои
+## Layers
 
 ### Presentation
 
-Страницы и переиспользуемые widgets отображают immutable State и отправляют Event в BLoC. Форма и тема используют Cubit, потому что их переходы линейны. Widgets не вызывают Dio, SharedPreferences или Repository.
+Pages and reusable widgets display an immutable State and send Events to a BLoC. Forms and themes use Cubit because their transitions are linear. Widgets do not call Dio, SharedPreferences, or Repositories directly.
 
 ### Domain
 
-Entity описывают бизнес-данные. Repository-интерфейсы задают возможности, но не способ хранения. UseCase координирует операции, чистые функции выполняют расчёты dashboard, analytics, фильтрации и сортировки.
+Entities describe business data. Repository interfaces define capabilities but not the storage method. UseCases coordinate operations, and pure functions perform calculations for the dashboard, analytics, filtering, and sorting.
 
 ### Data
 
-Model отвечает за JSON и преобразование Entity ↔ Model. LocalDataSource хранит JSON в SharedPreferences. RemoteDataSource реализует REST через Dio. RepositoryImpl выбирает источник, fallback и преобразует технические ошибки в Failure.
+Models handle JSON and Entity ↔ Model transformation. LocalDataSource stores JSON in SharedPreferences. RemoteDataSource implements REST via Dio. RepositoryImpl chooses the source, handles fallback, and transforms technical errors into Failures.
 
-## Направление зависимостей
+## Dependency Direction
 
 ```text
 Presentation ─────► Domain ◄───── Data
@@ -26,24 +26,24 @@ Presentation ─────► Domain ◄───── Data
      └── Event/State  └─ implements ┘
 ```
 
-Domain не знает конкретные DataSource. Data зависит от Domain, потому что реализует его контракт. Все связи создаются в composition root `app/dependency_injection.dart`.
+Domain does not know about specific DataSources. Data depends on Domain because it implements its contract. All connections are created in the composition root `app/dependency_injection.dart`.
 
-## Жизненный цикл запуска
+## Startup Lifecycle
 
-1. `main` инициализирует Flutter binding, локаль и DI.
-2. Router открывает `/splash`.
-3. `AppInitializer` проверяет first-run и детерминированно создаёт demo-данные.
-4. Splash отправляет события начальной загрузки feature-BLoC.
-5. GoRouter заменяет splash на `/dashboard` без искусственной задержки.
+1. `main` initializes Flutter binding, locale, and DI.
+2. The Router opens `/splash`.
+3. `AppInitializer` checks for first-run and deterministically creates demo data.
+4. Splash sends initial loading events to feature BLoCs.
+5. GoRouter replaces splash with `/dashboard` without artificial delay.
 
 ## Offline-first
 
-Локальное хранилище — основной источник. Если передан `API_BASE_URL`, pull-to-refresh запрашивает сервер и обновляет cache. При сетевой ошибке пользователь продолжает работать с cache. Изменения сначала сохраняются локально. Это хороший demo-компромисс; production-синхронизации нужны outbox, версии записей, conflict resolution и retry policy.
+Local storage is the primary source. If `API_BASE_URL` is provided, pull-to-refresh requests the server and updates the cache. In case of a network error, the user continues working with the cache. Changes are first saved locally. This is a good demo compromise; production synchronization would require an outbox, record versions, conflict resolution, and a retry policy.
 
-## Состояния
+## States
 
-Feature-BLoC используют `initial`, `loading`, `success`, `empty`, `failure`. Ошибка хранится как `Failure`, а не Exception. Форма имеет `initial`, `saving`, `success`, `failure`, что блокирует повторный submit.
+Feature BLoCs use `initial`, `loading`, `success`, `empty`, and `failure`. Errors are stored as a `Failure`, not an Exception. Forms have `initial`, `saving`, `success`, and `failure` states to block double submission.
 
-## Навигация
+## Navigation
 
-`StatefulShellRoute.indexedStack` сохраняет состояние пяти вкладок. `go` переключает основное назначение, `push` открывает форму или About поверх текущего стека. Неизвестный URL обрабатывает `errorBuilder`.
+`StatefulShellRoute.indexedStack` preserves the state of five tabs. `go` switches the main destination, while `push` opens forms or the About page on top of the current stack. Unknown URLs are handled by `errorBuilder`.

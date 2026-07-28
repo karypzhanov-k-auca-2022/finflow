@@ -15,7 +15,7 @@ class BudgetLocalDataSourceImpl implements BudgetLocalDataSource {
   BudgetLocalDataSourceImpl(this.preferences);
   final SharedPreferences preferences;
   static const _key = 'finflow_budgets_v1';
-  static const _seededKey = 'finflow_budget_seeded_v1';
+  static const _seededKey = 'finflow_budget_seeded_v2';
 
   @override
   Future<List<BudgetModel>> getBudgets() async {

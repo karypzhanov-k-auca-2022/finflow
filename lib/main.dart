@@ -5,7 +5,7 @@ import 'app/dependency_injection.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('ru_RU');
+  await initializeDateFormatting('en_US');
   await configureDependencies();
   runApp(const FinFlowApp());
 }

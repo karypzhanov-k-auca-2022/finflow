@@ -1,53 +1,53 @@
 # FinFlow — Personal Finance Tracker
 
-FinFlow — законченное Flutter-приложение для учёта доходов, расходов и месячных бюджетов. Проект работает без backend, сохраняет данные между запусками и показывает продуктовый подход: feature-first Clean Architecture, BLoC/Cubit, Repository Pattern, Dependency Injection, GoRouter, Dio, Material 3 и автоматические тесты.
+FinFlow is a complete Flutter application for tracking income, expenses, and monthly budgets. The project works without a backend, persists data between launches, and demonstrates a product-oriented approach: feature-first Clean Architecture, BLoC/Cubit, Repository Pattern, Dependency Injection, GoRouter, Dio, Material 3, and automated tests.
 
-## Возможности
+## Features
 
-- dashboard с балансом, доходами/расходами месяца, прогрессом бюджета, диаграммой и последними операциями;
-- добавление и редактирование транзакций с валидацией и защитой несохранённых изменений;
-- поиск, фильтры по типу/категории/датам, сортировка, группировка по дням и swipe-to-delete;
-- CRUD месячных бюджетов, предупреждение после 80% и отдельное состояние превышения;
-- аналитика за 3, 6 или 12 месяцев: столбчатый график, средний расход и топ-категория;
-- системная, светлая и тёмная тема с сохранением выбора;
-- очистка и детерминированное восстановление demo-данных за шесть месяцев;
-- loading, success, empty и failure состояния с Retry;
-- опциональная синхронизация с REST API и fallback на локальный cache.
+- Dashboard with balance, monthly income/expenses, budget progress, chart, and recent transactions;
+- Add and edit transactions with validation and unsaved changes protection;
+- Search, filters by type/category/date, sorting, grouping by days, and swipe-to-delete;
+- CRUD for monthly budgets, warnings after 80%, and a separate "over budget" state;
+- Analytics for 3, 6, or 12 months: bar chart, average spending, and top category;
+- System, light, and dark themes with persistence;
+- Data clearing and deterministic restoration of demo data for six months;
+- Loading, success, empty, and failure states with Retry;
+- Optional synchronization with REST API and fallback to local cache.
 
-## Скриншоты
+## Screenshots
 
-Папка `docs/screenshots/` подготовлена для портфолио. После запуска добавьте туда `dashboard.png`, `transactions.png`, `budgets.png`, `analytics.png` и замените этот блок изображениями. Это осознанно не подменено нарисованными мокапами: скриншоты должны показывать фактически запущенную сборку на вашем устройстве.
+The `docs/screenshots/` folder is prepared for the portfolio. After running, add `dashboard.png`, `transactions.png`, `budgets.png`, `analytics.png` there and replace this block with images. This was intentionally not replaced with drawn mocks: screenshots should show the actual build running on your device.
 
-## Технологии
+## Technologies
 
 Flutter 3.41.2, Dart 3.11, Material 3, `flutter_bloc`, `equatable`, `go_router`, `dio`, `get_it`, `intl`, `fl_chart`, `shared_preferences`, `bloc_test`, `mocktail`, `flutter_test`.
 
-## Структура
+## Structure
 
 ```text
 lib/
-  app/                  # запуск, DI, router, splash
-  core/                 # ошибки, Dio, тема, форматтеры, общие widgets
+  app/                  # startup, DI, router, splash
+  core/                 # errors, Dio, theme, formatters, common widgets
   features/
-    dashboard/          # обзор финансов
-    transactions/       # data/domain/presentation и форма
+    dashboard/          # finance overview
+    transactions/       # data/domain/presentation and form
     budgets/            # data/domain/presentation
-    analytics/          # domain-вычисления, BLoC и UI
-    settings/           # тема, данные и about
+    analytics/          # domain calculations, BLoC, and UI
+    settings/           # theme, data, and about
 test/
   unit/ repository/ bloc/ widget/
 docs/
 ```
 
-Подробная карта находится в [docs/project_structure.md](docs/project_structure.md), архитектура — в [docs/architecture.md](docs/architecture.md), контракт backend — в [docs/api_contract.md](docs/api_contract.md).
+A detailed map is in [docs/project_structure.md](docs/project_structure.md), architecture — in [docs/architecture.md](docs/architecture.md), backend contract — in [docs/api_contract.md](docs/api_contract.md).
 
 ## Clean Architecture
 
-- **Presentation** знает Flutter и BLoC. Widget отправляет событие и отображает State.
-- **Domain** содержит Entity, Repository-контракты, UseCase и чистые расчёты. Он не импортирует Flutter (исключение — настройки темы, потому что `ThemeMode` является UI-настройкой приложения).
-- **Data** знает JSON, SharedPreferences и Dio. Реализация Repository скрывает выбор источника.
+- **Presentation** knows Flutter and BLoC. Widget sends an event and displays State.
+- **Domain** contains Entities, Repository contracts, UseCases, and pure calculations. It does not import Flutter (exception — theme settings, as `ThemeMode` is a UI setting).
+- **Data** knows JSON, SharedPreferences, and Dio. The Repository implementation hides the source choice.
 
-Поток данных:
+Data flow:
 
 ```text
 UI → Event → BLoC → UseCase → Repository → DataSource
@@ -55,28 +55,28 @@ UI → Event → BLoC → UseCase → Repository → DataSource
 UI ← State ← BLoC ← Result/Failure ←
 ```
 
-## Repository Pattern и offline-first
+## Repository Pattern and offline-first
 
-UI и BLoC зависят от `TransactionRepository`/`BudgetRepository`, а не от SharedPreferences или Dio. Чтение по умолчанию локальное. При `refresh: true` и заданном `API_BASE_URL` Repository пробует remote, сохраняет ответ в cache и возвращает данные. При сетевой ошибке возвращается cache. Создание, изменение и удаление сначала применяются локально, поэтому приложение остаётся полезным без сети; remote-вызов является best effort.
+UI and BLoC depend on `TransactionRepository`/`BudgetRepository`, not on SharedPreferences or Dio. Reading is local by default. With `refresh: true` and a given `API_BASE_URL`, the Repository tries remote, saves the response to cache, and returns data. On network error, cache is returned. Creating, updating, and deleting are first applied locally, so the app remains useful without a network; the remote call is best effort.
 
 ## Dependency Injection
 
-`get_it` настраивается один раз в `dependency_injection.dart`. DataSource, Repository и UseCase — lazy singleton; BLoC/Cubit — factory. Бизнес-классы получают зависимости через конструктор и не обращаются к service locator. `getIt` используется только в composition root.
+`get_it` is configured once in `dependency_injection.dart`. DataSource, Repository, and UseCase are lazy singletons; BLoC/Cubit are factories. Business classes receive dependencies via constructor and do not access the service locator. `getIt` is only used in the composition root.
 
-## Ошибки
+## Errors
 
-Приложение использует типизированные `NetworkFailure`, `TimeoutFailure`, `ServerFailure`, `CacheFailure`, `ValidationFailure`, `UnknownFailure` и `Result<T>`. `mapDioException` переводит технические Dio-ошибки в доменные. UI получает безопасный текст, не raw exception. Для восстанавливаемых ошибок есть Retry.
+The app uses typed `NetworkFailure`, `TimeoutFailure`, `ServerFailure`, `CacheFailure`, `ValidationFailure`, `UnknownFailure`, and `Result<T>`. `mapDioException` translates technical Dio errors into domain errors. The UI receives safe text, not a raw exception. Retry is available for recoverable errors.
 
-## Запуск
+## Launch
 
 ```bash
 flutter pub get
 flutter run
 ```
 
-Для выбора устройства: `flutter devices`, затем `flutter run -d <device-id>`. Backend не нужен: на первом запуске splash заполнит локальное хранилище demo-данными.
+To select a device: `flutter devices`, then `flutter run -d <device-id>`. No backend needed: on the first run, the splash will fill local storage with demo data.
 
-## Тесты и качество
+## Tests and Quality
 
 ```bash
 dart format .
@@ -84,36 +84,36 @@ flutter analyze
 flutter test
 ```
 
-Тесты покрывают расчёты, фильтры и сортировку, прогресс бюджета, аналитику, Repository/fallback/Failure, состояния BLoC, создание и удаление, а также ключевые Widget-состояния и валидацию формы.
+Tests cover calculations, filters and sorting, budget progress, analytics, Repository/fallback/Failure, BLoC states, creation and deletion, as well as key Widget states and form validation.
 
-## Подключение backend
+## Connecting Backend
 
 ```bash
 flutter run --dart-define=API_BASE_URL=https://api.example.com
 ```
 
-Сервер должен реализовать контракт из `docs/api_contract.md`. Не храните токены в исходном коде; для production добавьте auth-interceptor и безопасное хранилище токена. Без define remote полностью отключён и заведомо не ломает приложение.
+The server must implement the contract from `docs/api_contract.md`. Do not store tokens in source code; for production, add an auth-interceptor and secure token storage. Without the define, remote is completely disabled and won't break the app.
 
-## Архитектурные решения и компромиссы
+## Architectural Decisions and Trade-offs
 
-- SharedPreferences хранит JSON: для объёма pet-проекта это прозрачно и легко объяснить; при десятках тысяч записей стоит перейти на SQLite/Drift или Isar.
-- Локальная запись считается успешной даже при недоступном remote. Production-версия потребует outbox, retry и явного sync-status.
-- Analytics вычисляется на устройстве. Для больших данных агрегацию лучше перенести на backend/БД.
-- UseCase объединены по feature в небольшие фасады, чтобы не создавать класс на каждую однострочную операцию.
-- BLoC используется там, где есть события и несколько переходов состояния; Cubit — для линейной формы и темы.
-- UUID-пакет не добавлялся: локальные ID строятся из microseconds, чего достаточно для single-device demo.
+- SharedPreferences stores JSON: for a pet project's volume, this is transparent and easy to explain; for tens of thousands of records, consider SQLite/Drift or Isar.
+- Local write is considered successful even if remote is unavailable. A production version would require an outbox, retry, and explicit sync-status.
+- Analytics are calculated on the device. For large data, aggregation should move to backend/DB.
+- UseCases are grouped by feature into small facades to avoid creating a class for every one-line operation.
+- BLoC is used where there are events and multiple state transitions; Cubit is for linear forms and themes.
+- UUID package was not added: local IDs are built from microseconds, which is sufficient for a single-device demo.
 
-## Почему я принял такие решения
+## Why I Made These Decisions
 
-- **BLoC** делает переходы состояний явными и хорошо тестируется.
-- **GoRouter** даёт декларативные маршруты, deep links, shell-навигацию и error page.
-- **Repository** скрывает local/remote и позволяет заменить инфраструктуру без изменения UI.
-- **Domain не зависит от Flutter**, поэтому расчёты быстрые, переносимые и тестируются без Widget binding.
-- **Работа без backend** делает проект воспроизводимым на интервью; Dio-слой при этом настоящий и подключается define-параметром.
-- **Без лишних абстракций**: небольшие функции расчёта остаются чистыми функциями, а связанные CRUD-use cases собраны в понятные фасады.
+- **BLoC** makes state transitions explicit and is well-testable.
+- **GoRouter** provides declarative routes, deep links, shell navigation, and an error page.
+- **Repository** hides local/remote and allows infrastructure replacement without UI changes.
+- **Domain does not depend on Flutter**, making calculations fast, portable, and testable without Widget binding.
+- **Working without backend** makes the project reproducible in interviews; the Dio layer is real and connected by a define parameter.
+- **No unnecessary abstractions**: small calculation functions remain pure functions, and related CRUD use cases are collected into clear facades.
 
-## Дальнейшее развитие
+## Further Development
 
-Авторизация, валюты и курсы, SQLite/Drift, пагинация, outbox-синхронизация, recurring payments, экспорт CSV/PDF, push-напоминания, биометрическая защита, accessibility-аудит, golden/integration tests и CI/CD.
+Authorization, currencies and rates, SQLite/Drift, pagination, outbox synchronization, recurring payments, CSV/PDF export, push reminders, biometric protection, accessibility audit, golden/integration tests, and CI/CD.
 
-Для подготовки к защите проекта используйте [INTERVIEW_GUIDE.md](INTERVIEW_GUIDE.md).
+To prepare for project defense, use the [INTERVIEW_GUIDE.md](INTERVIEW_GUIDE.md).

@@ -72,7 +72,7 @@ class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   CategoryLocalDataSourceImpl(this.preferences);
   final SharedPreferences preferences;
   static const _key = 'finflow_categories_v1';
-  static const _seededKey = 'finflow_categories_seeded_v1';
+  static const _seededKey = 'finflow_categories_seeded_v2';
 
   @override
   Future<List<CategoryModel>> getCategories() async {

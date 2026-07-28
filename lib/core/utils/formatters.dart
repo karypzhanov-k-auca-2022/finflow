@@ -1,12 +1,12 @@
 import 'package:intl/intl.dart';
 
 final _currency = NumberFormat.currency(
-  locale: 'ru_RU',
-  symbol: '₽',
+  locale: 'en_US',
+  symbol: r'$',
   decimalDigits: 0,
 );
-final _date = DateFormat('d MMMM', 'ru_RU');
-final _month = DateFormat('LLLL yyyy', 'ru_RU');
+final _date = DateFormat('d MMMM', 'en_US');
+final _month = DateFormat('MMMM yyyy', 'en_US');
 
 String formatMoney(num value) => _currency.format(value);
 String formatDate(DateTime value) => _date.format(value);

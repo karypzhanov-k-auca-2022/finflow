@@ -1,6 +1,6 @@
-# Предполагаемый REST API
+# Proposed REST API
 
-Base URL задаётся через `--dart-define=API_BASE_URL=https://api.example.com`. Все запросы и ответы используют `application/json`; даты — ISO 8601, суммы — JSON number. Ошибка сервера имеет форму:
+Base URL is set via `--dart-define=API_BASE_URL=https://api.example.com`. All requests and responses use `application/json`; dates are ISO 8601, amounts are JSON numbers. A server error follows this format:
 
 ```json
 {"code":"validation_error","message":"Amount must be positive","details":{"amount":"Must be greater than zero"}}
@@ -10,18 +10,18 @@ Base URL задаётся через `--dart-define=API_BASE_URL=https://api.exa
 
 ### `GET /transactions`
 
-Ответ `200`:
+Response `200`:
 
 ```json
 [
   {
     "id": "tx-101",
-    "title": "Супермаркет",
+    "title": "Supermarket",
     "amount": 7850.0,
     "type": "expense",
     "category": "groceries",
     "date": "2026-07-10T00:00:00.000",
-    "note": "Покупки на неделю",
+    "note": "Weekly groceries",
     "createdAt": "2026-07-10T12:30:00.000Z",
     "updatedAt": "2026-07-10T12:30:00.000Z"
   }
@@ -30,27 +30,27 @@ Base URL задаётся через `--dart-define=API_BASE_URL=https://api.exa
 
 ### `POST /transactions`
 
-Запрос:
+Request:
 
 ```json
-{"title":"Кофе","amount":350.0,"type":"expense","category":"cafe","date":"2026-07-18T00:00:00.000","note":""}
+{"title":"Coffee","amount":350.0,"type":"expense","category":"cafe","date":"2026-07-18T00:00:00.000","note":""}
 ```
 
-Ответ `201` — созданная Transaction со сгенерированными `id`, `createdAt`, `updatedAt`.
+Response `201` — the created Transaction with generated `id`, `createdAt`, and `updatedAt`.
 
 ### `PUT /transactions/:id`
 
-Запрос и ответ имеют полную форму Transaction. Ответы: `200`, `404`, `422`.
+Both request and response use the full Transaction format. Responses: `200`, `404`, `422`.
 
 ### `DELETE /transactions/:id`
 
-Ответ `204`, если удалено; `404`, если ID не найден. Тело отсутствует.
+Response `204` if deleted; `404` if ID not found. No body.
 
 ## Budgets
 
 ### `GET /budgets`
 
-Ответ `200`:
+Response `200`:
 
 ```json
 [
@@ -60,13 +60,13 @@ Base URL задаётся через `--dart-define=API_BASE_URL=https://api.exa
 
 ### `POST /budgets`
 
-Запрос:
+Request:
 
 ```json
 {"categoryId":"transport","limit":5000.0,"month":7,"year":2026}
 ```
 
-Ответ `201` — созданный Budget.
+Response `201` — the created Budget.
 
 ### `PUT /budgets/:id`
 
@@ -74,19 +74,19 @@ Base URL задаётся через `--dart-define=API_BASE_URL=https://api.exa
 {"id":"budget-groceries","categoryId":"groceries","limit":26000.0,"spent":19500.0,"month":7,"year":2026}
 ```
 
-Ответы: `200`, `404`, `422`.
+Responses: `200`, `404`, `422`.
 
 ### `DELETE /budgets/:id`
 
-Ответ `204` без тела.
+Response `204` with no body.
 
 ## Analytics
 
 ### `GET /analytics?months=6`
 
-Этот endpoint предусмотрен для будущей серверной агрегации. Текущая версия считает аналитику локально.
+This endpoint is intended for future server-side aggregation. The current version calculates analytics locally.
 
-Ответ `200`:
+Response `200`:
 
 ```json
 {
@@ -97,12 +97,12 @@ Base URL задаётся через `--dart-define=API_BASE_URL=https://api.exa
 }
 ```
 
-## HTTP-статусы
+## HTTP Statuses
 
-- `200/201/204` — успех;
-- `400` — некорректный JSON;
-- `401` — нужна авторизация;
-- `404` — ресурс не найден;
-- `409` — конфликт версии при синхронизации;
-- `422` — доменная валидация;
-- `500/503` — сервер временно недоступен.
+- `200/201/204` — Success;
+- `400` — Invalid JSON;
+- `401` — Authorization required;
+- `404` — Resource not found;
+- `409` — Version conflict during synchronization;
+- `422` — Domain validation error;
+- `500/503` — Server temporarily unavailable.

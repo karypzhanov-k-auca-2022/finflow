@@ -1,4 +1,4 @@
-# Структура проекта
+# Project Structure
 
 ```text
 lib/
@@ -16,24 +16,24 @@ lib/
 │   ├── utils/        # currency/date/category presentation helpers
 │   └── widgets/      # state views, confirmation, currency
 └── features/
-    ├── transactions/ # полный Data/Domain/Presentation с CRUD и фильтрами
-    ├── budgets/      # полный Data/Domain/Presentation с CRUD и прогрессом
+    ├── transactions/ # full Data/Domain/Presentation with CRUD and filters
+    ├── budgets/      # full Data/Domain/Presentation with CRUD and progress
     ├── dashboard/    # domain aggregation + BLoC + page
-    ├── analytics/    # чистые расчёты + BLoC + charts
-    └── settings/     # persistence темы, reset/seed, about
+    ├── analytics/    # pure calculations + BLoC + charts
+    └── settings/     # theme persistence, reset/seed, about
 ```
 
-## Как найти код сценария
+## How to Find Scenario Code
 
-- загрузка списка: `transactions_bloc.dart` → `transaction_use_cases.dart` → `transaction_repository_impl.dart` → local/remote data source;
-- сохранение формы: `transaction_form_page.dart` → `transaction_form_cubit.dart` → use case → repository;
-- расчёт dashboard: `dashboard_bloc.dart` → `build_dashboard.dart`;
-- spent бюджета: `budgets_bloc.dart` → `budget_use_cases.dart`;
-- аналитика: `analytics_bloc.dart` → `calculate_analytics.dart`;
-- смена темы: `settings_page.dart` → `theme_cubit.dart` → `settings_repository_impl.dart`;
-- создание объектов: только `dependency_injection.dart`.
+- List loading: `transactions_bloc.dart` → `transaction_use_cases.dart` → `transaction_repository_impl.dart` → local/remote data source;
+- Form saving: `transaction_form_page.dart` → `transaction_form_cubit.dart` → use case → repository;
+- Dashboard calculation: `dashboard_bloc.dart` → `build_dashboard.dart`;
+- Budget spent: `budgets_bloc.dart` → `budget_use_cases.dart`;
+- Analytics: `analytics_bloc.dart` → `calculate_analytics.dart`;
+- Theme change: `settings_page.dart` → `theme_cubit.dart` → `settings_repository_impl.dart`;
+- Object creation: only `dependency_injection.dart`.
 
-## Тестовая структура
+## Test Structure
 
 ```text
 test/
@@ -44,4 +44,4 @@ test/
 └── widget/transactions_widgets_test.dart
 ```
 
-Тесты отделены по уровню, чтобы на интервью было легко показать разницу между чистой бизнес-логикой, инфраструктурой, переходами State и UI.
+Tests are separated by level to make it easy during an interview to show the difference between pure business logic, infrastructure, State transitions, and UI.
