@@ -23,6 +23,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(TransactionModel.fromEntity(transaction()));
   });
+
   setUp(() {
     local = MockLocal();
     remote = MockRemote();
@@ -35,21 +36,21 @@ void main() {
   });
 
   test('gets local data when refresh is false', () async {
-    when(() => local.getTransactions()).thenAnswer((_) async => [model]);
+    when(() => local.getTransactions(any())).thenAnswer((_) async => [model]);
     final result = await repository.getTransactions();
     expect(result, isA<Success<TransactionsResult>>());
     verifyNever(() => remote.getTransactions());
   });
 
   test('saves transaction locally and remotely', () async {
-    when(() => local.getTransactions()).thenAnswer((_) async => []);
-    when(() => local.saveTransaction(any())).thenAnswer((_) async {});
+    when(() => local.getTransactions(any())).thenAnswer((_) async => []);
+    when(() => local.saveTransaction(any(), any())).thenAnswer((_) async {});
     when(
       () => remote.saveTransaction(any(), isNew: any(named: 'isNew')),
     ).thenAnswer((_) async {});
     final result = await repository.saveTransaction(model);
     expect(result, isA<Success>());
-    verify(() => local.saveTransaction(any())).called(1);
+    verify(() => local.saveTransaction(any(), any())).called(1);
     verify(() => remote.saveTransaction(any(), isNew: true)).called(1);
   });
 
@@ -57,13 +58,13 @@ void main() {
     when(() => remote.getTransactions()).thenThrow(
       DioException(requestOptions: RequestOptions(path: '/transactions')),
     );
-    when(() => local.getTransactions()).thenAnswer((_) async => [model]);
+    when(() => local.getTransactions(any())).thenAnswer((_) async => [model]);
     final result = await repository.getTransactions(refresh: true);
     expect(result.fold((_) => const [], (data) => data.transactions), [model]);
   });
 
   test('transforms local exception into CacheFailure', () async {
-    when(() => local.getTransactions()).thenThrow(const FormatException());
+    when(() => local.getTransactions(any())).thenThrow(const FormatException());
     final result = await repository.getTransactions();
     expect(result, isA<Error>());
     expect((result as Error).failure, isA<CacheFailure>());

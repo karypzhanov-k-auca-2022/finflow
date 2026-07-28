@@ -33,7 +33,8 @@ class _SplashPageState extends State<SplashPage> {
         context.read<AnalyticsBloc>().add(const AnalyticsRequested());
 
         final authState = context.read<AuthCubit>().state;
-        if (authState.status == AuthStatus.authenticated) {
+        final isEmailUser = authState.user != null && !authState.user!.isAnonymous;
+        if (isEmailUser) {
           context.go('/dashboard');
         } else {
           context.go('/login');

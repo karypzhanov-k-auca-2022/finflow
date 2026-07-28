@@ -44,11 +44,14 @@ class SettingsPage extends StatelessWidget {
                   title: Text(user?.displayName ?? 'Not logged in'),
                   subtitle: Text(user?.isAnonymous ?? true ? 'Guest Account' : 'Cloud Sync Active'),
                   trailing: TextButton.icon(
-                    onPressed: () {
+                    onPressed: () async {
                       if (user != null) {
-                        context.read<AuthCubit>().signOut();
+                        await context.read<AuthCubit>().signOut();
+                        if (context.mounted) {
+                          context.go('/login');
+                        }
                       } else {
-                        context.push('/login');
+                        await context.push('/login');
                       }
                     },
                     icon: Icon(user != null ? Icons.logout : Icons.login, size: 18),

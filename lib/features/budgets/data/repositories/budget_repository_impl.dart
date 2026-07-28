@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/dio_failure_mapper.dart';
 import '../../../../core/error/result.dart';
@@ -15,36 +16,49 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
   BudgetRepositoryImpl({
     required this.local,
     required this.remote,
+    FirebaseAuth? auth,
     bool? remoteEnabled,
-  }) : remoteEnabled = remoteEnabled ?? apiBaseUrl.isNotEmpty;
+  })  : _auth = auth,
+        remoteEnabled = remoteEnabled ?? apiBaseUrl.isNotEmpty;
+
   final BudgetLocalDataSource local;
   final BudgetRemoteDataSource remote;
+  final FirebaseAuth? _auth;
   final bool remoteEnabled;
 
   final _changeController = StreamController<void>.broadcast();
+
+  String get _userId {
+    try {
+      final instance = _auth ?? FirebaseAuth.instance;
+      return instance.currentUser?.uid ?? 'guest';
+    } catch (_) {
+      return 'guest';
+    }
+  }
 
   @override
   Stream<void> get onBudgetsChanged => _changeController.stream;
 
   @override
   Future<Result<List<Budget>>> getBudgets({bool refresh = false}) async {
-    logInfo('getBudgets (refresh: $refresh)');
+    logInfo('getBudgets for user $_userId (refresh: $refresh)');
     try {
       if (refresh && remoteEnabled) {
         try {
           final values = await remote.getBudgets();
           for (final value in values) {
-            await local.saveBudget(value);
+            await local.saveBudget(value, _userId);
           }
           return Success(values);
         } on DioException catch (exception) {
-          final cached = await local.getBudgets();
+          final cached = await local.getBudgets(_userId);
           return cached.isEmpty
               ? Error(mapDioException(exception))
               : Success(cached);
         }
       }
-      return Success(await local.getBudgets());
+      return Success(await local.getBudgets(_userId));
     } catch (_) {
       return const Error(CacheFailure());
     }
@@ -57,10 +71,10 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
     }
     try {
       final model = BudgetModel.fromEntity(budget);
-      final isNew = !(await local.getBudgets()).any(
+      final isNew = !(await local.getBudgets(_userId)).any(
         (item) => item.id == budget.id,
       );
-      await local.saveBudget(model);
+      await local.saveBudget(model, _userId);
       if (remoteEnabled) {
         try {
           await remote.saveBudget(model, isNew: isNew);
@@ -78,7 +92,7 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
   @override
   Future<Result<void>> deleteBudget(String id) async {
     try {
-      await local.deleteBudget(id);
+      await local.deleteBudget(id, _userId);
       if (remoteEnabled) {
         try {
           await remote.deleteBudget(id);
@@ -96,7 +110,7 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
   @override
   Future<Result<void>> clear() async {
     try {
-      await local.clear();
+      await local.clear(_userId);
       _changeController.add(null);
       return const Success(null);
     } catch (_) {
@@ -107,7 +121,7 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
   @override
   Future<Result<void>> reseed() async {
     try {
-      await local.reseed();
+      await local.reseed(_userId);
       _changeController.add(null);
       return const Success(null);
     } catch (_) {

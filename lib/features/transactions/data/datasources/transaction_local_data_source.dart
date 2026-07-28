@@ -6,27 +6,41 @@ import '../models/transaction_model.dart';
 import '../../domain/entities/transaction.dart';
 
 abstract interface class TransactionLocalDataSource {
-  Future<List<TransactionModel>> getTransactions();
-  Future<void> saveTransaction(TransactionModel transaction);
-  Future<void> deleteTransaction(String id);
-  Future<void> clear();
-  Future<void> seedIfNeeded();
-  Future<void> reseed();
+  Future<List<TransactionModel>> getTransactions([String? userId]);
+  Future<void> saveTransaction(TransactionModel transaction, [String? userId]);
+  Future<void> deleteTransaction(String id, [String? userId]);
+  Future<void> clear([String? userId]);
+  Future<void> seedIfNeeded([String? userId]);
+  Future<void> reseed([String? userId]);
 }
 
 class TransactionLocalDataSourceImpl implements TransactionLocalDataSource {
   TransactionLocalDataSourceImpl(this.preferences, [this.categoryDataSource]);
   final SharedPreferences preferences;
   final CategoryLocalDataSource? categoryDataSource;
-  static const _key = 'finflow_transactions_v1';
-  static const _seededKey = 'finflow_seeded_v2';
+
+  String _getKey(String? userId) {
+    if (userId == null || userId.isEmpty || userId == 'guest') {
+      return 'finflow_transactions_guest_v1';
+    }
+    return 'finflow_transactions_user_$userId';
+  }
+
+  String _getSeededKey(String? userId) {
+    if (userId == null || userId.isEmpty || userId == 'guest') {
+      return 'finflow_seeded_guest_v2';
+    }
+    return 'finflow_seeded_user_$userId';
+  }
 
   @override
-  Future<List<TransactionModel>> getTransactions() async {
-    final raw = preferences.getString(_key);
+  Future<List<TransactionModel>> getTransactions([String? userId]) async {
+    await seedIfNeeded(userId);
+    final key = _getKey(userId);
+    final raw = preferences.getString(key);
     if (raw == null || raw.isEmpty) return [];
     final list = jsonDecode(raw) as List<dynamic>;
-    
+
     List<CategoryModel> categories = defaultCategoryModels;
     if (categoryDataSource != null) {
       try {
@@ -44,51 +58,61 @@ class TransactionLocalDataSourceImpl implements TransactionLocalDataSource {
     }).toList();
 
     if (needsMigration) {
-      await _write(transactions);
+      await _write(transactions, userId);
     }
 
     return transactions;
   }
 
-  Future<void> _write(List<TransactionModel> values) async {
+  Future<void> _write(List<TransactionModel> values, [String? userId]) async {
+    final key = _getKey(userId);
     final ok = await preferences.setString(
-      _key,
+      key,
       jsonEncode(values.map((e) => e.toJson()).toList()),
     );
     if (!ok) throw const FormatException('Could not persist transactions');
   }
 
   @override
-  Future<void> saveTransaction(TransactionModel transaction) async {
-    final values = await getTransactions();
+  Future<void> saveTransaction(TransactionModel transaction, [String? userId]) async {
+    final values = await getTransactions(userId);
     final index = values.indexWhere((item) => item.id == transaction.id);
     if (index == -1) {
       values.add(transaction);
     } else {
       values[index] = transaction;
     }
-    await _write(values);
+    await _write(values, userId);
   }
 
   @override
-  Future<void> deleteTransaction(String id) async {
-    final values = await getTransactions()
+  Future<void> deleteTransaction(String id, [String? userId]) async {
+    final values = await getTransactions(userId)
       ..removeWhere((item) => item.id == id);
-    await _write(values);
+    await _write(values, userId);
   }
 
   @override
-  Future<void> clear() => preferences.remove(_key);
+  Future<void> clear([String? userId]) => preferences.remove(_getKey(userId));
 
   @override
-  Future<void> seedIfNeeded() async {
-    if (!(preferences.getBool(_seededKey) ?? false)) await reseed();
+  Future<void> seedIfNeeded([String? userId]) async {
+    final seededKey = _getSeededKey(userId);
+    if (!(preferences.getBool(seededKey) ?? false)) {
+      await reseed(userId);
+    }
   }
 
   @override
-  Future<void> reseed() async {
-    await _write(_demoTransactions());
-    await preferences.setBool(_seededKey, true);
+  Future<void> reseed([String? userId]) async {
+    final isGuest = userId == null || userId.isEmpty || userId == 'guest';
+    if (isGuest) {
+      await _write(_demoTransactions(), userId);
+    } else {
+      // New registered users start with a clean account
+      await _write([], userId);
+    }
+    await preferences.setBool(_getSeededKey(userId), true);
   }
 }
 
@@ -202,11 +226,11 @@ List<TransactionModel> _demoTransactions() {
   add(
     0,
     20,
-  'Big grocery shop',
+    'Big grocery shop',
     19500,
     TransactionType.expense,
     'groceries',
-  'Supplies for the month',
+    'Supplies for the month',
   );
   return values;
 }
