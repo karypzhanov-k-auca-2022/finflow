@@ -2,4 +2,8 @@ include: package:flutter_lints/flutter.yaml
 
 linter:
   rules:
-
+    - prefer_single_quotes
+    - always_declare_return_types
+    - unawaited_futures
+    - prefer_const_constructors
+    - prefer_const_declarations

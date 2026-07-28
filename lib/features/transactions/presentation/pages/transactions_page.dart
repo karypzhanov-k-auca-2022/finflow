@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/dependency_injection.dart';
@@ -431,9 +432,24 @@ class _TransactionList extends StatelessWidget {
               title: 'Delete transaction?',
               message: '"${tx.title}" cannot be restored.',
             ),
-            onDismissed: (_) => context.read<TransactionsBloc>().add(
-              TransactionDeleteRequested(tx.id),
-            ),
+            onDismissed: (_) {
+              HapticFeedback.mediumImpact();
+              context.read<TransactionsBloc>().add(
+                TransactionDeleteRequested(tx.id),
+              );
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Deleted "${tx.title}"'),
+                  action: SnackBarAction(
+                    label: 'Undo',
+                    onPressed: () async {
+                      await getIt<TransactionUseCases>().save(tx);
+                    },
+                  ),
+                ),
+              );
+            },
             child: TransactionTile(
               transaction: tx,
               onTap: () => context.push('/transactions/${tx.id}/edit'),

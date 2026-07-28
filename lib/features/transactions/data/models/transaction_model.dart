@@ -46,7 +46,7 @@ class TransactionModel extends FinanceTransaction {
           name: rawCat,
           iconCodePoint: 0xe59a,
           colorValue: 0xFF9E9E9E,
-        ) as CategoryModel,
+        ),
       );
     } else {
       parsedCategory = defaultCategoryModels.first;

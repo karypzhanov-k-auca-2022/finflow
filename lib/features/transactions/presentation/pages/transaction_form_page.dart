@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/utils/formatters.dart';
@@ -68,6 +69,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
         );
       }
       if (state.status == FormStatus.success) {
+        HapticFeedback.lightImpact();
         saved = true;
         ScaffoldMessenger.of(
           context,
@@ -236,9 +238,9 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                                   ),
                                 ),
                               ),
-                              DropdownMenuItem(
+                              const DropdownMenuItem(
                                 value: addNewSentinel,
-                                child: const Row(
+                                child: Row(
                                   children: [
                                     Icon(Icons.add_circle_outline, color: Colors.blue, size: 20),
                                     SizedBox(width: 8),

@@ -22,6 +22,10 @@ class MockTransactionsBloc
     extends MockBloc<TransactionsEvent, TransactionsState>
     implements TransactionsBloc {}
 
+class MockCategoriesBloc
+    extends MockBloc<CategoriesEvent, CategoriesState>
+    implements CategoriesBloc {}
+
 void main() {
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -83,13 +87,13 @@ void main() {
   testWidgets('form displays validation errors when fields are empty', (tester) async {
     final repository = MockTransactionRepository();
     final cubit = TransactionFormCubit(TransactionUseCases(repository));
-    final catBloc = CategoriesBloc(getIt())..add(const CategoriesRequested());
+    final catBloc = _catBloc();
     await tester.pumpWidget(
       MaterialApp(
         home: MultiBlocProvider(
           providers: [
-            BlocProvider.value(value: cubit),
-            BlocProvider.value(value: catBloc),
+            BlocProvider<TransactionFormCubit>.value(value: cubit),
+            BlocProvider<CategoriesBloc>.value(value: catBloc),
           ],
           child: const TransactionFormPage(),
         ),
@@ -103,7 +107,6 @@ void main() {
     expect(find.text('Enter title'), findsOneWidget);
     expect(find.text('Enter a positive amount'), findsOneWidget);
     await cubit.close();
-    await catBloc.close();
   });
 }
 
@@ -117,13 +120,24 @@ MockTransactionsBloc _bloc(TransactionsState state) {
   return bloc;
 }
 
+MockCategoriesBloc _catBloc() {
+  final bloc = MockCategoriesBloc();
+  whenListen(
+    bloc,
+    const Stream<CategoriesState>.empty(),
+    initialState: const CategoriesState(
+      status: CategoriesStatus.success,
+      categories: defaultCategoryModels,
+    ),
+  );
+  return bloc;
+}
+
 Widget _transactionsApp(TransactionsBloc bloc) => MaterialApp(
   home: MultiBlocProvider(
     providers: [
       BlocProvider<TransactionsBloc>.value(value: bloc),
-      BlocProvider<CategoriesBloc>(
-        create: (_) => CategoriesBloc(getIt())..add(const CategoriesRequested()),
-      ),
+      BlocProvider<CategoriesBloc>.value(value: _catBloc()),
     ],
     child: const TransactionsPage(),
   ),

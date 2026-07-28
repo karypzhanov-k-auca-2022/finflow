@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/state_views.dart';
-import '../../data/datasources/category_local_data_source.dart';
 import '../bloc/categories_bloc.dart';
 import '../widgets/add_category_bottom_sheet.dart';
 
@@ -43,7 +42,6 @@ class CategoriesPage extends StatelessWidget {
             itemCount: state.categories.length,
             itemBuilder: (context, index) {
               final cat = state.categories[index];
-              final isDefault = defaultCategoryModels.any((d) => d.id == cat.id);
               return Card(
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app/dependency_injection.dart';
 import '../../../../core/error/result.dart';
@@ -9,7 +10,9 @@ import '../../../categories/data/models/category_model.dart';
 import '../../../categories/domain/entities/category.dart';
 import '../../../categories/domain/usecases/category_use_cases.dart';
 import '../../domain/entities/budget.dart';
+import '../../domain/usecases/budget_use_cases.dart';
 import '../bloc/budgets_bloc.dart';
+import '../widgets/budget_details_sheet.dart';
 
 Category _resolveCategory(String categoryId, List<Category> categories) {
   return categories.firstWhere(
@@ -61,16 +64,16 @@ class _BudgetsPageState extends State<BudgetsPage> {
       builder: (context, state) => switch (state.status) {
         BudgetsStatus.initial || BudgetsStatus.loading => const LoadingView(),
         BudgetsStatus.failure => ErrorState(
-        message: state.failure?.message ?? 'Please try again',
+          message: state.failure?.message ?? 'Please try again',
           onRetry: () =>
               context.read<BudgetsBloc>().add(const BudgetsRequested()),
         ),
         BudgetsStatus.empty => EmptyState(
-        title: 'No budgets set',
-        message: 'Set a limit for a category and track progress.',
+          title: 'No budgets set',
+          message: 'Set a limit for a category and track progress.',
           action: FilledButton(
             onPressed: () => _openForm(context, null, availableCategories),
-          child: const Text('Create budget'),
+            child: const Text('Create budget'),
           ),
         ),
         BudgetsStatus.success => RefreshIndicator(
@@ -88,12 +91,43 @@ class _BudgetsPageState extends State<BudgetsPage> {
             itemBuilder: (context, index) => _BudgetCard(
               budget: state.budgets[index],
               categories: availableCategories,
+              onTap: () => _openBudgetDetails(
+                context,
+                state.budgets[index],
+                _resolveCategory(state.budgets[index].categoryId, availableCategories),
+              ),
+              onEdit: () => _openForm(context, state.budgets[index], availableCategories),
+              onDelete: () async => _deleteBudget(context, state.budgets[index]),
             ),
           ),
         ),
       },
     ),
   );
+
+  Future<void> _openBudgetDetails(
+    BuildContext context,
+    Budget budget,
+    Category category,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => BudgetDetailsSheet(
+        budget: budget,
+        category: category,
+        onEdit: () {
+          Navigator.pop(sheetContext);
+          _openForm(context, budget, availableCategories);
+        },
+        onDelete: () async {
+          Navigator.pop(sheetContext);
+          await _deleteBudget(context, budget);
+        },
+      ),
+    );
+  }
 
   Future<void> _openForm(
     BuildContext context,
@@ -110,12 +144,48 @@ class _BudgetsPageState extends State<BudgetsPage> {
       context.read<BudgetsBloc>().add(BudgetSaved(result));
     }
   }
+
+  Future<void> _deleteBudget(BuildContext context, Budget budget) async {
+    final cat = _resolveCategory(budget.categoryId, availableCategories);
+    final confirmed = await showConfirmation(
+      context,
+      title: 'Delete budget?',
+      message: 'Limit for category "${cat.name}" will be removed.',
+    );
+    if (confirmed) {
+      await HapticFeedback.mediumImpact();
+      if (!context.mounted) return;
+      context.read<BudgetsBloc>().add(BudgetDeleted(budget.id));
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Budget for "${cat.name}" deleted'),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () async {
+              await getIt<BudgetUseCases>().save(budget);
+            },
+          ),
+        ),
+      );
+    }
+  }
 }
 
 class _BudgetCard extends StatelessWidget {
-  const _BudgetCard({required this.budget, required this.categories});
+  const _BudgetCard({
+    required this.budget,
+    required this.categories,
+    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
   final Budget budget;
   final List<Category> categories;
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -126,92 +196,123 @@ class _BudgetCard extends StatelessWidget {
         : budget.isWarning
         ? Colors.orange
         : scheme.primary;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+
+    return Dismissible(
+      key: ValueKey('dismiss-budget-${budget.id}'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        color: scheme.errorContainer,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        child: Icon(
+          Icons.delete,
+          color: scheme.onErrorContainer,
+        ),
+      ),
+      confirmDismiss: (_) => showConfirmation(
+        context,
+        title: 'Delete budget?',
+        message: 'Limit for category "${cat.name}" will be removed.',
+      ),
+      onDismissed: (_) {
+        HapticFeedback.mediumImpact();
+        context.read<BudgetsBloc>().add(BudgetDeleted(budget.id));
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Budget for "${cat.name}" deleted'),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () async {
+                await getIt<BudgetUseCases>().save(budget);
+              },
+            ),
+          ),
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  backgroundColor: cat.color.withValues(alpha: .15),
-                  child: Icon(
-                    cat.icon,
-                    color: cat.color,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        cat.name,
-                        style: Theme.of(context).textTheme.titleMedium,
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: cat.color.withValues(alpha: .15),
+                      child: Icon(
+                        cat.icon,
+                        color: cat.color,
                       ),
-                      Text(
-                        '${formatMoney(budget.spent)} of ${formatMoney(budget.limit)}',
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            cat.name,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          Text(
+                            '${formatMoney(budget.spent)} of ${formatMoney(budget.limit)}',
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                PopupMenuButton<String>(
-                  onSelected: (value) async {
-                    if (value == 'edit') {
-                      final result = await showModalBottomSheet<Budget>(
-                        context: context,
-                        isScrollControlled: true,
-                        showDragHandle: true,
-                        builder: (_) => _BudgetForm(
-                          budget: budget,
-                          categories: categories,
+                    ),
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'edit') onEdit();
+                        if (value == 'delete') onDelete();
+                      },
+                      itemBuilder: (_) => [
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit_outlined, size: 20),
+                              SizedBox(width: 10),
+                              Text('Edit'),
+                            ],
+                          ),
                         ),
-                      );
-                      if (result != null && context.mounted) {
-                        context.read<BudgetsBloc>().add(BudgetSaved(result));
-                      }
-                    }
-                    if (value == 'delete' &&
-                        context.mounted &&
-                        await showConfirmation(
-                          context,
-                          title: 'Delete budget?',
-                          message:
-                              'Limit for category "${cat.name}" will be removed.',
-                        )) {
-                      if (context.mounted) {
-                        context.read<BudgetsBloc>().add(
-                          BudgetDeleted(budget.id),
-                        );
-                      }
-                    }
-                  },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'edit', child: Text('Edit')),
-                    PopupMenuItem(value: 'delete', child: Text('Delete')),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete_outline, size: 20, color: scheme.error),
+                              const SizedBox(width: 10),
+                              Text('Delete', style: TextStyle(color: scheme.error)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
+                ),
+                const SizedBox(height: 14),
+                LinearProgressIndicator(
+                  value: budget.progress.clamp(0, 1),
+                  minHeight: 10,
+                  borderRadius: BorderRadius.circular(8),
+                  color: color,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  budget.isExceeded
+                      ? 'Limit exceeded by ${formatMoney(budget.spent - budget.limit)}'
+                      : budget.isWarning
+                      ? 'More than 80% of budget used'
+                      : 'Remaining ${formatMoney(budget.limit - budget.spent)}',
+                  style: TextStyle(color: color, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
-            LinearProgressIndicator(
-              value: budget.progress.clamp(0, 1),
-              minHeight: 10,
-              borderRadius: BorderRadius.circular(8),
-              color: color,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              budget.isExceeded
-                  ? 'Limit exceeded by ${formatMoney(budget.spent - budget.limit)}'
-                  : budget.isWarning
-                  ? 'More than 80% of budget used'
-                  : 'Remaining ${formatMoney(budget.limit - budget.spent)}',
-              style: TextStyle(color: color, fontWeight: FontWeight.w600),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -324,6 +425,28 @@ class _BudgetFormState extends State<_BudgetForm> {
               },
               child: const Text('Save'),
             ),
+            if (widget.budget != null) ...[
+              const SizedBox(height: 8),
+              TextButton.icon(
+                onPressed: () async {
+                  final confirmed = await showConfirmation(
+                    context,
+                    title: 'Delete budget?',
+                    message: 'Limit for this category will be removed.',
+                  );
+                  if (confirmed && context.mounted) {
+                    final budgetId = widget.budget!.id;
+                    Navigator.pop(context);
+                    context.read<BudgetsBloc>().add(BudgetDeleted(budgetId));
+                  }
+                },
+                icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+                label: Text(
+                  'Delete budget',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+            ],
           ],
         ),
       ),

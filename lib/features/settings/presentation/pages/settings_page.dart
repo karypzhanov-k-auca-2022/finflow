@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../app/dependency_injection.dart';
+import '../../../../core/error/result.dart';
+import '../../../../core/utils/csv_exporter.dart';
 import '../../../../core/widgets/state_views.dart';
+import '../../../transactions/domain/repositories/transaction_repository.dart';
+import '../../../transactions/domain/usecases/transaction_use_cases.dart';
 import '../bloc/settings_cubit.dart';
 import '../bloc/theme_cubit.dart';
 
@@ -46,8 +52,10 @@ class SettingsPage extends StatelessWidget {
                 ),
               ],
               selected: {mode},
-              onSelectionChanged: (value) =>
-                  context.read<ThemeCubit>().setMode(value.first),
+              onSelectionChanged: (value) {
+                HapticFeedback.selectionClick();
+                context.read<ThemeCubit>().setMode(value.first);
+              },
             ),
           ),
           const SizedBox(height: 20),
@@ -71,6 +79,14 @@ class SettingsPage extends StatelessWidget {
               return Card(
                 child: Column(
                   children: [
+                    ListTile(
+                      enabled: !disabled,
+                      leading: const Icon(Icons.file_download_outlined),
+                      title: const Text('Export transactions to CSV'),
+                      subtitle: const Text('Save or copy financial records'),
+                      onTap: disabled ? null : () => _exportCsv(context),
+                    ),
+                    const Divider(height: 1),
                     ListTile(
                       enabled: !disabled,
                       leading: const Icon(Icons.delete_sweep_outlined),
@@ -139,4 +155,69 @@ class SettingsPage extends StatelessWidget {
       ),
     ),
   );
+
+  Future<void> _exportCsv(BuildContext context) async {
+    final res = await getIt<TransactionUseCases>().load();
+    if (!context.mounted) return;
+
+    if (res is Success<TransactionsResult>) {
+      final csv = CsvExporter.exportTransactions(res.data.transactions);
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Export CSV'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Generated ${res.data.transactions.length} transaction(s) in CSV format:',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  constraints: const BoxConstraints(maxHeight: 180),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: SingleChildScrollView(
+                    child: SelectableText(
+                      csv,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Close'),
+            ),
+            FilledButton.icon(
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: csv));
+                if (dialogContext.mounted) {
+                  Navigator.pop(dialogContext);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('CSV copied to clipboard!')),
+                  );
+                }
+              },
+              icon: const Icon(Icons.copy, size: 18),
+              label: const Text('Copy'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 }

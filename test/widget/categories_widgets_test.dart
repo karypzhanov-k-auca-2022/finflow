@@ -59,11 +59,11 @@ void main() {
   });
 
   testWidgets('renders category list items correctly', (tester) async {
-    final categories = defaultCategoryModels;
+    const categories = defaultCategoryModels;
     whenListen(
       mockBloc,
       const Stream<CategoriesState>.empty(),
-      initialState: CategoriesState(
+      initialState: const CategoriesState(
         status: CategoriesStatus.success,
         categories: categories,
       ),
