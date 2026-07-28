@@ -74,7 +74,7 @@ class TransactionRepositoryImpl with LoggerMixin implements TransactionRepositor
         try {
           await remote.saveTransaction(model, isNew: isNew);
         } on DioException {
-          /* Local write is authoritative offline. */
+          // Offline fallback
         }
       }
       _changeController.add(null);
@@ -92,7 +92,7 @@ class TransactionRepositoryImpl with LoggerMixin implements TransactionRepositor
         try {
           await remote.deleteTransaction(id);
         } on DioException {
-          /* Local delete remains valid offline. */
+          // Offline fallback
         }
       }
       _changeController.add(null);

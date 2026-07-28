@@ -65,7 +65,7 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
         try {
           await remote.saveBudget(model, isNew: isNew);
         } on DioException {
-          /* Offline-first. */
+          // Offline fallback
         }
       }
       _changeController.add(null);
@@ -83,7 +83,7 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
         try {
           await remote.deleteBudget(id);
         } on DioException {
-          /* Offline-first. */
+          // Offline fallback
         }
       }
       _changeController.add(null);
