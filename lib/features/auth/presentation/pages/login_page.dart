@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../app/app_routes.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/extensions/l10n_x.dart';
 import '../bloc/auth_cubit.dart';
 
@@ -53,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
-          context.go('/dashboard');
+          context.go(AppRoutes.dashboard);
         } else if (state.failure != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -68,7 +70,10 @@ class _LoginPageState extends State<LoginPage> {
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.section,
+                vertical: AppSpacing.large,
+              ),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 520),
                 child: Form(
@@ -101,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: AppSpacing.huge),
 
                       // Animated Card Container for Mode Distinctness
                       AnimatedSwitcher(
@@ -119,14 +124,16 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(24),
+                            padding: const EdgeInsets.all(AppSpacing.section),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 // Hero Icon
                                 Center(
                                   child: Container(
-                                    padding: const EdgeInsets.all(16),
+                                    padding: const EdgeInsets.all(
+                                      AppSpacing.large,
+                                    ),
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: isRegister
@@ -144,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: AppSpacing.large),
 
                                 // Header Title & Subtitle
                                 Text(
@@ -160,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
                                             : scheme.primary,
                                       ),
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: AppSpacing.compact),
                                 Text(
                                   isRegister
                                       ? context.l10n.registerSubtitle
@@ -170,7 +177,7 @@ class _LoginPageState extends State<LoginPage> {
                                     color: scheme.onSurfaceVariant,
                                   ),
                                 ),
-                                const SizedBox(height: 28),
+                                const SizedBox(height: AppSpacing.sectionLarge),
 
                                 // Email Field
                                 TextFormField(
@@ -197,7 +204,7 @@ class _LoginPageState extends State<LoginPage> {
                                     return null;
                                   },
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: AppSpacing.large),
 
                                 // Password Field
                                 TextFormField(
@@ -236,7 +243,7 @@ class _LoginPageState extends State<LoginPage> {
 
                                 // Confirm Password Field (Only in Registration Mode)
                                 if (isRegister) ...[
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: AppSpacing.large),
                                   TextFormField(
                                     controller: confirmPasswordController,
                                     obscureText: !isConfirmPasswordVisible,
@@ -274,7 +281,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ],
 
-                                const SizedBox(height: 24),
+                                const SizedBox(height: AppSpacing.section),
 
                                 // Action Button
                                 BlocBuilder<AuthCubit, AuthState>(
@@ -285,7 +292,7 @@ class _LoginPageState extends State<LoginPage> {
                                       onPressed: loading ? null : _submit,
                                       style: FilledButton.styleFrom(
                                         padding: const EdgeInsets.symmetric(
-                                          vertical: 14,
+                                          vertical: AppSpacing.mediumLarge,
                                         ),
                                         backgroundColor: isRegister
                                             ? scheme.tertiary
@@ -328,14 +335,16 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.section),
 
                       // Or Guest Divider & Button
                       Row(
                         children: [
                           const Expanded(child: Divider()),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.large,
+                            ),
                             child: Text(
                               context.l10n.or,
                               style: const TextStyle(
@@ -348,14 +357,16 @@ class _LoginPageState extends State<LoginPage> {
                           const Expanded(child: Divider()),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.large),
 
                       OutlinedButton.icon(
                         onPressed: () {
                           context.read<AuthCubit>().signInAnonymously();
                         },
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.medium,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

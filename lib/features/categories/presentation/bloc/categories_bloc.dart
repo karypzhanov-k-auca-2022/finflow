@@ -7,41 +7,8 @@ import '../../domain/entities/category.dart';
 import '../../domain/usecases/category_use_cases.dart';
 
 part 'categories_bloc.freezed.dart';
-
-sealed class CategoriesEvent extends Equatable {
-  const CategoriesEvent();
-  @override
-  List<Object?> get props => [];
-}
-
-final class CategoriesRequested extends CategoriesEvent {
-  const CategoriesRequested();
-}
-
-final class CategorySaved extends CategoriesEvent {
-  const CategorySaved(this.category);
-  final Category category;
-  @override
-  List<Object?> get props => [category];
-}
-
-final class CategoryDeleted extends CategoriesEvent {
-  const CategoryDeleted(this.id);
-  final String id;
-  @override
-  List<Object?> get props => [id];
-}
-
-enum CategoriesStatus { initial, loading, success, failure }
-
-@freezed
-abstract class CategoriesState with _$CategoriesState {
-  const factory CategoriesState({
-    @Default(CategoriesStatus.initial) CategoriesStatus status,
-    @Default([]) List<Category> categories,
-    Failure? failure,
-  }) = _CategoriesState;
-}
+part 'categories_event.dart';
+part 'categories_state.dart';
 
 class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
   CategoriesBloc(this.useCases) : super(const CategoriesState()) {

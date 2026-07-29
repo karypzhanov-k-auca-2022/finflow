@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/extensions/l10n_x.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/category_x.dart';
 import '../bloc/categories_bloc.dart';
 import '../widgets/add_category_bottom_sheet.dart';
@@ -38,12 +39,17 @@ class CategoriesPage extends StatelessWidget {
             ),
           ),
           CategoriesStatus.success => ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.large,
+              AppSpacing.small,
+              AppSpacing.large,
+              AppSpacing.pageBottom,
+            ),
             itemCount: state.categories.length,
             itemBuilder: (context, index) {
               final cat = state.categories[index];
               return Card(
-                margin: const EdgeInsets.only(bottom: 8),
+                margin: const EdgeInsets.only(bottom: AppSpacing.small),
                 child: ListTile(
                   leading: CircleAvatar(
                     backgroundColor: cat.color.withValues(alpha: .15),

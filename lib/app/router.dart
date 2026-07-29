@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../core/extensions/l10n_x.dart';
+import '../core/theme/app_spacing.dart';
 import '../features/analytics/presentation/pages/analytics_page.dart';
 import '../features/budgets/presentation/pages/budgets_page.dart';
 import '../features/categories/presentation/pages/categories_page.dart';
@@ -13,6 +14,7 @@ import '../features/transactions/presentation/transaction_form/cubit/transaction
 import '../features/transactions/presentation/transaction_form/pages/transaction_form_page.dart';
 import '../features/transactions/presentation/transactions_list/bloc/transactions_bloc.dart';
 import '../features/transactions/presentation/transactions_list/pages/transactions_page.dart';
+import 'app_routes.dart';
 import 'app_initializer.dart';
 import 'dependency_injection.dart';
 import 'splash_page.dart';
@@ -20,7 +22,7 @@ import 'splash_page.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 
 GoRouter createRouter(AppInitializer initializer) => GoRouter(
-  initialLocation: '/splash',
+  initialLocation: AppRoutes.splash,
   restorationScopeId: 'router',
   errorBuilder: (context, state) => Scaffold(
     appBar: AppBar(title: Text(context.l10n.pageNotFound)),
@@ -29,11 +31,11 @@ GoRouter createRouter(AppInitializer initializer) => GoRouter(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.explore_off_outlined, size: 64),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.large),
           Text(context.l10n.routeDoesNotExist(state.uri.toString())),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.large),
           FilledButton(
-            onPressed: () => context.go('/dashboard'),
+            onPressed: () => context.go(AppRoutes.dashboard),
             child: Text(context.l10n.home),
           ),
         ],
@@ -42,17 +44,17 @@ GoRouter createRouter(AppInitializer initializer) => GoRouter(
   ),
   routes: [
     GoRoute(
-      path: '/splash',
+      path: AppRoutes.splash,
       builder: (_, _) => SplashPage(initializer: initializer),
     ),
-    GoRoute(path: '/login', builder: (_, _) => const LoginPage()),
+    GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginPage()),
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => _AppShell(shell: shell),
       branches: [
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/dashboard',
+              path: AppRoutes.dashboard,
               builder: (_, _) => const DashboardPage(),
             ),
           ],
@@ -60,40 +62,46 @@ GoRouter createRouter(AppInitializer initializer) => GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/transactions',
+              path: AppRoutes.transactions,
               builder: (_, _) => const TransactionsPage(),
             ),
           ],
         ),
         StatefulShellBranch(
           routes: [
-            GoRoute(path: '/budgets', builder: (_, _) => const BudgetsPage()),
+            GoRoute(
+              path: AppRoutes.budgets,
+              builder: (_, _) => const BudgetsPage(),
+            ),
           ],
         ),
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/analytics',
+              path: AppRoutes.analytics,
               builder: (_, _) => const AnalyticsPage(),
             ),
           ],
         ),
         StatefulShellBranch(
           routes: [
-            GoRoute(path: '/settings', builder: (_, _) => const SettingsPage()),
+            GoRoute(
+              path: AppRoutes.settings,
+              builder: (_, _) => const SettingsPage(),
+            ),
           ],
         ),
       ],
     ),
     GoRoute(
-      path: '/transactions/new',
+      path: AppRoutes.newTransaction,
       builder: (_, _) => BlocProvider<TransactionFormCubit>(
         create: (_) => getIt(),
         child: const TransactionFormPage(),
       ),
     ),
     GoRoute(
-      path: '/transactions/:id/edit',
+      path: AppRoutes.editTransaction,
       builder: (context, state) {
         final id = state.pathParameters['id'];
         FinanceTransaction? item;
@@ -107,8 +115,11 @@ GoRouter createRouter(AppInitializer initializer) => GoRouter(
         );
       },
     ),
-    GoRoute(path: '/categories', builder: (_, _) => const CategoriesPage()),
-    GoRoute(path: '/about', builder: (_, _) => const AboutPage()),
+    GoRoute(
+      path: AppRoutes.categories,
+      builder: (_, _) => const CategoriesPage(),
+    ),
+    GoRoute(path: AppRoutes.about, builder: (_, _) => const AboutPage()),
   ],
 );
 
@@ -192,9 +203,9 @@ class _MissingTransactionPage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(context.l10n.transactionNotFound),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.medium),
           FilledButton(
-            onPressed: () => context.go('/transactions'),
+            onPressed: () => context.go(AppRoutes.transactions),
             child: Text(context.l10n.backToTransactions),
           ),
         ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../app/app_routes.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../app/dependency_injection.dart';
 import '../../../../core/error/result.dart';
 import '../../../../core/extensions/l10n_x.dart';
@@ -44,7 +46,12 @@ class BudgetDetailsSheet extends StatelessWidget {
         children: [
           // Header Card
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.extraLarge,
+              AppSpacing.small,
+              AppSpacing.extraLarge,
+              AppSpacing.large,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -59,7 +66,7 @@ class BudgetDetailsSheet extends StatelessWidget {
                         size: 28,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: AppSpacing.mediumLarge),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,7 +90,7 @@ class BudgetDetailsSheet extends StatelessWidget {
                       icon: const Icon(Icons.edit_outlined, size: 20),
                       tooltip: context.l10n.editLimit,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppSpacing.small),
                     IconButton.outlined(
                       onPressed: onDelete,
                       icon: Icon(
@@ -95,14 +102,14 @@ class BudgetDetailsSheet extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.large),
                 LinearProgressIndicator(
                   value: budget.progress.clamp(0, 1),
                   minHeight: 12,
                   borderRadius: BorderRadius.circular(8),
                   color: color,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.small),
                 Text(
                   budget.isExceeded
                       ? context.l10n.limitExceededBy(
@@ -123,7 +130,12 @@ class BudgetDetailsSheet extends StatelessWidget {
 
           // Transactions List Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.extraLarge,
+              AppSpacing.mediumLarge,
+              AppSpacing.extraLarge,
+              AppSpacing.small,
+            ),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -161,7 +173,7 @@ class BudgetDetailsSheet extends StatelessWidget {
                 if (categoryTxList.isEmpty) {
                   return Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(AppSpacing.section),
                       child: Text(
                         context.l10n.noCategoryExpensesThisMonth,
                         textAlign: TextAlign.center,
@@ -179,7 +191,7 @@ class BudgetDetailsSheet extends StatelessWidget {
                       transaction: tx,
                       onTap: () {
                         Navigator.pop(context);
-                        context.push('/transactions/${tx.id}/edit');
+                        context.push(AppRoutes.transactionEdit(tx.id));
                       },
                     );
                   },

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../app/app_routes.dart';
 import '../../../../app/dependency_injection.dart';
 import '../../../../core/error/result.dart';
 import '../../../../core/extensions/l10n_x.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/csv_exporter.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../transactions/domain/repositories/transaction_repository.dart';
@@ -42,13 +44,13 @@ class SettingsPage extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.large),
             children: [
               Text(
                 context.l10n.account,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.small),
               BlocBuilder<AuthCubit, AuthState>(
                 builder: (context, authState) {
                   final user = authState.user;
@@ -74,10 +76,10 @@ class SettingsPage extends StatelessWidget {
                           if (user != null) {
                             await context.read<AuthCubit>().signOut();
                             if (context.mounted) {
-                              context.go('/login');
+                              context.go(AppRoutes.login);
                             }
                           } else {
-                            await context.push('/login');
+                            await context.push(AppRoutes.login);
                           }
                         },
                         icon: Icon(
@@ -94,18 +96,20 @@ class SettingsPage extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.extraLarge),
               Text(
                 context.l10n.theme,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: AppSpacing.smallMedium),
               BlocBuilder<ThemeCubit, ThemeMode>(
                 builder: (context, mode) => SegmentedButton<ThemeMode>(
                   showSelectedIcon: false,
                   style: SegmentedButton.styleFrom(
                     visualDensity: VisualDensity.compact,
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.tiny,
+                    ),
                   ),
                   segments: [
                     ButtonSegment(
@@ -143,12 +147,12 @@ class SettingsPage extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.extraLarge),
               Text(
                 context.l10n.language,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: AppSpacing.smallMedium),
               BlocBuilder<LocaleCubit, Locale>(
                 builder: (context, locale) => SegmentedButton<String>(
                   segments: [
@@ -168,27 +172,27 @@ class SettingsPage extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.extraLarge),
               Text(
                 context.l10n.categoriesTitle,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.small),
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.category_outlined),
                   title: Text(context.l10n.manageCategories),
                   subtitle: Text(context.l10n.manageCategoriesSubtitle),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/categories'),
+                  onTap: () => context.push(AppRoutes.categories),
                 ),
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: AppSpacing.sectionLarge),
               Text(
                 context.l10n.data,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.small),
               BlocBuilder<SettingsCubit, SettingsActionState>(
                 builder: (context, state) {
                   final disabled = state.status == SettingsActionStatus.working;
@@ -266,14 +270,14 @@ class SettingsPage extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.extraLarge),
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.info_outline),
                   title: Text(context.l10n.about),
                   subtitle: const Text('FinFlow 1.0.0'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/about'),
+                  onTap: () => context.push(AppRoutes.about),
                 ),
               ),
             ],
@@ -303,10 +307,10 @@ class SettingsPage extends StatelessWidget {
                   context.l10n.csvGenerated(res.data.transactions.length),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.medium),
                 Container(
                   constraints: const BoxConstraints(maxHeight: 180),
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(AppSpacing.small),
                   decoration: BoxDecoration(
                     color: Theme.of(
                       context,

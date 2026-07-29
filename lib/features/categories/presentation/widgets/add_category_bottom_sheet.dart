@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/extensions/l10n_x.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/category.dart';
 import '../bloc/categories_bloc.dart';
 
@@ -88,10 +89,10 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(
-          20,
+          AppSpacing.extraLarge,
           0,
-          20,
-          MediaQuery.of(context).viewInsets.bottom + 20,
+          AppSpacing.extraLarge,
+          MediaQuery.of(context).viewInsets.bottom + AppSpacing.extraLarge,
         ),
         child: Form(
           key: _formKey,
@@ -105,7 +106,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                     : context.l10n.newCategory,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.large),
               TextFormField(
                 controller: _nameController,
                 autofocus: !isEditing,
@@ -118,19 +119,19 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                     ? context.l10n.enterCategoryName
                     : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.large),
               Text(
                 context.l10n.color,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.small),
               SizedBox(
                 height: 44,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: presetCategoryColors.length,
                   separatorBuilder: (context, index) =>
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.small),
                   itemBuilder: (context, index) {
                     final color = presetCategoryColors[index];
                     final isSelected = color == _selectedColor;
@@ -163,12 +164,12 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                   },
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.large),
               Text(
                 context.l10n.icon,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.small),
               SizedBox(
                 height: 140,
                 child: GridView.builder(
@@ -208,7 +209,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.extraLarge),
               FilledButton.icon(
                 onPressed: _submit,
                 icon: const Icon(Icons.check),

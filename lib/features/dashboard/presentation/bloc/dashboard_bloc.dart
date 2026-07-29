@@ -8,70 +8,8 @@ import '../../../transactions/domain/usecases/transaction_use_cases.dart';
 import '../../domain/entities/dashboard_data.dart';
 import '../../domain/usecases/build_dashboard.dart';
 
-sealed class DashboardEvent extends Equatable {
-  const DashboardEvent();
-  @override
-  List<Object?> get props => [];
-}
-
-final class DashboardRequested extends DashboardEvent {
-  const DashboardRequested({this.refresh = false});
-  final bool refresh;
-  @override
-  List<Object?> get props => [refresh];
-}
-
-final class DashboardPeriodChanged extends DashboardEvent {
-  const DashboardPeriodChanged({required this.period, this.from, this.to});
-
-  final TransactionPeriod period;
-  final DateTime? from;
-  final DateTime? to;
-
-  @override
-  List<Object?> get props => [period, from, to];
-}
-
-enum DashboardStatus { initial, loading, success, empty, failure }
-
-class DashboardState extends Equatable {
-  const DashboardState({
-    this.status = DashboardStatus.initial,
-    this.data,
-    this.failure,
-    this.period = TransactionPeriod.month,
-    this.from,
-    this.to,
-  });
-
-  final DashboardStatus status;
-  final DashboardData? data;
-  final Failure? failure;
-  final TransactionPeriod period;
-  final DateTime? from;
-  final DateTime? to;
-
-  DashboardState copyWith({
-    DashboardStatus? status,
-    DashboardData? data,
-    Failure? failure,
-    TransactionPeriod? period,
-    DateTime? from,
-    bool clearFrom = false,
-    DateTime? to,
-    bool clearTo = false,
-  }) => DashboardState(
-    status: status ?? this.status,
-    data: data ?? this.data,
-    failure: failure ?? this.failure,
-    period: period ?? this.period,
-    from: clearFrom ? null : from ?? this.from,
-    to: clearTo ? null : to ?? this.to,
-  );
-
-  @override
-  List<Object?> get props => [status, data, failure, period, from, to];
-}
+part 'dashboard_event.dart';
+part 'dashboard_state.dart';
 
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   DashboardBloc(this.transactions, this.budgets)

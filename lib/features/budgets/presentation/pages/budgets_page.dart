@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../app/dependency_injection.dart';
 import '../../../../core/error/result.dart';
 import '../../../../core/extensions/l10n_x.dart';
@@ -88,7 +89,12 @@ class _BudgetsPageState extends State<BudgetsPage> {
             );
           },
           child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.large,
+              AppSpacing.small,
+              AppSpacing.large,
+              AppSpacing.pageBottom,
+            ),
             itemCount: state.budgets.length,
             itemBuilder: (context, index) => _BudgetCard(
               budget: state.budgets[index],
@@ -210,7 +216,7 @@ class _BudgetCard extends StatelessWidget {
       background: Container(
         color: scheme.errorContainer,
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 24),
+        padding: const EdgeInsets.only(right: AppSpacing.section),
         child: Icon(Icons.delete, color: scheme.onErrorContainer),
       ),
       confirmDismiss: (_) => showConfirmation(
@@ -237,12 +243,12 @@ class _BudgetCard extends StatelessWidget {
         );
       },
       child: Card(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsets.only(bottom: AppSpacing.medium),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(AppSpacing.largeExtra),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -252,7 +258,7 @@ class _BudgetCard extends StatelessWidget {
                       backgroundColor: cat.color.withValues(alpha: .15),
                       child: Icon(cat.icon, color: cat.color),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppSpacing.medium),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,7 +287,7 @@ class _BudgetCard extends StatelessWidget {
                           child: Row(
                             children: [
                               const Icon(Icons.edit_outlined, size: 20),
-                              const SizedBox(width: 10),
+                              const SizedBox(width: AppSpacing.smallMedium),
                               Text(context.l10n.edit),
                             ],
                           ),
@@ -295,7 +301,7 @@ class _BudgetCard extends StatelessWidget {
                                 size: 20,
                                 color: scheme.error,
                               ),
-                              const SizedBox(width: 10),
+                              const SizedBox(width: AppSpacing.smallMedium),
                               Text(
                                 context.l10n.delete,
                                 style: TextStyle(color: scheme.error),
@@ -307,14 +313,14 @@ class _BudgetCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: AppSpacing.mediumLarge),
                 LinearProgressIndicator(
                   value: budget.progress.clamp(0, 1),
                   minHeight: 10,
                   borderRadius: BorderRadius.circular(8),
                   color: color,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.small),
                 Text(
                   budget.isExceeded
                       ? context.l10n.limitExceededBy(
@@ -373,10 +379,10 @@ class _BudgetFormState extends State<_BudgetForm> {
   Widget build(BuildContext context) => SafeArea(
     child: Padding(
       padding: EdgeInsets.fromLTRB(
-        20,
+        AppSpacing.extraLarge,
         0,
-        20,
-        MediaQuery.viewInsetsOf(context).bottom + 20,
+        AppSpacing.extraLarge,
+        MediaQuery.viewInsetsOf(context).bottom + AppSpacing.extraLarge,
       ),
       child: SingleChildScrollView(
         child: Form(
@@ -391,7 +397,7 @@ class _BudgetFormState extends State<_BudgetForm> {
                     : context.l10n.editBudget,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.large),
               DropdownButtonFormField<String>(
                 initialValue: categoryId,
                 decoration: InputDecoration(labelText: context.l10n.category),
@@ -406,7 +412,7 @@ class _BudgetFormState extends State<_BudgetForm> {
                     .toList(),
                 onChanged: (value) => setState(() => categoryId = value!),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.medium),
               TextFormField(
                 controller: limit,
                 autofocus: true,
@@ -426,7 +432,7 @@ class _BudgetFormState extends State<_BudgetForm> {
                       : null;
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.extraLarge),
               FilledButton(
                 onPressed: () {
                   if (!(key.currentState?.validate() ?? false)) return;
@@ -447,7 +453,7 @@ class _BudgetFormState extends State<_BudgetForm> {
                 child: Text(context.l10n.save),
               ),
               if (widget.budget != null) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.small),
                 TextButton.icon(
                   onPressed: () async {
                     final confirmed = await showConfirmation(

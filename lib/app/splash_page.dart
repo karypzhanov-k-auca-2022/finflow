@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'app_routes.dart';
 import '../core/extensions/l10n_x.dart';
+import '../core/theme/app_spacing.dart';
 import '../features/analytics/presentation/bloc/analytics_bloc.dart';
 import '../features/auth/presentation/bloc/auth_cubit.dart';
 import '../features/budgets/presentation/bloc/budgets_bloc.dart';
@@ -35,9 +37,9 @@ class _SplashPageState extends State<SplashPage> {
 
         final authState = context.read<AuthCubit>().state;
         if (authState.user != null) {
-          context.go('/dashboard');
+          context.go(AppRoutes.dashboard);
         } else {
-          context.go('/login');
+          context.go(AppRoutes.login);
         }
       }
     } catch (_) {
@@ -52,7 +54,7 @@ class _SplashPageState extends State<SplashPage> {
     body: SafeArea(
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.all(AppSpacing.huge),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -61,14 +63,14 @@ class _SplashPageState extends State<SplashPage> {
                 size: 72,
                 color: Theme.of(context).colorScheme.primary,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.extraLarge),
               Text(
                 context.l10n.appTitle,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.large),
               if (error == null)
                 const CircularProgressIndicator()
               else ...[
@@ -76,7 +78,7 @@ class _SplashPageState extends State<SplashPage> {
                   context.l10n.storageInitializationFailed,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.large),
                 FilledButton(
                   onPressed: initialize,
                   child: Text(context.l10n.retry),

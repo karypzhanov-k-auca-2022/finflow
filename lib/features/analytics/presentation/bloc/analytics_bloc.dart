@@ -6,35 +6,8 @@ import '../../../transactions/domain/usecases/transaction_use_cases.dart';
 import '../../domain/entities/analytics_data.dart';
 import '../../domain/usecases/calculate_analytics.dart';
 
-sealed class AnalyticsEvent extends Equatable {
-  const AnalyticsEvent();
-  @override
-  List<Object?> get props => [];
-}
-
-final class AnalyticsRequested extends AnalyticsEvent {
-  const AnalyticsRequested({this.months = 6});
-  final int months;
-  @override
-  List<Object?> get props => [months];
-}
-
-enum AnalyticsStatus { initial, loading, success, empty, failure }
-
-class AnalyticsState extends Equatable {
-  const AnalyticsState({
-    this.status = AnalyticsStatus.initial,
-    this.months = 6,
-    this.data,
-    this.failure,
-  });
-  final AnalyticsStatus status;
-  final int months;
-  final AnalyticsData? data;
-  final Failure? failure;
-  @override
-  List<Object?> get props => [status, months, data, failure];
-}
+part 'analytics_event.dart';
+part 'analytics_state.dart';
 
 class AnalyticsBloc extends Bloc<AnalyticsEvent, AnalyticsState> {
   AnalyticsBloc(this.useCases) : super(const AnalyticsState()) {

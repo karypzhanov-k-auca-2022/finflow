@@ -2,6 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../app/app_routes.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/utils/category_x.dart';
 import '../../../../core/extensions/l10n_x.dart';
@@ -29,7 +31,7 @@ class DashboardPage extends StatelessWidget {
     ),
     floatingActionButton: FloatingActionButton.extended(
       heroTag: 'dashboard_fab',
-      onPressed: () => context.push('/transactions/new'),
+      onPressed: () => context.push(AppRoutes.newTransaction),
       icon: const Icon(Icons.add),
       label: Text(context.l10n.addTransaction),
     ),
@@ -46,7 +48,7 @@ class DashboardPage extends StatelessWidget {
           title: context.l10n.dashboardNoTransactions,
           message: context.l10n.dashboardNoTransactionsMessage,
           action: FilledButton.icon(
-            onPressed: () => context.push('/transactions/new'),
+            onPressed: () => context.push(AppRoutes.newTransaction),
             icon: const Icon(Icons.add),
             label: Text(context.l10n.add),
           ),
@@ -73,14 +75,19 @@ class _DashboardContent extends StatelessWidget {
         );
       },
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.large,
+          AppSpacing.small,
+          AppSpacing.large,
+          AppSpacing.pageBottom,
+        ),
         children: [
           _PeriodSelector(state: state),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.medium),
           Card(
             color: Theme.of(context).colorScheme.primaryContainer,
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.section),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -88,14 +95,14 @@ class _DashboardContent extends StatelessWidget {
                     context.l10n.currentBalance,
                     style: Theme.of(context).textTheme.labelLarge,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.small),
                   CurrencyText(
                     data.balance,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.extraLarge),
                   Row(
                     children: [
                       Expanded(
@@ -105,7 +112,7 @@ class _DashboardContent extends StatelessWidget {
                           color: Colors.green,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: AppSpacing.medium),
                       Expanded(
                         child: _Metric(
                           label: context.l10n.expenses,
@@ -119,10 +126,10 @@ class _DashboardContent extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.medium),
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.extraLarge),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -130,13 +137,13 @@ class _DashboardContent extends StatelessWidget {
                     context.l10n.budgetForPeriod,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.medium),
                   LinearProgressIndicator(
                     value: data.budgetProgress.clamp(0, 1),
                     minHeight: 10,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.small),
                   Text(
                     context.l10n.spentOfLimit(
                       formatMoney(data.monthlyExpense),
@@ -147,12 +154,12 @@ class _DashboardContent extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.extraLarge),
           Text(
             context.l10n.expensesByCategory,
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.medium),
           if (data.expensesByCategory.isEmpty)
             SizedBox(
               height: 220,
@@ -182,10 +189,10 @@ class _DashboardContent extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.large),
             Wrap(
-              spacing: 16,
-              runSpacing: 8,
+              spacing: AppSpacing.large,
+              runSpacing: AppSpacing.small,
               alignment: WrapAlignment.center,
               children: data.expensesByCategory.entries.map((entry) {
                 final category = entry.key;
@@ -204,12 +211,12 @@ class _DashboardContent extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppSpacing.small),
                     Text(
                       '${category.localizedName(context)} (${percentage.toStringAsFixed(0)}%)',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: AppSpacing.tiny),
                     Text(
                       formatMoney(amount),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -221,7 +228,7 @@ class _DashboardContent extends StatelessWidget {
               }).toList(),
             ),
           ],
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.extraLarge),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -230,7 +237,7 @@ class _DashboardContent extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               TextButton(
-                onPressed: () => context.go('/transactions'),
+                onPressed: () => context.go(AppRoutes.transactions),
                 child: Text(context.l10n.all),
               ),
             ],
@@ -242,7 +249,7 @@ class _DashboardContent extends StatelessWidget {
                     (item) => TransactionTile(
                       transaction: item,
                       onTap: () =>
-                          context.push('/transactions/${item.id}/edit'),
+                          context.push(AppRoutes.transactionEdit(item.id)),
                     ),
                   )
                   .toList(),
@@ -275,7 +282,7 @@ class _PeriodSelector extends StatelessWidget {
               const DashboardPeriodChanged(period: TransactionPeriod.month),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.small),
           FilterChip(
             label: Text(context.l10n.threeMonths),
             selected: period == TransactionPeriod.threeMonths,
@@ -285,7 +292,7 @@ class _PeriodSelector extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.small),
           FilterChip(
             label: Text(context.l10n.sixMonths),
             selected: period == TransactionPeriod.sixMonths,
@@ -293,7 +300,7 @@ class _PeriodSelector extends StatelessWidget {
               const DashboardPeriodChanged(period: TransactionPeriod.sixMonths),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.small),
           FilterChip(
             label: Text(context.l10n.year),
             selected: period == TransactionPeriod.year,
@@ -301,7 +308,7 @@ class _PeriodSelector extends StatelessWidget {
               const DashboardPeriodChanged(period: TransactionPeriod.year),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.small),
           FilterChip(
             avatar: const Icon(Icons.date_range, size: 16),
             label: Text(
@@ -352,7 +359,7 @@ class _Metric extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(label),
-      const SizedBox(height: 4),
+      const SizedBox(height: AppSpacing.tiny),
       CurrencyText(
         value,
         color: color,

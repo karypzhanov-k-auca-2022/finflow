@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/extensions/l10n_x.dart';
+import '../../../../core/theme/app_spacing.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -9,7 +10,7 @@ class AboutPage extends StatelessWidget {
     body: SafeArea(
       child: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.all(AppSpacing.huge),
           child: Column(
             children: [
               Container(
@@ -25,16 +26,16 @@ class AboutPage extends StatelessWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.extraLarge),
               Text(
                 context.l10n.appTitle,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.small),
               Text(context.l10n.personalFinanceTracker),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.section),
               Text(context.l10n.aboutDescription, textAlign: TextAlign.center),
             ],
           ),

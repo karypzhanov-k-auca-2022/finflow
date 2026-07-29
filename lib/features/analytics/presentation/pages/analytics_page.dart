@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/utils/category_x.dart';
 import '../../../../core/extensions/l10n_x.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../bloc/analytics_bloc.dart';
 
@@ -46,7 +47,12 @@ class _AnalyticsContent extends StatelessWidget {
       (max, item) => item.amount > max ? item.amount : max,
     );
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.large,
+        AppSpacing.small,
+        AppSpacing.large,
+        AppSpacing.huge,
+      ),
       children: [
         SegmentedButton<int>(
           segments: [
@@ -59,7 +65,7 @@ class _AnalyticsContent extends StatelessWidget {
             AnalyticsRequested(months: value.first),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.large),
         Row(
           children: [
             Expanded(
@@ -69,7 +75,7 @@ class _AnalyticsContent extends StatelessWidget {
                 icon: Icons.insights_outlined,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.medium),
             Expanded(
               child: _SummaryCard(
                 label: context.l10n.topCategory,
@@ -79,15 +85,20 @@ class _AnalyticsContent extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.extraLarge),
         Text(
           context.l10n.monthlyExpenses,
           style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.large),
         Card(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 24, 16, 12),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.medium,
+              AppSpacing.section,
+              AppSpacing.large,
+              AppSpacing.medium,
+            ),
             child: SizedBox(
               height: 230,
               child: BarChart(
@@ -148,12 +159,12 @@ class _AnalyticsContent extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.extraLarge),
         Text(
           context.l10n.byCategory,
           style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.small),
         Card(
           child: Column(
             children: sortedCategories
@@ -190,12 +201,12 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Card(
     child: Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.large),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.medium),
           Text(
             value,
             style: Theme.of(
@@ -204,7 +215,7 @@ class _SummaryCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: AppSpacing.tiny),
           Text(label, style: Theme.of(context).textTheme.bodySmall),
         ],
       ),

@@ -5,18 +5,7 @@ import '../../../../core/error/failure.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/auth_repository.dart';
 
-enum AuthStatus { initial, authenticated, unauthenticated, loading }
-
-class AuthState extends Equatable {
-  const AuthState({this.status = AuthStatus.initial, this.user, this.failure});
-
-  final AuthStatus status;
-  final AppUser? user;
-  final Failure? failure;
-
-  @override
-  List<Object?> get props => [status, user, failure];
-}
+part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit(this.repository)

@@ -6,6 +6,7 @@ lib/
 ├── app/
 │   ├── app.dart
 │   ├── app_initializer.dart
+│   ├── app_routes.dart
 │   ├── dependency_injection.dart
 │   ├── router.dart
 │   └── splash_page.dart
@@ -14,7 +15,7 @@ lib/
 │   ├── network/      # Dio configuration
 │   ├── connectivity/ # connectivity monitor, Cubit, and offline UI gate
 │   ├── extensions/   # BuildContext localization helpers
-│   ├── theme/        # Material 3 light/dark themes
+│   ├── theme/        # Material 3 themes and shared spacing tokens
 │   ├── utils/        # currency/date/category presentation helpers
 │   └── widgets/      # state views, confirmation, currency
 └── features/
@@ -34,6 +35,11 @@ lib/
 - Analytics: `analytics_bloc.dart` → `calculate_analytics.dart`;
 - Theme change: `settings_page.dart` → `theme_cubit.dart` → `settings_repository_impl.dart`;
 - Object creation: only `dependency_injection.dart`.
+
+Each BLoC is split into `*_bloc.dart`, `*_event.dart`, and `*_state.dart`.
+Each Cubit with a custom state uses separate `*_cubit.dart` and
+`*_state.dart` files. Route paths live in `app_routes.dart`, while reusable
+UI spacing values live in `core/theme/app_spacing.dart`.
 
 ## Test Structure
 

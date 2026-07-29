@@ -6,47 +6,8 @@ import '../../../transactions/domain/usecases/transaction_use_cases.dart';
 import '../../domain/entities/budget.dart';
 import '../../domain/usecases/budget_use_cases.dart';
 
-sealed class BudgetsEvent extends Equatable {
-  const BudgetsEvent();
-  @override
-  List<Object?> get props => [];
-}
-
-final class BudgetsRequested extends BudgetsEvent {
-  const BudgetsRequested({this.refresh = false});
-  final bool refresh;
-  @override
-  List<Object?> get props => [refresh];
-}
-
-final class BudgetSaved extends BudgetsEvent {
-  const BudgetSaved(this.budget);
-  final Budget budget;
-  @override
-  List<Object?> get props => [budget];
-}
-
-final class BudgetDeleted extends BudgetsEvent {
-  const BudgetDeleted(this.id);
-  final String id;
-  @override
-  List<Object?> get props => [id];
-}
-
-enum BudgetsStatus { initial, loading, success, empty, failure }
-
-class BudgetsState extends Equatable {
-  const BudgetsState({
-    this.status = BudgetsStatus.initial,
-    this.budgets = const [],
-    this.failure,
-  });
-  final BudgetsStatus status;
-  final List<Budget> budgets;
-  final Failure? failure;
-  @override
-  List<Object?> get props => [status, budgets, failure];
-}
+part 'budgets_event.dart';
+part 'budgets_state.dart';
 
 class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
   BudgetsBloc(this.budgetUseCases, this.transactionUseCases)
