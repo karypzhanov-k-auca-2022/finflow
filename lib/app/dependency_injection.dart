@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/connectivity/connection_cubit.dart';
+import '../core/connectivity/connection_monitor.dart';
 import '../core/network/dio_factory.dart';
 import '../features/analytics/presentation/bloc/analytics_bloc.dart';
 import '../features/budgets/data/datasources/budget_local_data_source.dart';
@@ -18,14 +20,15 @@ import '../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../features/settings/data/settings_repository_impl.dart';
 import '../features/settings/domain/settings_repository.dart';
 import '../features/settings/presentation/bloc/settings_cubit.dart';
+import '../features/settings/presentation/bloc/locale_cubit.dart';
 import '../features/settings/presentation/bloc/theme_cubit.dart';
 import '../features/transactions/data/datasources/transaction_local_data_source.dart';
 import '../features/transactions/data/datasources/transaction_remote_data_source.dart';
 import '../features/transactions/data/repositories/transaction_repository_impl.dart';
 import '../features/transactions/domain/repositories/transaction_repository.dart';
 import '../features/transactions/domain/usecases/transaction_use_cases.dart';
-import '../features/transactions/presentation/bloc/transaction_form_cubit.dart';
-import '../features/transactions/presentation/bloc/transactions_bloc.dart';
+import '../features/transactions/presentation/transaction_form/cubit/transaction_form_cubit.dart';
+import '../features/transactions/presentation/transactions_list/bloc/transactions_bloc.dart';
 import '../features/auth/data/repositories/firebase_auth_repository_impl.dart';
 import '../features/auth/domain/repositories/auth_repository.dart';
 import '../features/auth/presentation/bloc/auth_cubit.dart';
@@ -37,8 +40,13 @@ Future<void> configureDependencies() async {
   final preferences = await SharedPreferences.getInstance();
   getIt
     ..registerSingleton<SharedPreferences>(preferences)
+    ..registerLazySingleton<ConnectionMonitor>(
+      ConnectivityConnectionMonitor.new,
+    )
     ..registerLazySingleton<Dio>(createDio)
-    ..registerLazySingleton<AuthRepository>(() => FirebaseAuthRepositoryImpl())
+    ..registerLazySingleton<AuthRepository>(
+      () => FirebaseAuthRepositoryImpl(getIt()),
+    )
     ..registerLazySingleton<CategoryLocalDataSource>(
       () => CategoryLocalDataSourceImpl(getIt()),
     )
@@ -71,12 +79,16 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton(() => BudgetUseCases(getIt()))
     ..registerLazySingleton(() => AppInitializer(getIt(), getIt(), getIt()))
     ..registerLazySingleton(() => AuthCubit(getIt()))
-    ..registerFactory(() => CategoriesBloc(getIt())..add(const CategoriesRequested()))
+    ..registerFactory(() => ConnectionCubit(getIt()))
+    ..registerFactory(
+      () => CategoriesBloc(getIt())..add(const CategoriesRequested()),
+    )
     ..registerFactory(() => DashboardBloc(getIt(), getIt()))
     ..registerFactory(() => TransactionsBloc(getIt()))
     ..registerFactory(() => TransactionFormCubit(getIt()))
     ..registerFactory(() => BudgetsBloc(getIt(), getIt()))
     ..registerFactory(() => AnalyticsBloc(getIt()))
     ..registerFactory(() => ThemeCubit(getIt()))
+    ..registerFactory(() => LocaleCubit(getIt()))
     ..registerFactory(() => SettingsCubit(getIt(), getIt(), getIt()));
 }

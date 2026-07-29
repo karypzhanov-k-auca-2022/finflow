@@ -27,8 +27,12 @@ class TransactionFilter {
     final current = now ?? DateTime.now();
     switch (period) {
       case TransactionPeriod.all:
-        final start = from != null ? DateTime(from!.year, from!.month, from!.day) : null;
-        final end = to != null ? DateTime(to!.year, to!.month, to!.day, 23, 59, 59) : null;
+        final start = from != null
+            ? DateTime(from!.year, from!.month, from!.day)
+            : null;
+        final end = to != null
+            ? DateTime(to!.year, to!.month, to!.day, 23, 59, 59)
+            : null;
         return (start, end);
       case TransactionPeriod.month:
         final start = DateTime(current.year, current.month, 1);
@@ -47,8 +51,12 @@ class TransactionFilter {
         final end = DateTime(current.year, 12, 31, 23, 59, 59);
         return (start, end);
       case TransactionPeriod.customRange:
-        final start = from != null ? DateTime(from!.year, from!.month, from!.day) : null;
-        final end = to != null ? DateTime(to!.year, to!.month, to!.day, 23, 59, 59) : null;
+        final start = from != null
+            ? DateTime(from!.year, from!.month, from!.day)
+            : null;
+        final end = to != null
+            ? DateTime(to!.year, to!.month, to!.day, 23, 59, 59)
+            : null;
         return (start, end);
     }
   }
@@ -93,7 +101,9 @@ List<FinanceTransaction> filterTransactions(
         item.note.toLowerCase().contains(query);
     final matchesType = filter.type == null || item.type == filter.type;
     final matchesCategory =
-        filter.category == null || item.category.id == filter.category!.id || item.category == filter.category;
+        filter.category == null ||
+        item.category.id == filter.category!.id ||
+        item.category == filter.category;
     final matchesFrom = start == null || !item.date.isBefore(start);
     final matchesTo = end == null || !item.date.isAfter(end);
     return matchesQuery &&

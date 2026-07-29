@@ -11,7 +11,9 @@ mixin LoggerMixin on Object {
   void logError(String message, [Object? error, StackTrace? stackTrace]) {
     if (kDebugMode) {
       // ignore: avoid_print
-      print('[$runtimeType] ERROR: $message. Error: $error\n${stackTrace ?? ""}');
+      print(
+        '[$runtimeType] ERROR: $message. Error: $error\n${stackTrace ?? ""}',
+      );
     }
   }
 }

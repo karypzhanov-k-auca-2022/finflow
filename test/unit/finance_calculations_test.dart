@@ -137,22 +137,25 @@ void main() {
     expect(restored, model);
   });
 
-  test('TransactionModel converts legacy string category enum into CategoryModel', () {
-    final legacyJson = {
-      'id': 'tx-legacy',
-      'title': 'Legacy transaction',
-      'amount': 500.0,
-      'type': 'expense',
-      'category': 'groceries',
-      'date': '2026-07-10T00:00:00.000',
-      'note': '',
-      'createdAt': '2026-07-10T00:00:00.000',
-      'updatedAt': '2026-07-10T00:00:00.000',
-    };
+  test(
+    'TransactionModel converts legacy string category enum into CategoryModel',
+    () {
+      final legacyJson = {
+        'id': 'tx-legacy',
+        'title': 'Legacy transaction',
+        'amount': 500.0,
+        'type': 'expense',
+        'category': 'groceries',
+        'date': '2026-07-10T00:00:00.000',
+        'note': '',
+        'createdAt': '2026-07-10T00:00:00.000',
+        'updatedAt': '2026-07-10T00:00:00.000',
+      };
 
-    final model = TransactionModel.fromJson(legacyJson);
-    expect(model.category.id, 'groceries');
-    expect(model.category.name, 'Groceries');
-    expect(model.category.iconCodePoint, isNotNull);
-  });
+      final model = TransactionModel.fromJson(legacyJson);
+      expect(model.category.id, 'groceries');
+      expect(model.category.name, 'Groceries');
+      expect(model.category.iconCodePoint, isNotNull);
+    },
+  );
 }

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('LoadingView displays progress indicator and semantics label', (tester) async {
+  testWidgets('LoadingView displays progress indicator and semantics label', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(
-          body: LoadingView(label: 'Test Loading'),
-        ),
+        home: Scaffold(body: LoadingView(label: 'Test Loading')),
       ),
     );
 
@@ -16,7 +16,9 @@ void main() {
     expect(find.bySemanticsLabel('Test Loading'), findsOneWidget);
   });
 
-  testWidgets('EmptyState displays title, message, and action button', (tester) async {
+  testWidgets('EmptyState displays title, message, and action button', (
+    tester,
+  ) async {
     bool clicked = false;
 
     await tester.pumpWidget(
@@ -42,24 +44,27 @@ void main() {
     expect(clicked, isTrue);
   });
 
-  testWidgets('ErrorState displays title, message, and triggers retry callback', (tester) async {
-    bool retried = false;
+  testWidgets(
+    'ErrorState displays title, message, and triggers retry callback',
+    (tester) async {
+      bool retried = false;
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: ErrorState(
-            message: 'Network error',
-            onRetry: () => retried = true,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ErrorState(
+              message: 'Network error',
+              onRetry: () => retried = true,
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    expect(find.text('Failed to load data'), findsOneWidget);
-    expect(find.text('Network error'), findsOneWidget);
+      expect(find.text('Failed to load data'), findsOneWidget);
+      expect(find.text('Network error'), findsOneWidget);
 
-    await tester.tap(find.text('Retry'));
-    expect(retried, isTrue);
-  });
+      await tester.tap(find.text('Retry'));
+      expect(retried, isTrue);
+    },
+  );
 }

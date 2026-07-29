@@ -23,7 +23,10 @@ void main() {
 
       expect(lines.length, 2);
       expect(lines[0], 'ID,Title,Amount,Type,Category,Date,Note');
-      expect(lines[1], 'tx1,Supermarket,2500.50,expense,Groceries,2026-07-28 14:30:00,Weekly food');
+      expect(
+        lines[1],
+        'tx1,Supermarket,2500.50,expense,Groceries,2026-07-28 14:30:00,Weekly food',
+      );
     });
 
     test('escapes special characters (commas, quotes, newlines)', () {

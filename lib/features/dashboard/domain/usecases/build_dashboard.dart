@@ -53,8 +53,10 @@ DashboardData buildDashboardData(
       .where((item) {
         if (start != null && end != null) {
           final bDate = DateTime(item.year, item.month, 1);
-          return (bDate.year > start.year || (bDate.year == start.year && bDate.month >= start.month)) &&
-                 (bDate.year < end.year || (bDate.year == end.year && bDate.month <= end.month));
+          return (bDate.year > start.year ||
+                  (bDate.year == start.year && bDate.month >= start.month)) &&
+              (bDate.year < end.year ||
+                  (bDate.year == end.year && bDate.month <= end.month));
         }
         return item.month == current.month && item.year == current.year;
       })

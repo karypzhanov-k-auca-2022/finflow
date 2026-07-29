@@ -52,6 +52,7 @@ class AnalyticsBloc extends Bloc<AnalyticsEvent, AnalyticsState> {
     _subscription.cancel();
     return super.close();
   }
+
   Future<void> _load(
     AnalyticsRequested event,
     Emitter<AnalyticsState> emit,

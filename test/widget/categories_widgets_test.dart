@@ -8,8 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockCategoriesBloc
-    extends MockBloc<CategoriesEvent, CategoriesState>
+class MockCategoriesBloc extends MockBloc<CategoriesEvent, CategoriesState>
     implements CategoriesBloc {}
 
 void main() {
@@ -43,7 +42,9 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('renders empty state when no categories are present', (tester) async {
+  testWidgets('renders empty state when no categories are present', (
+    tester,
+  ) async {
     whenListen(
       mockBloc,
       const Stream<CategoriesState>.empty(),
@@ -100,6 +101,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Delete category?'), findsOneWidget);
-    expect(find.text('Category "Custom Category" will be deleted.'), findsOneWidget);
+    expect(
+      find.text('Category "Custom Category" will be deleted.'),
+      findsOneWidget,
+    );
   });
 }

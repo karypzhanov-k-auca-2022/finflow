@@ -16,7 +16,10 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Firebase initialization notice: $e');
   }
-  await initializeDateFormatting('en_US');
+  await Future.wait([
+    initializeDateFormatting('en'),
+    initializeDateFormatting('ru'),
+  ]);
   await configureDependencies();
   runApp(const FinFlowApp());
 }

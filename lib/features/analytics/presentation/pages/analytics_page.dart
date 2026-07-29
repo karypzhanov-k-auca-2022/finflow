@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/category_x.dart';
+import '../../../../core/extensions/l10n_x.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../bloc/analytics_bloc.dart';
 
@@ -10,20 +12,20 @@ class AnalyticsPage extends StatelessWidget {
   const AnalyticsPage({super.key});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Analytics')),
+    appBar: AppBar(title: Text(context.l10n.analytics)),
     body: BlocBuilder<AnalyticsBloc, AnalyticsState>(
       builder: (context, state) => switch (state.status) {
         AnalyticsStatus.initial ||
         AnalyticsStatus.loading => const LoadingView(),
         AnalyticsStatus.failure => ErrorState(
-          message: state.failure?.message ?? 'Please try again',
+          message: state.failure?.message ?? context.l10n.pleaseTryAgain,
           onRetry: () => context.read<AnalyticsBloc>().add(
             AnalyticsRequested(months: state.months),
           ),
         ),
-        AnalyticsStatus.empty => const EmptyState(
-          title: 'Not enough data',
-          message: 'Add expenses to see analytics.',
+        AnalyticsStatus.empty => EmptyState(
+          title: context.l10n.notEnoughData,
+          message: context.l10n.addExpensesForAnalytics,
         ),
         AnalyticsStatus.success => _AnalyticsContent(state: state),
       },
@@ -47,10 +49,10 @@ class _AnalyticsContent extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
         SegmentedButton<int>(
-          segments: const [
-            ButtonSegment(value: 3, label: Text('3 mo')),
-            ButtonSegment(value: 6, label: Text('6 mo')),
-            ButtonSegment(value: 12, label: Text('Year')),
+          segments: [
+            ButtonSegment(value: 3, label: Text(context.l10n.threeMonths)),
+            ButtonSegment(value: 6, label: Text(context.l10n.sixMonths)),
+            ButtonSegment(value: 12, label: Text(context.l10n.year)),
           ],
           selected: {state.months},
           onSelectionChanged: (value) => context.read<AnalyticsBloc>().add(
@@ -62,7 +64,7 @@ class _AnalyticsContent extends StatelessWidget {
           children: [
             Expanded(
               child: _SummaryCard(
-                label: 'Average expenses',
+                label: context.l10n.averageExpenses,
                 value: formatMoney(data.averageMonthly),
                 icon: Icons.insights_outlined,
               ),
@@ -70,8 +72,8 @@ class _AnalyticsContent extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _SummaryCard(
-                label: 'Top category',
-                value: data.topCategory?.name ?? '—',
+                label: context.l10n.topCategory,
+                value: data.topCategory?.localizedName(context) ?? '—',
                 icon: Icons.star_outline,
               ),
             ),
@@ -79,7 +81,7 @@ class _AnalyticsContent extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-        'Monthly expenses',
+          context.l10n.monthlyExpenses,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 16),
@@ -116,7 +118,7 @@ class _AnalyticsContent extends StatelessWidget {
                             meta: meta,
                             child: Text(
                               DateFormat.MMM(
-                                'en',
+                                Localizations.localeOf(context).toLanguageTag(),
                               ).format(data.monthlyExpenses[index].month),
                               style: const TextStyle(fontSize: 11),
                             ),
@@ -147,7 +149,10 @@ class _AnalyticsContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Text('By category', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          context.l10n.byCategory,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: 8),
         Card(
           child: Column(
@@ -158,7 +163,7 @@ class _AnalyticsContent extends StatelessWidget {
                       backgroundColor: entry.key.color.withValues(alpha: .15),
                       child: Icon(entry.key.icon, color: entry.key.color),
                     ),
-                    title: Text(entry.key.name),
+                    title: Text(entry.key.localizedName(context)),
                     trailing: Text(
                       formatMoney(entry.value),
                       style: const TextStyle(fontWeight: FontWeight.bold),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../../core/extensions/l10n_x.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('About')),
+    appBar: AppBar(title: Text(context.l10n.about)),
     body: SafeArea(
       child: Center(
         child: SingleChildScrollView(
@@ -26,18 +27,15 @@ class AboutPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'FinFlow',
+                context.l10n.appTitle,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text('Personal Finance Tracker • version 1.0.0'),
+              Text(context.l10n.personalFinanceTracker),
               const SizedBox(height: 24),
-              const Text(
-              'Sample project for a strong Junior Flutter Developer: offline-first storage, Clean Architecture, BLoC, GoRouter, Dio, and tests.',
-                textAlign: TextAlign.center,
-              ),
+              Text(context.l10n.aboutDescription, textAlign: TextAlign.center),
             ],
           ),
         ),

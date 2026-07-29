@@ -12,6 +12,9 @@ FinFlow is a complete Flutter application for tracking income, expenses, and mon
 - System, light, and dark themes with persistence;
 - Data clearing and deterministic restoration of demo data for six months;
 - Loading, success, empty, and failure states with Retry;
+- English and Russian localization with a persisted language choice;
+- Dedicated offline screen, local continuation mode, and connection recovery;
+- Responsive bottom navigation/NavigationRail and a rotation-safe transaction form;
 - Optional synchronization with REST API and fallback to local cache.
 
 ## Screenshots
@@ -58,6 +61,26 @@ UI ← State ← BLoC ← Result/Failure ←
 ## Repository Pattern and offline-first
 
 UI and BLoC depend on `TransactionRepository`/`BudgetRepository`, not on SharedPreferences or Dio. Reading is local by default. With `refresh: true` and a given `API_BASE_URL`, the Repository tries remote, saves the response to cache, and returns data. On network error, cache is returned. Creating, updating, and deleting are first applied locally, so the app remains useful without a network; the remote call is best effort.
+
+`ConnectionCubit` observes platform connectivity. When the connection disappears,
+the app shows a dedicated offline screen with Retry and Continue offline actions.
+After local continuation, cached data and local writes remain available and a
+persistent offline indicator is shown until connectivity returns.
+If Firebase anonymous authentication cannot be reached on the first launch,
+guest mode falls back to a persisted local guest so the finance tracker remains
+usable without an account or network.
+
+## Localization and adaptive UI
+
+Flutter `gen_l10n` generates type-safe English and Russian resources from ARB
+files. The selected locale is stored in `SharedPreferences`. Dates, currency,
+navigation, validation, dialogs, and default category names follow the active
+locale.
+
+The app shell uses `NavigationBar` on compact windows and `NavigationRail` from
+720 logical pixels. The transaction form switches between one and two columns,
+retains its values when the viewport rotates, and uses Flutter state restoration
+if the activity is recreated.
 
 ## Dependency Injection
 

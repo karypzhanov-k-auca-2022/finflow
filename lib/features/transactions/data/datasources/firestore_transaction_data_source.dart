@@ -9,12 +9,13 @@ abstract class FirestoreTransactionDataSource {
   Stream<List<TransactionModel>> watchTransactions();
 }
 
-class FirestoreTransactionDataSourceImpl implements FirestoreTransactionDataSource {
+class FirestoreTransactionDataSourceImpl
+    implements FirestoreTransactionDataSource {
   FirestoreTransactionDataSourceImpl({
     FirebaseFirestore? firestore,
     FirebaseAuth? auth,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _auth = auth ?? FirebaseAuth.instance;
 
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
@@ -55,7 +56,9 @@ class FirestoreTransactionDataSourceImpl implements FirestoreTransactionDataSour
     if (col == null) return Stream.value([]);
     return col.snapshots().map((snapshot) {
       return snapshot.docs
-          .map((doc) => TransactionModel.fromJson({'id': doc.id, ...doc.data()}))
+          .map(
+            (doc) => TransactionModel.fromJson({'id': doc.id, ...doc.data()}),
+          )
           .toList();
     });
   }

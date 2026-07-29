@@ -22,11 +22,7 @@ final class DashboardRequested extends DashboardEvent {
 }
 
 final class DashboardPeriodChanged extends DashboardEvent {
-  const DashboardPeriodChanged({
-    required this.period,
-    this.from,
-    this.to,
-  });
+  const DashboardPeriodChanged({required this.period, this.from, this.to});
 
   final TransactionPeriod period;
   final DateTime? from;

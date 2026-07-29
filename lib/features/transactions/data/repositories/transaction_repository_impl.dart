@@ -12,14 +12,16 @@ import '../datasources/transaction_local_data_source.dart';
 import '../datasources/transaction_remote_data_source.dart';
 import '../models/transaction_model.dart';
 
-class TransactionRepositoryImpl with LoggerMixin implements TransactionRepository {
+class TransactionRepositoryImpl
+    with LoggerMixin
+    implements TransactionRepository {
   TransactionRepositoryImpl({
     required this.local,
     required this.remote,
     FirebaseAuth? auth,
     bool? remoteEnabled,
-  })  : _auth = auth,
-        remoteEnabled = remoteEnabled ?? apiBaseUrl.isNotEmpty;
+  }) : _auth = auth,
+       remoteEnabled = remoteEnabled ?? apiBaseUrl.isNotEmpty;
 
   final TransactionLocalDataSource local;
   final TransactionRemoteDataSource remote;
@@ -55,7 +57,10 @@ class TransactionRepositoryImpl with LoggerMixin implements TransactionRepositor
           logInfo('Loaded ${remoteValues.length} transactions from remote');
           return Success((transactions: remoteValues, fromCache: false));
         } on DioException catch (exception) {
-          logError('Remote getTransactions failed, falling back to cache', exception);
+          logError(
+            'Remote getTransactions failed, falling back to cache',
+            exception,
+          );
           final cached = await local.getTransactions(_userId);
           return cached.isEmpty
               ? Error(mapDioException(exception))
@@ -63,7 +68,9 @@ class TransactionRepositoryImpl with LoggerMixin implements TransactionRepositor
         }
       }
       final cached = await local.getTransactions(_userId);
-      logInfo('Loaded ${cached.length} transactions from local cache for user $_userId');
+      logInfo(
+        'Loaded ${cached.length} transactions from local cache for user $_userId',
+      );
       return Success((transactions: cached, fromCache: true));
     } catch (e, stack) {
       logError('Failed to get transactions', e, stack);
@@ -80,9 +87,9 @@ class TransactionRepositoryImpl with LoggerMixin implements TransactionRepositor
     }
     try {
       final model = TransactionModel.fromEntity(transaction);
-      final isNew = !(await local.getTransactions(_userId)).any(
-        (item) => item.id == transaction.id,
-      );
+      final isNew = !(await local.getTransactions(
+        _userId,
+      )).any((item) => item.id == transaction.id);
       await local.saveTransaction(model, _userId);
       if (remoteEnabled) {
         try {

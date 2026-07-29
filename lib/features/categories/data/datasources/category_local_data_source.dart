@@ -44,7 +44,7 @@ const List<CategoryModel> defaultCategoryModels = [
   ),
   CategoryModel(
     id: 'subscriptions',
-    name: 'Subscriptions', 
+    name: 'Subscriptions',
     iconCodePoint: 0xe616, // Icons.subscriptions_outlined
     colorValue: 0xFFF44336, // Red
   ),
@@ -77,7 +77,9 @@ class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   @override
   Future<List<CategoryModel>> getCategories() async {
     final raw = preferences.getString(_key);
-    if (raw == null || raw.isEmpty) return List<CategoryModel>.from(defaultCategoryModels);
+    if (raw == null || raw.isEmpty) {
+      return List<CategoryModel>.from(defaultCategoryModels);
+    }
     final list = jsonDecode(raw) as List<dynamic>;
     if (list.isEmpty) return List<CategoryModel>.from(defaultCategoryModels);
     return list

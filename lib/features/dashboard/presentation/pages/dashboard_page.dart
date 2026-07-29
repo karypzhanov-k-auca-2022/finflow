@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/category_x.dart';
+import '../../../../core/extensions/l10n_x.dart';
 import '../../../../core/widgets/currency_text.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../transactions/domain/entities/transaction.dart';
-import '../../../transactions/presentation/widgets/transaction_tile.dart';
+import '../../../transactions/presentation/transactions_list/widgets/transaction_tile.dart';
 import '../bloc/dashboard_bloc.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -14,14 +16,14 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('FinFlow'),
+      title: Text(context.l10n.appTitle),
       actions: [
         IconButton(
           onPressed: () => context.read<DashboardBloc>().add(
             const DashboardRequested(refresh: true),
           ),
           icon: const Icon(Icons.refresh),
-          tooltip: 'Refresh',
+          tooltip: context.l10n.refresh,
         ),
       ],
     ),
@@ -29,25 +31,24 @@ class DashboardPage extends StatelessWidget {
       heroTag: 'dashboard_fab',
       onPressed: () => context.push('/transactions/new'),
       icon: const Icon(Icons.add),
-      label: const Text('Add transaction'),
+      label: Text(context.l10n.addTransaction),
     ),
     body: BlocBuilder<DashboardBloc, DashboardState>(
       builder: (context, state) => switch (state.status) {
         DashboardStatus.initial ||
         DashboardStatus.loading => const LoadingView(),
         DashboardStatus.failure => ErrorState(
-          message: state.failure?.message ?? 'Please try again',
+          message: state.failure?.message ?? context.l10n.pleaseTryAgain,
           onRetry: () =>
               context.read<DashboardBloc>().add(const DashboardRequested()),
         ),
         DashboardStatus.empty => EmptyState(
-          title: 'No transactions yet',
-          message:
-              'Add your first transaction — an overview will appear here.',
+          title: context.l10n.dashboardNoTransactions,
+          message: context.l10n.dashboardNoTransactionsMessage,
           action: FilledButton.icon(
             onPressed: () => context.push('/transactions/new'),
             icon: const Icon(Icons.add),
-            label: const Text('Add'),
+            label: Text(context.l10n.add),
           ),
         ),
         DashboardStatus.success => _DashboardContent(state: state),
@@ -84,7 +85,7 @@ class _DashboardContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Current balance',
+                    context.l10n.currentBalance,
                     style: Theme.of(context).textTheme.labelLarge,
                   ),
                   const SizedBox(height: 8),
@@ -99,7 +100,7 @@ class _DashboardContent extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _Metric(
-                          label: 'Income',
+                          label: context.l10n.income,
                           value: data.monthlyIncome,
                           color: Colors.green,
                         ),
@@ -107,7 +108,7 @@ class _DashboardContent extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _Metric(
-                          label: 'Expenses',
+                          label: context.l10n.expenses,
                           value: data.monthlyExpense,
                           color: Theme.of(context).colorScheme.error,
                         ),
@@ -126,7 +127,7 @@ class _DashboardContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Budget for period',
+                    context.l10n.budgetForPeriod,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
@@ -137,7 +138,10 @@ class _DashboardContent extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${formatMoney(data.monthlyExpense)} of ${formatMoney(data.budgetLimit)}',
+                    context.l10n.spentOfLimit(
+                      formatMoney(data.monthlyExpense),
+                      formatMoney(data.budgetLimit),
+                    ),
                   ),
                 ],
               ),
@@ -145,16 +149,16 @@ class _DashboardContent extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'Expenses by category',
+            context.l10n.expensesByCategory,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 12),
           if (data.expensesByCategory.isEmpty)
-            const SizedBox(
+            SizedBox(
               height: 220,
               child: EmptyState(
-                title: 'No expenses',
-                message: 'No expenses for the selected period yet.',
+                title: context.l10n.noExpenses,
+                message: context.l10n.noExpensesForPeriod,
               ),
             )
           else ...[
@@ -186,8 +190,9 @@ class _DashboardContent extends StatelessWidget {
               children: data.expensesByCategory.entries.map((entry) {
                 final category = entry.key;
                 final amount = entry.value;
-                final percentage =
-                    data.monthlyExpense > 0 ? (amount / data.monthlyExpense) * 100 : 0;
+                final percentage = data.monthlyExpense > 0
+                    ? (amount / data.monthlyExpense) * 100
+                    : 0;
                 return Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -201,15 +206,15 @@ class _DashboardContent extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${category.name} (${percentage.toStringAsFixed(0)}%)',
+                      '${category.localizedName(context)} (${percentage.toStringAsFixed(0)}%)',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       formatMoney(amount),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 );
@@ -221,12 +226,12 @@ class _DashboardContent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Recent transactions',
+                context.l10n.recentTransactions,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               TextButton(
                 onPressed: () => context.go('/transactions'),
-                child: const Text('All'),
+                child: Text(context.l10n.all),
               ),
             ],
           ),
@@ -264,43 +269,47 @@ class _PeriodSelector extends StatelessWidget {
       child: Row(
         children: [
           FilterChip(
-          label: const Text('Month'),
+            label: Text(context.l10n.month),
             selected: period == TransactionPeriod.month,
             onSelected: (_) => context.read<DashboardBloc>().add(
-                  const DashboardPeriodChanged(period: TransactionPeriod.month),
-                ),
+              const DashboardPeriodChanged(period: TransactionPeriod.month),
+            ),
           ),
           const SizedBox(width: 8),
           FilterChip(
-          label: const Text('3 mo'),
+            label: Text(context.l10n.threeMonths),
             selected: period == TransactionPeriod.threeMonths,
             onSelected: (_) => context.read<DashboardBloc>().add(
-                  const DashboardPeriodChanged(period: TransactionPeriod.threeMonths),
-                ),
+              const DashboardPeriodChanged(
+                period: TransactionPeriod.threeMonths,
+              ),
+            ),
           ),
           const SizedBox(width: 8),
           FilterChip(
-          label: const Text('6 mo'),
+            label: Text(context.l10n.sixMonths),
             selected: period == TransactionPeriod.sixMonths,
             onSelected: (_) => context.read<DashboardBloc>().add(
-                  const DashboardPeriodChanged(period: TransactionPeriod.sixMonths),
-                ),
+              const DashboardPeriodChanged(period: TransactionPeriod.sixMonths),
+            ),
           ),
           const SizedBox(width: 8),
           FilterChip(
-          label: const Text('Year'),
+            label: Text(context.l10n.year),
             selected: period == TransactionPeriod.year,
             onSelected: (_) => context.read<DashboardBloc>().add(
-                  const DashboardPeriodChanged(period: TransactionPeriod.year),
-                ),
+              const DashboardPeriodChanged(period: TransactionPeriod.year),
+            ),
           ),
           const SizedBox(width: 8),
           FilterChip(
             avatar: const Icon(Icons.date_range, size: 16),
             label: Text(
-              period == TransactionPeriod.customRange && from != null && to != null
+              period == TransactionPeriod.customRange &&
+                      from != null &&
+                      to != null
                   ? '${formatDate(from)} — ${formatDate(to)}'
-                  : 'Select range',
+                  : context.l10n.selectRange,
             ),
             selected: period == TransactionPeriod.customRange,
             onSelected: (_) async {
@@ -314,12 +323,12 @@ class _PeriodSelector extends StatelessWidget {
               );
               if (range != null && context.mounted) {
                 context.read<DashboardBloc>().add(
-                      DashboardPeriodChanged(
-                        period: TransactionPeriod.customRange,
-                        from: range.start,
-                        to: range.end,
-                      ),
-                    );
+                  DashboardPeriodChanged(
+                    period: TransactionPeriod.customRange,
+                    from: range.start,
+                    to: range.end,
+                  ),
+                );
               }
             },
           ),

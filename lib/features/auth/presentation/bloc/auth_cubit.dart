@@ -8,11 +8,7 @@ import '../../domain/repositories/auth_repository.dart';
 enum AuthStatus { initial, authenticated, unauthenticated, loading }
 
 class AuthState extends Equatable {
-  const AuthState({
-    this.status = AuthStatus.initial,
-    this.user,
-    this.failure,
-  });
+  const AuthState({this.status = AuthStatus.initial, this.user, this.failure});
 
   final AuthStatus status;
   final AppUser? user;
@@ -24,14 +20,14 @@ class AuthState extends Equatable {
 
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit(this.repository)
-      : super(
-          AuthState(
-            status: repository.currentUser != null
-                ? AuthStatus.authenticated
-                : AuthStatus.unauthenticated,
-            user: repository.currentUser,
-          ),
-        ) {
+    : super(
+        AuthState(
+          status: repository.currentUser != null
+              ? AuthStatus.authenticated
+              : AuthStatus.unauthenticated,
+          user: repository.currentUser,
+        ),
+      ) {
     _subscription = repository.onAuthStateChanged.listen((user) {
       if (user != null) {
         emit(AuthState(status: AuthStatus.authenticated, user: user));
@@ -54,7 +50,8 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthState(status: AuthStatus.loading, user: state.user));
     final res = await repository.signInWithEmail(email, password);
     res.fold(
-      (failure) => emit(AuthState(status: AuthStatus.unauthenticated, failure: failure)),
+      (failure) =>
+          emit(AuthState(status: AuthStatus.unauthenticated, failure: failure)),
       (user) => emit(AuthState(status: AuthStatus.authenticated, user: user)),
     );
   }
@@ -63,7 +60,8 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthState(status: AuthStatus.loading, user: state.user));
     final res = await repository.signUpWithEmail(email, password);
     res.fold(
-      (failure) => emit(AuthState(status: AuthStatus.unauthenticated, failure: failure)),
+      (failure) =>
+          emit(AuthState(status: AuthStatus.unauthenticated, failure: failure)),
       (user) => emit(AuthState(status: AuthStatus.authenticated, user: user)),
     );
   }
@@ -72,7 +70,8 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthState(status: AuthStatus.loading, user: state.user));
     final res = await repository.signInAnonymously();
     res.fold(
-      (failure) => emit(AuthState(status: AuthStatus.unauthenticated, failure: failure)),
+      (failure) =>
+          emit(AuthState(status: AuthStatus.unauthenticated, failure: failure)),
       (user) => emit(AuthState(status: AuthStatus.authenticated, user: user)),
     );
   }

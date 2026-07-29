@@ -74,7 +74,10 @@ class TransactionLocalDataSourceImpl implements TransactionLocalDataSource {
   }
 
   @override
-  Future<void> saveTransaction(TransactionModel transaction, [String? userId]) async {
+  Future<void> saveTransaction(
+    TransactionModel transaction, [
+    String? userId,
+  ]) async {
     final values = await getTransactions(userId);
     final index = values.indexWhere((item) => item.id == transaction.id);
     if (index == -1) {
@@ -165,14 +168,7 @@ List<TransactionModel> _demoTransactions() {
       'salary',
       'Main job',
     );
-    add(
-      month,
-      4,
-      'Apartment rent',
-      42000,
-      TransactionType.expense,
-      'rent',
-    );
+    add(month, 4, 'Apartment rent', 42000, TransactionType.expense, 'rent');
     add(
       month,
       7,

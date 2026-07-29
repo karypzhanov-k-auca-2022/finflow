@@ -12,11 +12,13 @@ lib/
 ├── core/
 │   ├── error/        # Failure, Result, Dio mapper
 │   ├── network/      # Dio configuration
+│   ├── connectivity/ # connectivity monitor, Cubit, and offline UI gate
+│   ├── extensions/   # BuildContext localization helpers
 │   ├── theme/        # Material 3 light/dark themes
 │   ├── utils/        # currency/date/category presentation helpers
 │   └── widgets/      # state views, confirmation, currency
 └── features/
-    ├── transactions/ # full Data/Domain/Presentation with CRUD and filters
+    ├── transactions/ # Data/Domain plus page-based list and form presentation
     ├── budgets/      # full Data/Domain/Presentation with CRUD and progress
     ├── dashboard/    # domain aggregation + BLoC + page
     ├── analytics/    # pure calculations + BLoC + charts
@@ -25,8 +27,8 @@ lib/
 
 ## How to Find Scenario Code
 
-- List loading: `transactions_bloc.dart` → `transaction_use_cases.dart` → `transaction_repository_impl.dart` → local/remote data source;
-- Form saving: `transaction_form_page.dart` → `transaction_form_cubit.dart` → use case → repository;
+- List loading: `presentation/transactions_list/bloc/transactions_bloc.dart` → `transaction_use_cases.dart` → `transaction_repository_impl.dart` → local/remote data source;
+- Form saving: `presentation/transaction_form/pages/transaction_form_page.dart` → `transaction_form_cubit.dart` → use case → repository;
 - Dashboard calculation: `dashboard_bloc.dart` → `build_dashboard.dart`;
 - Budget spent: `budgets_bloc.dart` → `budget_use_cases.dart`;
 - Analytics: `analytics_bloc.dart` → `calculate_analytics.dart`;

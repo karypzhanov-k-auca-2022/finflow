@@ -1,11 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class AppUser extends Equatable {
-  const AppUser({
-    required this.uid,
-    this.email,
-    this.isAnonymous = false,
-  });
+  const AppUser({required this.uid, this.email, this.isAnonymous = false});
 
   final String uid;
   final String? email;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../core/extensions/l10n_x.dart';
 import '../features/analytics/presentation/pages/analytics_page.dart';
 import '../features/budgets/presentation/pages/budgets_page.dart';
 import '../features/categories/presentation/pages/categories_page.dart';
@@ -8,10 +9,10 @@ import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/settings/presentation/pages/about_page.dart';
 import '../features/settings/presentation/pages/settings_page.dart';
 import '../features/transactions/domain/entities/transaction.dart';
-import '../features/transactions/presentation/bloc/transaction_form_cubit.dart';
-import '../features/transactions/presentation/bloc/transactions_bloc.dart';
-import '../features/transactions/presentation/pages/transaction_form_page.dart';
-import '../features/transactions/presentation/pages/transactions_page.dart';
+import '../features/transactions/presentation/transaction_form/cubit/transaction_form_cubit.dart';
+import '../features/transactions/presentation/transaction_form/pages/transaction_form_page.dart';
+import '../features/transactions/presentation/transactions_list/bloc/transactions_bloc.dart';
+import '../features/transactions/presentation/transactions_list/pages/transactions_page.dart';
 import 'app_initializer.dart';
 import 'dependency_injection.dart';
 import 'splash_page.dart';
@@ -20,19 +21,20 @@ import '../features/auth/presentation/pages/login_page.dart';
 
 GoRouter createRouter(AppInitializer initializer) => GoRouter(
   initialLocation: '/splash',
+  restorationScopeId: 'router',
   errorBuilder: (context, state) => Scaffold(
-    appBar: AppBar(title: const Text('Page not found')),
+    appBar: AppBar(title: Text(context.l10n.pageNotFound)),
     body: Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.explore_off_outlined, size: 64),
           const SizedBox(height: 16),
-          Text('Route ${state.uri} does not exist'),
+          Text(context.l10n.routeDoesNotExist(state.uri.toString())),
           const SizedBox(height: 16),
           FilledButton(
             onPressed: () => context.go('/dashboard'),
-            child: const Text('Home'),
+            child: Text(context.l10n.home),
           ),
         ],
       ),
@@ -43,10 +45,7 @@ GoRouter createRouter(AppInitializer initializer) => GoRouter(
       path: '/splash',
       builder: (_, _) => SplashPage(initializer: initializer),
     ),
-    GoRoute(
-      path: '/login',
-      builder: (_, _) => const LoginPage(),
-    ),
+    GoRoute(path: '/login', builder: (_, _) => const LoginPage()),
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => _AppShell(shell: shell),
       branches: [
@@ -117,42 +116,70 @@ class _AppShell extends StatelessWidget {
   const _AppShell({required this.shell});
   final StatefulNavigationShell shell;
   @override
-  Widget build(BuildContext context) => Scaffold(
-    body: shell,
-    bottomNavigationBar: NavigationBar(
-      selectedIndex: shell.currentIndex,
-      labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-      onDestinationSelected: (index) =>
-          shell.goBranch(index, initialLocation: index == shell.currentIndex),
-      destinations: const [
-        NavigationDestination(
-          icon: Icon(Icons.space_dashboard_outlined),
-          selectedIcon: Icon(Icons.space_dashboard),
-        label: 'Home',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.receipt_long_outlined),
-          selectedIcon: Icon(Icons.receipt_long),
-        label: 'Transactions',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.savings_outlined),
-          selectedIcon: Icon(Icons.savings),
-        label: 'Budgets',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.bar_chart_outlined),
-          selectedIcon: Icon(Icons.bar_chart),
-        label: 'Analytics',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.settings_outlined),
-          selectedIcon: Icon(Icons.settings),
-        label: 'Settings',
-        ),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    void select(int index) =>
+        shell.goBranch(index, initialLocation: index == shell.currentIndex);
+
+    final labels = [
+      context.l10n.home,
+      context.l10n.transactions,
+      context.l10n.budgets,
+      context.l10n.analytics,
+      context.l10n.settings,
+    ];
+    const icons = [
+      (Icons.space_dashboard_outlined, Icons.space_dashboard),
+      (Icons.receipt_long_outlined, Icons.receipt_long),
+      (Icons.savings_outlined, Icons.savings),
+      (Icons.bar_chart_outlined, Icons.bar_chart),
+      (Icons.settings_outlined, Icons.settings),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 720) {
+          return Scaffold(
+            body: Row(
+              children: [
+                NavigationRail(
+                  selectedIndex: shell.currentIndex,
+                  onDestinationSelected: select,
+                  labelType: NavigationRailLabelType.all,
+                  destinations: List.generate(
+                    labels.length,
+                    (index) => NavigationRailDestination(
+                      icon: Icon(icons[index].$1),
+                      selectedIcon: Icon(icons[index].$2),
+                      label: Text(labels[index]),
+                    ),
+                  ),
+                ),
+                const VerticalDivider(width: 1),
+                Expanded(child: shell),
+              ],
+            ),
+          );
+        }
+
+        return Scaffold(
+          body: shell,
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: shell.currentIndex,
+            labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+            onDestinationSelected: select,
+            destinations: List.generate(
+              labels.length,
+              (index) => NavigationDestination(
+                icon: Icon(icons[index].$1),
+                selectedIcon: Icon(icons[index].$2),
+                label: labels[index],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _MissingTransactionPage extends StatelessWidget {
@@ -164,11 +191,11 @@ class _MissingTransactionPage extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Transaction not found'),
+          Text(context.l10n.transactionNotFound),
           const SizedBox(height: 12),
           FilledButton(
             onPressed: () => context.go('/transactions'),
-            child: const Text('Back to transactions'),
+            child: Text(context.l10n.backToTransactions),
           ),
         ],
       ),

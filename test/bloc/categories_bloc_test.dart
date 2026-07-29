@@ -30,8 +30,9 @@ void main() {
   blocTest<CategoriesBloc, CategoriesState>(
     'successfully loads categories',
     build: () {
-      when(() => repository.getCategories())
-          .thenAnswer((_) async => Success([testCategory]));
+      when(
+        () => repository.getCategories(),
+      ).thenAnswer((_) async => Success([testCategory]));
       return CategoriesBloc(useCases);
     },
     act: (bloc) => bloc.add(const CategoriesRequested()),
@@ -50,8 +51,9 @@ void main() {
   blocTest<CategoriesBloc, CategoriesState>(
     'emits failure state on category load error',
     build: () {
-      when(() => repository.getCategories())
-          .thenAnswer((_) async => const Error(CacheFailure()));
+      when(
+        () => repository.getCategories(),
+      ).thenAnswer((_) async => const Error(CacheFailure()));
       return CategoriesBloc(useCases);
     },
     act: (bloc) => bloc.add(const CategoriesRequested()),
@@ -72,10 +74,12 @@ void main() {
   blocTest<CategoriesBloc, CategoriesState>(
     'saves category and reloads list',
     build: () {
-      when(() => repository.saveCategory(any()))
-          .thenAnswer((_) async => Success(testCategory));
-      when(() => repository.getCategories())
-          .thenAnswer((_) async => Success([testCategory]));
+      when(
+        () => repository.saveCategory(any()),
+      ).thenAnswer((_) async => Success(testCategory));
+      when(
+        () => repository.getCategories(),
+      ).thenAnswer((_) async => Success([testCategory]));
       return CategoriesBloc(useCases);
     },
     act: (bloc) => bloc.add(CategorySaved(testCategory)),
@@ -94,10 +98,12 @@ void main() {
   blocTest<CategoriesBloc, CategoriesState>(
     'deletes category and reloads list',
     build: () {
-      when(() => repository.deleteCategory(any()))
-          .thenAnswer((_) async => const Success(null));
-      when(() => repository.getCategories())
-          .thenAnswer((_) async => const Success([]));
+      when(
+        () => repository.deleteCategory(any()),
+      ).thenAnswer((_) async => const Success(null));
+      when(
+        () => repository.getCategories(),
+      ).thenAnswer((_) async => const Success([]));
       return CategoriesBloc(useCases);
     },
     act: (bloc) => bloc.add(const CategoryDeleted('cat_1')),

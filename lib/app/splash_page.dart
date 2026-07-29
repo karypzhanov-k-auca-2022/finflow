@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../core/extensions/l10n_x.dart';
 import '../features/analytics/presentation/bloc/analytics_bloc.dart';
 import '../features/auth/presentation/bloc/auth_cubit.dart';
 import '../features/budgets/presentation/bloc/budgets_bloc.dart';
 import '../features/dashboard/presentation/bloc/dashboard_bloc.dart';
-import '../features/transactions/presentation/bloc/transactions_bloc.dart';
+import '../features/transactions/presentation/transactions_list/bloc/transactions_bloc.dart';
 import 'app_initializer.dart';
 
 class SplashPage extends StatefulWidget {
@@ -33,8 +34,7 @@ class _SplashPageState extends State<SplashPage> {
         context.read<AnalyticsBloc>().add(const AnalyticsRequested());
 
         final authState = context.read<AuthCubit>().state;
-        final isEmailUser = authState.user != null && !authState.user!.isAnonymous;
-        if (isEmailUser) {
+        if (authState.user != null) {
           context.go('/dashboard');
         } else {
           context.go('/login');
@@ -42,7 +42,7 @@ class _SplashPageState extends State<SplashPage> {
       }
     } catch (_) {
       if (mounted) {
-        setState(() => error = 'Failed to prepare local storage');
+        setState(() => error = 'storage');
       }
     }
   }
@@ -63,7 +63,7 @@ class _SplashPageState extends State<SplashPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                'FinFlow',
+                context.l10n.appTitle,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -72,11 +72,14 @@ class _SplashPageState extends State<SplashPage> {
               if (error == null)
                 const CircularProgressIndicator()
               else ...[
-                Text(error!, textAlign: TextAlign.center),
+                Text(
+                  context.l10n.storageInitializationFailed,
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: initialize,
-                  child: const Text('Retry'),
+                  child: Text(context.l10n.retry),
                 ),
               ],
             ],

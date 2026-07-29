@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/dependency_injection.dart';
 import '../../../../core/error/result.dart';
+import '../../../../core/extensions/l10n_x.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/category_x.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../../../transactions/domain/repositories/transaction_repository.dart';
 import '../../../transactions/domain/usecases/transaction_use_cases.dart';
-import '../../../transactions/presentation/widgets/transaction_tile.dart';
+import '../../../transactions/presentation/transactions_list/widgets/transaction_tile.dart';
 import '../../domain/entities/budget.dart';
 
 class BudgetDetailsSheet extends StatelessWidget {
@@ -51,7 +53,11 @@ class BudgetDetailsSheet extends StatelessWidget {
                     CircleAvatar(
                       radius: 24,
                       backgroundColor: category.color.withValues(alpha: 0.15),
-                      child: Icon(category.icon, color: category.color, size: 28),
+                      child: Icon(
+                        category.icon,
+                        color: category.color,
+                        size: 28,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -59,11 +65,14 @@ class BudgetDetailsSheet extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            category.name,
+                            category.localizedName(context),
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           Text(
-                            '${formatMoney(budget.spent)} of ${formatMoney(budget.limit)}',
+                            context.l10n.spentOfLimit(
+                              formatMoney(budget.spent),
+                              formatMoney(budget.limit),
+                            ),
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ],
@@ -72,13 +81,17 @@ class BudgetDetailsSheet extends StatelessWidget {
                     IconButton.outlined(
                       onPressed: onEdit,
                       icon: const Icon(Icons.edit_outlined, size: 20),
-                      tooltip: 'Edit limit',
+                      tooltip: context.l10n.editLimit,
                     ),
                     const SizedBox(width: 8),
                     IconButton.outlined(
                       onPressed: onDelete,
-                      icon: Icon(Icons.delete_outline, color: scheme.error, size: 20),
-                      tooltip: 'Delete budget',
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: scheme.error,
+                        size: 20,
+                      ),
+                      tooltip: context.l10n.deleteBudget,
                     ),
                   ],
                 ),
@@ -92,10 +105,14 @@ class BudgetDetailsSheet extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   budget.isExceeded
-                      ? 'Limit exceeded by ${formatMoney(budget.spent - budget.limit)}'
+                      ? context.l10n.limitExceededBy(
+                          formatMoney(budget.spent - budget.limit),
+                        )
                       : budget.isWarning
-                      ? 'More than 80% of budget used'
-                      : 'Remaining ${formatMoney(budget.limit - budget.spent)}',
+                      ? context.l10n.budgetOverEightyPercent
+                      : context.l10n.remainingAmount(
+                          formatMoney(budget.limit - budget.spent),
+                        ),
                   style: TextStyle(color: color, fontWeight: FontWeight.bold),
                 ),
               ],
@@ -110,7 +127,7 @@ class BudgetDetailsSheet extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Category Transactions',
+                context.l10n.categoryTransactions,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
@@ -127,10 +144,13 @@ class BudgetDetailsSheet extends StatelessWidget {
 
                 final result = snapshot.data;
                 if (result == null || result is Error<TransactionsResult>) {
-                  return const Center(child: Text('Failed to load transactions'));
+                  return Center(
+                    child: Text(context.l10n.failedToLoadTransactions),
+                  );
                 }
 
-                final all = (result as Success<TransactionsResult>).data.transactions;
+                final all =
+                    (result as Success<TransactionsResult>).data.transactions;
                 final categoryTxList = all.where((tx) {
                   return tx.category.id == budget.categoryId &&
                       tx.type == TransactionType.expense &&
@@ -139,11 +159,11 @@ class BudgetDetailsSheet extends StatelessWidget {
                 }).toList();
 
                 if (categoryTxList.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Padding(
-                      padding: EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(24),
                       child: Text(
-                        'No expense transactions found for this category in this month.',
+                        context.l10n.noCategoryExpensesThisMonth,
                         textAlign: TextAlign.center,
                       ),
                     ),

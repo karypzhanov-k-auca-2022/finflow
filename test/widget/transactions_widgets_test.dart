@@ -6,10 +6,10 @@ import 'package:finflow/features/categories/data/repositories/category_repositor
 import 'package:finflow/features/categories/domain/usecases/category_use_cases.dart';
 import 'package:finflow/features/categories/presentation/bloc/categories_bloc.dart';
 import 'package:finflow/features/transactions/domain/usecases/transaction_use_cases.dart';
-import 'package:finflow/features/transactions/presentation/bloc/transaction_form_cubit.dart';
-import 'package:finflow/features/transactions/presentation/bloc/transactions_bloc.dart';
-import 'package:finflow/features/transactions/presentation/pages/transaction_form_page.dart';
-import 'package:finflow/features/transactions/presentation/pages/transactions_page.dart';
+import 'package:finflow/features/transactions/presentation/transaction_form/cubit/transaction_form_cubit.dart';
+import 'package:finflow/features/transactions/presentation/transaction_form/pages/transaction_form_page.dart';
+import 'package:finflow/features/transactions/presentation/transactions_list/bloc/transactions_bloc.dart';
+import 'package:finflow/features/transactions/presentation/transactions_list/pages/transactions_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,8 +22,7 @@ class MockTransactionsBloc
     extends MockBloc<TransactionsEvent, TransactionsState>
     implements TransactionsBloc {}
 
-class MockCategoriesBloc
-    extends MockBloc<CategoriesEvent, CategoriesState>
+class MockCategoriesBloc extends MockBloc<CategoriesEvent, CategoriesState>
     implements CategoriesBloc {}
 
 void main() {
@@ -48,7 +47,9 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('displays empty state widget when no transactions', (tester) async {
+  testWidgets('displays empty state widget when no transactions', (
+    tester,
+  ) async {
     final bloc = _bloc(
       const TransactionsState(status: TransactionsStatus.empty),
     );
@@ -84,7 +85,9 @@ void main() {
     verify(() => bloc.add(any(that: isA<TransactionsRequested>()))).called(1);
   });
 
-  testWidgets('form displays validation errors when fields are empty', (tester) async {
+  testWidgets('form displays validation errors when fields are empty', (
+    tester,
+  ) async {
     final repository = MockTransactionRepository();
     final cubit = TransactionFormCubit(TransactionUseCases(repository));
     final catBloc = _catBloc();
@@ -107,6 +110,88 @@ void main() {
     expect(find.text('Enter title'), findsOneWidget);
     expect(find.text('Enter a positive amount'), findsOneWidget);
     await cubit.close();
+  });
+
+  testWidgets('form keeps entered values when viewport rotates', (
+    tester,
+  ) async {
+    final repository = MockTransactionRepository();
+    final cubit = TransactionFormCubit(TransactionUseCases(repository));
+    final catBloc = _catBloc();
+    addTearDown(() async {
+      await cubit.close();
+      await tester.binding.setSurfaceSize(null);
+    });
+
+    await tester.binding.setSurfaceSize(const Size(800, 360));
+    await tester.pumpWidget(
+      MaterialApp(
+        restorationScopeId: 'test',
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider<TransactionFormCubit>.value(value: cubit),
+            BlocProvider<CategoriesBloc>.value(value: catBloc),
+          ],
+          child: const TransactionFormPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Title'),
+      'Rotation-safe draft',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Amount'),
+      '1250',
+    );
+
+    await tester.binding.setSurfaceSize(const Size(360, 800));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Rotation-safe draft'), findsOneWidget);
+    expect(find.text('1250'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('form restores draft after state restoration', (tester) async {
+    final repository = MockTransactionRepository();
+    final cubit = TransactionFormCubit(TransactionUseCases(repository));
+    final catBloc = _catBloc();
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        restorationScopeId: 'test',
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider<TransactionFormCubit>.value(value: cubit),
+            BlocProvider<CategoriesBloc>.value(value: catBloc),
+          ],
+          child: const TransactionFormPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Title'),
+      'Restored draft',
+    );
+    await tester.enterText(find.widgetWithText(TextFormField, 'Amount'), '900');
+    await tester.pump();
+
+    await tester.restartAndRestore();
+    await tester.pumpAndSettle();
+
+    final restoredTitle = tester.widget<TextFormField>(
+      find.byKey(const Key('transaction_title_field')),
+    );
+    final restoredAmount = tester.widget<TextFormField>(
+      find.byKey(const Key('transaction_amount_field')),
+    );
+    expect(restoredTitle.controller?.text, 'Restored draft');
+    expect(restoredAmount.controller?.text, '900');
   });
 }
 

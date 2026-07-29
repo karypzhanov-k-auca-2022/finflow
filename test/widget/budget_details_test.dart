@@ -33,7 +33,9 @@ void main() {
     stubLoad(repo, []);
   });
 
-  testWidgets('tapping budget card opens budget drill-down details sheet', (tester) async {
+  testWidgets('tapping budget card opens budget drill-down details sheet', (
+    tester,
+  ) async {
     const budget = Budget(
       id: 'b1',
       categoryId: 'groceries',

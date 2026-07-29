@@ -63,6 +63,24 @@ void main() {
     expect(result.fold((_) => const [], (data) => data.transactions), [model]);
   });
 
+  test('saves locally when network is unavailable', () async {
+    when(() => local.getTransactions(any())).thenAnswer((_) async => []);
+    when(() => local.saveTransaction(any(), any())).thenAnswer((_) async {});
+    when(
+      () => remote.saveTransaction(any(), isNew: any(named: 'isNew')),
+    ).thenThrow(
+      DioException(
+        type: DioExceptionType.connectionError,
+        requestOptions: RequestOptions(path: '/transactions'),
+      ),
+    );
+
+    final result = await repository.saveTransaction(model);
+
+    expect(result, isA<Success>());
+    verify(() => local.saveTransaction(any(), any())).called(1);
+  });
+
   test('transforms local exception into CacheFailure', () async {
     when(() => local.getTransactions(any())).thenThrow(const FormatException());
     final result = await repository.getTransactions();

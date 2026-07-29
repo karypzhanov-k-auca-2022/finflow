@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import '../extensions/l10n_x.dart';
 
 class LoadingView extends StatelessWidget {
-  const LoadingView({super.key, this.label = 'Loading data…'});
-  final String label;
+  const LoadingView({super.key, this.label});
+  final String? label;
   @override
   Widget build(BuildContext context) => Center(
-    child: Semantics(label: label, child: const CircularProgressIndicator()),
+    child: Semantics(
+      label: label ?? context.l10n.loadingData,
+      child: const CircularProgressIndicator(),
+    ),
   );
 }
 
@@ -64,7 +68,7 @@ class ErrorState extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Failed to load data',
+            context.l10n.failedToLoadData,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
@@ -73,7 +77,7 @@ class ErrorState extends StatelessWidget {
           FilledButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(context.l10n.retry),
           ),
         ],
       ),
@@ -85,7 +89,7 @@ Future<bool> showConfirmation(
   BuildContext context, {
   required String title,
   required String message,
-  String confirmLabel = 'Delete',
+  String? confirmLabel,
 }) async =>
     await showDialog<bool>(
       context: context,
@@ -95,11 +99,11 @@ Future<bool> showConfirmation(
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(confirmLabel),
+            child: Text(confirmLabel ?? context.l10n.delete),
           ),
         ],
       ),

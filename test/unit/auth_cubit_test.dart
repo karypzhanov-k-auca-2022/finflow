@@ -13,8 +13,9 @@ void main() {
   setUp(() {
     repository = MockAuthRepository();
     when(() => repository.currentUser).thenReturn(null);
-    when(() => repository.onAuthStateChanged)
-        .thenAnswer((_) => const Stream<AppUser?>.empty());
+    when(
+      () => repository.onAuthStateChanged,
+    ).thenAnswer((_) => const Stream<AppUser?>.empty());
   });
 
   group('AuthCubit', () {
@@ -26,8 +27,9 @@ void main() {
 
     test('sign in with email succeeds', () async {
       const user = AppUser(uid: 'u1', email: 'test@example.com');
-      when(() => repository.signInWithEmail('test@example.com', '123456'))
-          .thenAnswer((_) async => const Success(user));
+      when(
+        () => repository.signInWithEmail('test@example.com', '123456'),
+      ).thenAnswer((_) async => const Success(user));
 
       final cubit = AuthCubit(repository);
       await cubit.signInWithEmail('test@example.com', '123456');
@@ -38,8 +40,9 @@ void main() {
 
     test('sign up with email succeeds', () async {
       const user = AppUser(uid: 'u2', email: 'new@example.com');
-      when(() => repository.signUpWithEmail('new@example.com', '123456'))
-          .thenAnswer((_) async => const Success(user));
+      when(
+        () => repository.signUpWithEmail('new@example.com', '123456'),
+      ).thenAnswer((_) async => const Success(user));
 
       final cubit = AuthCubit(repository);
       await cubit.signUpWithEmail('new@example.com', '123456');
@@ -50,8 +53,9 @@ void main() {
 
     test('sign in anonymously succeeds', () async {
       const user = AppUser(uid: 'guest_1', isAnonymous: true);
-      when(() => repository.signInAnonymously())
-          .thenAnswer((_) async => const Success(user));
+      when(
+        () => repository.signInAnonymously(),
+      ).thenAnswer((_) async => const Success(user));
 
       final cubit = AuthCubit(repository);
       await cubit.signInAnonymously();

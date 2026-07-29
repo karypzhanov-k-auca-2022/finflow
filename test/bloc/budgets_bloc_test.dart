@@ -77,7 +77,9 @@ void main() {
     build: () {
       when(
         () => budgetRepository.getBudgets(refresh: any(named: 'refresh')),
-      ).thenAnswer((_) async => const Error(CacheFailure('Failed to load budgets')));
+      ).thenAnswer(
+        (_) async => const Error(CacheFailure('Failed to load budgets')),
+      );
       stubLoad(transactionRepository, []);
       return BudgetsBloc(budgetUseCases, transactionUseCases);
     },

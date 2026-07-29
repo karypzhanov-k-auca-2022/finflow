@@ -18,8 +18,8 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
     required this.remote,
     FirebaseAuth? auth,
     bool? remoteEnabled,
-  })  : _auth = auth,
-        remoteEnabled = remoteEnabled ?? apiBaseUrl.isNotEmpty;
+  }) : _auth = auth,
+       remoteEnabled = remoteEnabled ?? apiBaseUrl.isNotEmpty;
 
   final BudgetLocalDataSource local;
   final BudgetRemoteDataSource remote;
@@ -71,9 +71,9 @@ class BudgetRepositoryImpl with LoggerMixin implements BudgetRepository {
     }
     try {
       final model = BudgetModel.fromEntity(budget);
-      final isNew = !(await local.getBudgets(_userId)).any(
-        (item) => item.id == budget.id,
-      );
+      final isNew = !(await local.getBudgets(
+        _userId,
+      )).any((item) => item.id == budget.id);
       await local.saveBudget(model, _userId);
       if (remoteEnabled) {
         try {

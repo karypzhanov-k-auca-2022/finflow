@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/extensions/l10n_x.dart';
 import '../../domain/entities/category.dart';
 import '../bloc/categories_bloc.dart';
 
@@ -99,7 +100,9 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                isEditing ? 'Edit category' : 'New category',
+                isEditing
+                    ? context.l10n.editCategory
+                    : context.l10n.newCategory,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
@@ -107,17 +110,17 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                 controller: _nameController,
                 autofocus: !isEditing,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'Category name',
-                  prefixIcon: Icon(Icons.label_outlined),
+                decoration: InputDecoration(
+                  labelText: context.l10n.categoryName,
+                  prefixIcon: const Icon(Icons.label_outlined),
                 ),
                 validator: (value) => value == null || value.trim().isEmpty
-                    ? 'Enter category name'
+                    ? context.l10n.enterCategoryName
                     : null,
               ),
               const SizedBox(height: 16),
               Text(
-                'Color',
+                context.l10n.color,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 8),
@@ -126,7 +129,8 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: presetCategoryColors.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 8),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     final color = presetCategoryColors[index];
                     final isSelected = color == _selectedColor;
@@ -139,11 +143,20 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                           color: color,
                           shape: BoxShape.circle,
                           border: isSelected
-                              ? Border.all(color: Theme.of(context).colorScheme.onSurface, width: 3)
+                              ? Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  width: 3,
+                                )
                               : null,
                         ),
                         child: isSelected
-                            ? const Icon(Icons.check, color: Colors.white, size: 20)
+                            ? const Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 20,
+                              )
                             : null,
                       ),
                     );
@@ -152,7 +165,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Icon',
+                context.l10n.icon,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 8),
@@ -167,7 +180,8 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                   itemCount: presetCategoryIcons.length,
                   itemBuilder: (context, index) {
                     final icon = presetCategoryIcons[index];
-                    final isSelected = icon.codePoint == _selectedIcon.codePoint;
+                    final isSelected =
+                        icon.codePoint == _selectedIcon.codePoint;
                     return InkWell(
                       onTap: () => setState(() => _selectedIcon = icon),
                       borderRadius: BorderRadius.circular(12),
@@ -175,7 +189,9 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? _selectedColor.withValues(alpha: .2)
-                              : Theme.of(context).colorScheme.surfaceContainerHighest,
+                              : Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(12),
                           border: isSelected
                               ? Border.all(color: _selectedColor, width: 2)
@@ -183,7 +199,9 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                         ),
                         child: Icon(
                           icon,
-                          color: isSelected ? _selectedColor : Theme.of(context).colorScheme.onSurface,
+                          color: isSelected
+                              ? _selectedColor
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     );
@@ -194,7 +212,9 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
               FilledButton.icon(
                 onPressed: _submit,
                 icon: const Icon(Icons.check),
-                label: Text(isEditing ? 'Save' : 'Create category'),
+                label: Text(
+                  isEditing ? context.l10n.save : context.l10n.createCategory,
+                ),
               ),
             ],
           ),

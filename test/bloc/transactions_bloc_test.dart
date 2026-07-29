@@ -3,8 +3,8 @@ import 'package:finflow/core/error/failure.dart';
 import 'package:finflow/core/error/result.dart';
 import 'package:finflow/features/categories/data/datasources/category_local_data_source.dart';
 import 'package:finflow/features/transactions/domain/usecases/transaction_use_cases.dart';
-import 'package:finflow/features/transactions/presentation/bloc/transaction_form_cubit.dart';
-import 'package:finflow/features/transactions/presentation/bloc/transactions_bloc.dart';
+import 'package:finflow/features/transactions/presentation/transaction_form/cubit/transaction_form_cubit.dart';
+import 'package:finflow/features/transactions/presentation/transactions_list/bloc/transactions_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import '../helpers.dart';
@@ -13,7 +13,9 @@ void main() {
   late MockTransactionRepository repository;
   late TransactionUseCases useCases;
   final item = transaction();
-  final transportCategory = defaultCategoryModels.firstWhere((c) => c.id == 'transport');
+  final transportCategory = defaultCategoryModels.firstWhere(
+    (c) => c.id == 'transport',
+  );
 
   setUpAll(() {
     registerFallbackValue(item);
@@ -120,9 +122,7 @@ void main() {
     ),
     build: () => TransactionsBloc(useCases),
     act: (bloc) => bloc.add(
-      TransactionFilterChanged(
-        TransactionFilter(category: transportCategory),
-      ),
+      TransactionFilterChanged(TransactionFilter(category: transportCategory)),
     ),
     expect: () => [
       isA<TransactionsState>().having((s) => s.visible.single.id, 'id', '2'),

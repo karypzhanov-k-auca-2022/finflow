@@ -55,9 +55,10 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
     on<BudgetSaved>(_save);
     on<BudgetDeleted>(_delete);
 
-    _transactionsSubscription = transactionUseCases.onTransactionsChanged.listen((_) {
-      add(const BudgetsRequested());
-    });
+    _transactionsSubscription = transactionUseCases.onTransactionsChanged
+        .listen((_) {
+          add(const BudgetsRequested());
+        });
     _budgetsSubscription = budgetUseCases.onBudgetsChanged.listen((_) {
       add(const BudgetsRequested());
     });
