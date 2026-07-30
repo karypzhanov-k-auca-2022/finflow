@@ -7,6 +7,10 @@ import '../../domain/entities/transaction.dart';
 
 abstract interface class TransactionLocalDataSource {
   Future<List<TransactionModel>> getTransactions([String? userId]);
+  Future<void> replaceTransactions(
+    List<TransactionModel> transactions, [
+    String? userId,
+  ]);
   Future<void> saveTransaction(TransactionModel transaction, [String? userId]);
   Future<void> deleteTransaction(String id, [String? userId]);
   Future<void> clear([String? userId]);
@@ -72,6 +76,12 @@ class TransactionLocalDataSourceImpl implements TransactionLocalDataSource {
     );
     if (!ok) throw const FormatException('Could not persist transactions');
   }
+
+  @override
+  Future<void> replaceTransactions(
+    List<TransactionModel> transactions, [
+    String? userId,
+  ]) => _write(transactions, userId);
 
   @override
   Future<void> saveTransaction(

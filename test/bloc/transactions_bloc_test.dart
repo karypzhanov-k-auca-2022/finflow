@@ -46,6 +46,30 @@ void main() {
   );
 
   blocTest<TransactionsBloc, TransactionsState>(
+    'passes refresh flag to repository',
+    build: () {
+      stubLoad(repository, [item]);
+      return TransactionsBloc(useCases);
+    },
+    act: (bloc) => bloc.add(const TransactionsRequested(refresh: true)),
+    expect: () => [
+      isA<TransactionsState>().having(
+        (state) => state.status,
+        'status',
+        TransactionsStatus.loading,
+      ),
+      isA<TransactionsState>().having(
+        (state) => state.status,
+        'status',
+        TransactionsStatus.success,
+      ),
+    ],
+    verify: (_) {
+      verify(() => repository.getTransactions(refresh: true)).called(1);
+    },
+  );
+
+  blocTest<TransactionsBloc, TransactionsState>(
     'emits empty status when list is empty',
     build: () {
       stubLoad(repository, []);
@@ -107,6 +131,56 @@ void main() {
       isA<TransactionsState>()
           .having((s) => s.status, 'status', TransactionsStatus.empty)
           .having((s) => s.all, 'all', isEmpty),
+    ],
+  );
+
+  blocTest<TransactionsBloc, TransactionsState>(
+    'keeps transactions and emits failure when deletion fails',
+    seed: () => TransactionsState(
+      status: TransactionsStatus.success,
+      all: [item],
+      visible: [item],
+    ),
+    build: () {
+      when(
+        () => repository.deleteTransaction(item.id),
+      ).thenAnswer((_) async => const Error(CacheFailure()));
+      return TransactionsBloc(useCases);
+    },
+    act: (bloc) => bloc.add(TransactionDeleteRequested(item.id)),
+    expect: () => [
+      isA<TransactionsState>()
+          .having((state) => state.status, 'status', TransactionsStatus.failure)
+          .having((state) => state.all, 'all', [item])
+          .having((state) => state.visible, 'visible', [item]),
+    ],
+  );
+
+  blocTest<TransactionsBloc, TransactionsState>(
+    'preserves and reapplies active filter after reload',
+    seed: () => TransactionsState(
+      status: TransactionsStatus.success,
+      filter: const TransactionFilter(query: 'taxi'),
+      all: [item],
+      visible: const [],
+    ),
+    build: () {
+      stubLoad(repository, [item, transaction(id: '2', title: 'Airport Taxi')]);
+      return TransactionsBloc(useCases);
+    },
+    act: (bloc) => bloc.add(const TransactionsRequested()),
+    expect: () => [
+      isA<TransactionsState>()
+          .having((state) => state.status, 'status', TransactionsStatus.loading)
+          .having((state) => state.filter.query, 'query', 'taxi'),
+      isA<TransactionsState>()
+          .having((state) => state.status, 'status', TransactionsStatus.success)
+          .having((state) => state.filter.query, 'query', 'taxi')
+          .having(
+            (state) => state.visible.map((value) => value.id),
+            'visible ids',
+            ['2'],
+          ),
     ],
   );
 

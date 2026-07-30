@@ -51,9 +51,7 @@ class TransactionRepositoryImpl
       if (refresh && remoteEnabled) {
         try {
           final remoteValues = await remote.getTransactions();
-          for (final value in remoteValues) {
-            await local.saveTransaction(value, _userId);
-          }
+          await local.replaceTransactions(remoteValues, _userId);
           logInfo('Loaded ${remoteValues.length} transactions from remote');
           return Success((transactions: remoteValues, fromCache: false));
         } on DioException catch (exception) {

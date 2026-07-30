@@ -5,6 +5,7 @@ import 'package:finflow/features/categories/data/datasources/category_local_data
 import 'package:finflow/features/categories/data/repositories/category_repository_impl.dart';
 import 'package:finflow/features/categories/domain/usecases/category_use_cases.dart';
 import 'package:finflow/features/categories/presentation/bloc/categories_bloc.dart';
+import 'package:finflow/features/transactions/domain/entities/transaction.dart';
 import 'package:finflow/features/transactions/domain/usecases/transaction_use_cases.dart';
 import 'package:finflow/features/transactions/presentation/transaction_form/cubit/transaction_form_cubit.dart';
 import 'package:finflow/features/transactions/presentation/transaction_form/pages/transaction_form_page.dart';
@@ -68,6 +69,35 @@ void main() {
     );
     await tester.pumpWidget(_transactionsApp(bloc));
     expect(find.text('Supermarket Purchase'), findsOneWidget);
+  });
+
+  testWidgets('search field filters the rendered transaction list', (
+    tester,
+  ) async {
+    final repository = MockTransactionRepository();
+    final groceries = transaction(id: 'groceries', title: 'Weekly groceries');
+    final salary = transaction(
+      id: 'salary',
+      title: 'July Salary',
+      type: TransactionType.income,
+      category: testSalaryCategory,
+    );
+    stubLoad(repository, [groceries, salary]);
+    final bloc = TransactionsBloc(TransactionUseCases(repository))
+      ..add(const TransactionsRequested());
+    addTearDown(bloc.close);
+
+    await tester.pumpWidget(_transactionsApp(bloc));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Weekly groceries'), findsOneWidget);
+    expect(find.text('July Salary'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'salary');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Weekly groceries'), findsNothing);
+    expect(find.text('July Salary'), findsOneWidget);
   });
 
   testWidgets('error state contains Retry button and dispatches reload event', (

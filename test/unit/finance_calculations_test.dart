@@ -91,6 +91,51 @@ void main() {
     expect(result.map((e) => e.amount), [3000, 12000, 100000]);
   });
 
+  test('includes transactions on both custom date range boundaries', () {
+    final result = filterTransactions(
+      [
+        transaction(id: 'start', date: DateTime(2026, 7, 1)),
+        transaction(id: 'end', date: DateTime(2026, 7, 31, 23, 59, 59)),
+        transaction(id: 'before', date: DateTime(2026, 6, 30, 23, 59, 59)),
+        transaction(id: 'after', date: DateTime(2026, 8, 1)),
+      ],
+      TransactionFilter(
+        period: TransactionPeriod.customRange,
+        from: DateTime(2026, 7, 1),
+        to: DateTime(2026, 7, 31),
+      ),
+    );
+
+    expect(result.map((item) => item.id), ['end', 'start']);
+  });
+
+  test('sorts transactions by date in descending order', () {
+    final result = filterTransactions(
+      [
+        transaction(id: 'old', date: DateTime(2026, 5, 1)),
+        transaction(id: 'new', date: DateTime(2026, 7, 1)),
+        transaction(id: 'middle', date: DateTime(2026, 6, 1)),
+      ],
+      const TransactionFilter(
+        sort: TransactionSort.date,
+        direction: SortDirection.descending,
+      ),
+    );
+
+    expect(result.map((item) => item.id), ['new', 'middle', 'old']);
+  });
+
+  test('searches title and note without case sensitivity', () {
+    final result = filterTransactions([
+      transaction(id: 'title', title: 'AIRPORT Taxi'),
+      transaction(id: 'note', title: 'Transfer', note: 'Taxi reimbursement'),
+      transaction(id: 'other', title: 'Groceries'),
+    ], const TransactionFilter(query: 'taxi'));
+
+    expect(result.map((item) => item.id), containsAll(['title', 'note']));
+    expect(result, hasLength(2));
+  });
+
   test('determines budget progress, warning, and exceeded states', () {
     const warning = Budget(
       id: '1',
@@ -158,4 +203,22 @@ void main() {
       expect(model.category.iconCodePoint, isNotNull);
     },
   );
+
+  test('TransactionModel preserves all fields through JSON round-trip', () {
+    final original = TransactionModel.fromEntity(
+      transaction(
+        id: 'round-trip',
+        title: 'Dinner',
+        amount: 2450.75,
+        category: testCafeCategory,
+        date: DateTime(2026, 7, 20, 18, 30),
+        note: 'Birthday dinner',
+      ),
+    );
+
+    final restored = TransactionModel.fromJson(original.toJson());
+
+    expect(restored, original);
+    expect(restored.category, testCafeCategory);
+  });
 }
