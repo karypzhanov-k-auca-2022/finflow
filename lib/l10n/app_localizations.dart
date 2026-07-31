@@ -806,6 +806,30 @@ abstract class AppLocalizations {
   /// **'About'**
   String get about;
 
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App version'**
+  String get appVersion;
+
+  /// No description provided for @deviceModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get deviceModel;
+
+  /// No description provided for @osVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'OS version'**
+  String get osVersion;
+
+  /// No description provided for @deviceInfoLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load device information'**
+  String get deviceInfoLoadError;
+
   /// No description provided for @exportCsv.
   ///
   /// In en, this message translates to:

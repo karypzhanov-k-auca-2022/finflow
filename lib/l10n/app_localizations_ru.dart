@@ -379,6 +379,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get about => 'О приложении';
 
   @override
+  String get appVersion => 'Версия приложения';
+
+  @override
+  String get deviceModel => 'Модель';
+
+  @override
+  String get osVersion => 'Версия ОС';
+
+  @override
+  String get deviceInfoLoadError =>
+      'Не удалось получить сведения об устройстве';
+
+  @override
   String get exportCsv => 'Экспорт CSV';
 
   @override

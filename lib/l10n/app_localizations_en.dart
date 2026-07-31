@@ -377,6 +377,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get about => 'About';
 
   @override
+  String get appVersion => 'App version';
+
+  @override
+  String get deviceModel => 'Model';
+
+  @override
+  String get osVersion => 'OS version';
+
+  @override
+  String get deviceInfoLoadError => 'Could not load device information';
+
+  @override
   String get exportCsv => 'Export CSV';
 
   @override
