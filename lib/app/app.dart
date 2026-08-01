@@ -6,6 +6,7 @@ import '../core/connectivity/connection_cubit.dart';
 import '../core/connectivity/offline_gate.dart';
 import '../l10n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
+import '../core/widgets/app_background.dart';
 import '../features/analytics/presentation/bloc/analytics_bloc.dart';
 import '../features/budgets/presentation/bloc/budgets_bloc.dart';
 import '../features/categories/presentation/bloc/categories_bloc.dart';
@@ -62,8 +63,9 @@ class _FinFlowAppState extends State<FinFlowApp> {
             supportedLocales: AppLocalizations.supportedLocales,
             restorationScopeId: 'finflow',
             routerConfig: router,
-            builder: (context, child) =>
-                OfflineGate(child: child ?? const SizedBox.shrink()),
+            builder: (context, child) => AppBackground(
+              child: OfflineGate(child: child ?? const SizedBox.shrink()),
+            ),
           );
         },
       ),
