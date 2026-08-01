@@ -33,35 +33,35 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA_FinFlowFakeApiKeyForWebOptions01',
-    appId: '1:1079316656754:web:finflowapp9972web',
-    messagingSenderId: '1079316656754',
+    apiKey: 'AIzaSyDsTQiT-le0srXq2E7awecNPw_On2_MfOY',
+    appId: '1:674641773932:web:finflowapp9972web',
+    messagingSenderId: '674641773932',
     projectId: 'finflow-app-9972',
     authDomain: 'finflow-app-9972.firebaseapp.com',
     storageBucket: 'finflow-app-9972.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA_FinFlowFakeApiKeyForAndroidOpt01',
-    appId: '1:1079316656754:android:finflowapp9972android',
-    messagingSenderId: '1079316656754',
+    apiKey: 'AIzaSyDsTQiT-le0srXq2E7awecNPw_On2_MfOY',
+    appId: '1:674641773932:android:6db4d0bf89305a3022df49',
+    messagingSenderId: '674641773932',
     projectId: 'finflow-app-9972',
     storageBucket: 'finflow-app-9972.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA_FinFlowFakeApiKeyForIosOptions01',
-    appId: '1:1079316656754:ios:finflowapp9972ios',
-    messagingSenderId: '1079316656754',
+    apiKey: 'AIzaSyDsTQiT-le0srXq2E7awecNPw_On2_MfOY',
+    appId: '1:674641773932:ios:6db4d0bf89305a3022df49',
+    messagingSenderId: '674641773932',
     projectId: 'finflow-app-9972',
     storageBucket: 'finflow-app-9972.firebasestorage.app',
     iosBundleId: 'com.example.finflow',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyA_FinFlowFakeApiKeyForMacOptions01',
-    appId: '1:1079316656754:ios:finflowapp9972macos',
-    messagingSenderId: '1079316656754',
+    apiKey: 'AIzaSyDsTQiT-le0srXq2E7awecNPw_On2_MfOY',
+    appId: '1:674641773932:ios:6db4d0bf89305a3022df49',
+    messagingSenderId: '674641773932',
     projectId: 'finflow-app-9972',
     storageBucket: 'finflow-app-9972.firebasestorage.app',
     iosBundleId: 'com.example.finflow',
