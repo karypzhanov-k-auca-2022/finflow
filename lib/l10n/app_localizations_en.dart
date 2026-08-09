@@ -563,11 +563,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createAccountTitle => 'Create a FinFlow account';
 
   @override
-  String get welcomeBack => 'Welcome back!';
+  String get welcomeBack => 'Welcome back';
 
   @override
-  String get registerSubtitle =>
-      'Register to synchronize your budget across devices';
+  String get registerSubtitle => 'Create a personal profile for your finances';
 
   @override
   String get loginSubtitle => 'Sign in to access your personal finances';

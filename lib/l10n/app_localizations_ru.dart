@@ -568,11 +568,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get createAccountTitle => 'Создать аккаунт FinFlow';
 
   @override
-  String get welcomeBack => 'С возвращением!';
+  String get welcomeBack => 'С возвращением';
 
   @override
-  String get registerSubtitle =>
-      'Зарегистрируйтесь для синхронизации бюджета между устройствами';
+  String get registerSubtitle => 'Создайте личный профиль для своих финансов';
 
   @override
   String get loginSubtitle => 'Войдите, чтобы получить доступ к своим финансам';

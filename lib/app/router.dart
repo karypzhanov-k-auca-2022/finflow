@@ -20,6 +20,7 @@ import 'dependency_injection.dart';
 import 'splash_page.dart';
 
 import '../features/auth/presentation/pages/login_page.dart';
+import '../features/auth/presentation/pages/register_page.dart';
 
 GoRouter createRouter(AppInitializer initializer) => GoRouter(
   initialLocation: AppRoutes.splash,
@@ -48,6 +49,7 @@ GoRouter createRouter(AppInitializer initializer) => GoRouter(
       builder: (_, _) => SplashPage(initializer: initializer),
     ),
     GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginPage()),
+    GoRoute(path: AppRoutes.register, builder: (_, _) => const RegisterPage()),
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => _AppShell(shell: shell),
       branches: [

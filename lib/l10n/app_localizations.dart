@@ -1133,13 +1133,13 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeBack.
   ///
   /// In en, this message translates to:
-  /// **'Welcome back!'**
+  /// **'Welcome back'**
   String get welcomeBack;
 
   /// No description provided for @registerSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Register to synchronize your budget across devices'**
+  /// **'Create a personal profile for your finances'**
   String get registerSubtitle;
 
   /// No description provided for @loginSubtitle.

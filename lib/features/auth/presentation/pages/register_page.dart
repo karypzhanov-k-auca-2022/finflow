@@ -8,29 +8,32 @@ import '../../../../core/theme/app_spacing.dart';
 import '../bloc/auth_cubit.dart';
 import '../widgets/auth_page_shell.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   void _submit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    context.read<AuthCubit>().signInWithEmail(
+    context.read<AuthCubit>().signUpWithEmail(
       _emailController.text.trim(),
       _passwordController.text,
     );
@@ -38,9 +41,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) => AuthPageShell(
-    icon: Icons.lock_open_rounded,
-    title: context.l10n.welcomeBack,
-    subtitle: context.l10n.loginSubtitle,
+    icon: Icons.person_add_alt_1_rounded,
+    title: context.l10n.createAccountTitle,
+    subtitle: context.l10n.registerSubtitle,
     child: AutofillGroup(
       child: Form(
         key: _formKey,
@@ -70,10 +73,9 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: AppSpacing.large),
             TextFormField(
               controller: _passwordController,
-              autofillHints: const [AutofillHints.password],
+              autofillHints: const [AutofillHints.newPassword],
               obscureText: !_isPasswordVisible,
-              textInputAction: TextInputAction.done,
-              onFieldSubmitted: (_) => _submit(),
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 labelText: context.l10n.password,
                 prefixIcon: const Icon(Icons.lock_outline_rounded),
@@ -98,34 +100,52 @@ class _LoginPageState extends State<LoginPage> {
                 return null;
               },
             ),
+            const SizedBox(height: AppSpacing.large),
+            TextFormField(
+              controller: _confirmPasswordController,
+              autofillHints: const [AutofillHints.newPassword],
+              obscureText: !_isConfirmPasswordVisible,
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => _submit(),
+              decoration: InputDecoration(
+                labelText: context.l10n.repeatPassword,
+                prefixIcon: const Icon(Icons.lock_reset_outlined),
+                suffixIcon: IconButton(
+                  tooltip: context.l10n.repeatPassword,
+                  onPressed: () => setState(
+                    () =>
+                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible,
+                  ),
+                  icon: Icon(
+                    _isConfirmPasswordVisible
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                  ),
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return context.l10n.confirmPassword;
+                }
+                if (value != _passwordController.text) {
+                  return context.l10n.passwordsDoNotMatch;
+                }
+                return null;
+              },
+            ),
             const SizedBox(height: AppSpacing.section),
             BlocBuilder<AuthCubit, AuthState>(
               builder: (context, state) => AuthPrimaryButton(
                 loading: state.status == AuthStatus.loading,
-                label: context.l10n.signInAction,
+                label: context.l10n.registerAction,
                 icon: Icons.arrow_forward_rounded,
                 onPressed: _submit,
               ),
             ),
             const SizedBox(height: AppSpacing.medium),
             TextButton(
-              onPressed: () => context.go(AppRoutes.register),
-              child: Text(context.l10n.noAccount),
-            ),
-            const SizedBox(height: AppSpacing.section),
-            AuthDivider(label: context.l10n.or),
-            const SizedBox(height: AppSpacing.section),
-            BlocBuilder<AuthCubit, AuthState>(
-              builder: (context, state) => OutlinedButton.icon(
-                onPressed: state.status == AuthStatus.loading
-                    ? null
-                    : () => context.read<AuthCubit>().signInAnonymously(),
-                icon: const Icon(Icons.person_outline_rounded),
-                label: Text(context.l10n.continueAsGuest),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(52),
-                ),
-              ),
+              onPressed: () => context.go(AppRoutes.login),
+              child: Text(context.l10n.alreadyHaveAccount),
             ),
           ],
         ),
