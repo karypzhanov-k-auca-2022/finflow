@@ -69,14 +69,22 @@ class SettingsPage extends StatelessWidget {
                       subtitle: Text(
                         user?.isAnonymous ?? true
                             ? context.l10n.guestAccount
-                            : context.l10n.cloudSyncActive,
+                            : context.l10n.dataStoredOnThisDevice,
                       ),
                       trailing: TextButton.icon(
                         onPressed: () async {
                           if (user != null) {
                             await context.read<AuthCubit>().signOut();
                             if (context.mounted) {
-                              context.go(AppRoutes.login);
+                              final failure = context
+                                  .read<AuthCubit>()
+                                  .state
+                                  .failure;
+                              if (failure != null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(failure.message)),
+                                );
+                              }
                             }
                           } else {
                             await context.push(AppRoutes.login);

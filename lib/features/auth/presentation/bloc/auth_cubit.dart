@@ -66,8 +66,20 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> signOut() async {
-    emit(const AuthState(status: AuthStatus.loading));
-    await repository.signOut();
-    emit(const AuthState(status: AuthStatus.unauthenticated));
+    final previousUser = state.user;
+    emit(AuthState(status: AuthStatus.loading, user: previousUser));
+    final result = await repository.signOut();
+    result.fold(
+      (failure) => emit(
+        AuthState(
+          status: previousUser == null
+              ? AuthStatus.unauthenticated
+              : AuthStatus.authenticated,
+          user: previousUser,
+          failure: failure,
+        ),
+      ),
+      (_) => emit(const AuthState(status: AuthStatus.unauthenticated)),
+    );
   }
 }

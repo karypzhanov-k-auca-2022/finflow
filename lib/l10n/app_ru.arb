@@ -90,7 +90,7 @@
   "account": "Аккаунт",
   "notLoggedIn": "Вход не выполнен",
   "guestAccount": "Гостевой аккаунт",
-  "cloudSyncActive": "Облачная синхронизация активна",
+  "dataStoredOnThisDevice": "Вход выполнен; данные хранятся на этом устройстве",
   "signOut": "Выйти",
   "signIn": "Войти",
   "theme": "Тема",

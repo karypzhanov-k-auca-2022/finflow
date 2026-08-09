@@ -1,3 +1,4 @@
+import 'package:finflow/core/error/failure.dart';
 import 'package:finflow/core/error/result.dart';
 import 'package:finflow/features/auth/domain/entities/app_user.dart';
 import 'package:finflow/features/auth/domain/repositories/auth_repository.dart';
@@ -62,6 +63,38 @@ void main() {
 
       expect(cubit.state.status, AuthStatus.authenticated);
       expect(cubit.state.user, user);
+    });
+
+    test('successful sign out clears the authenticated user', () async {
+      const user = AppUser(uid: 'u1', email: 'test@example.com');
+      when(() => repository.currentUser).thenReturn(user);
+      when(
+        () => repository.signOut(),
+      ).thenAnswer((_) async => const Success(null));
+
+      final cubit = AuthCubit(repository);
+      addTearDown(cubit.close);
+      await cubit.signOut();
+
+      expect(cubit.state.status, AuthStatus.unauthenticated);
+      expect(cubit.state.user, isNull);
+    });
+
+    test('failed sign out keeps the authenticated user', () async {
+      const user = AppUser(uid: 'u1', email: 'test@example.com');
+      const failure = NetworkFailure('offline');
+      when(() => repository.currentUser).thenReturn(user);
+      when(
+        () => repository.signOut(),
+      ).thenAnswer((_) async => const Error(failure));
+
+      final cubit = AuthCubit(repository);
+      addTearDown(cubit.close);
+      await cubit.signOut();
+
+      expect(cubit.state.status, AuthStatus.authenticated);
+      expect(cubit.state.user, user);
+      expect(cubit.state.failure, failure);
     });
   });
 }

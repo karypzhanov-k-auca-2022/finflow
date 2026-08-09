@@ -16,6 +16,7 @@ import '../features/settings/presentation/bloc/locale_cubit.dart';
 import '../features/settings/presentation/bloc/theme_cubit.dart';
 import '../features/transactions/presentation/transactions_list/bloc/transactions_bloc.dart';
 import '../features/auth/presentation/bloc/auth_cubit.dart';
+import 'app_routes.dart';
 import 'app_initializer.dart';
 import 'dependency_injection.dart';
 import 'router.dart';
@@ -28,6 +29,7 @@ class FinFlowApp extends StatefulWidget {
 
 class _FinFlowAppState extends State<FinFlowApp> {
   late final router = createRouter(getIt<AppInitializer>());
+
   @override
   void dispose() {
     router.dispose();
@@ -40,13 +42,52 @@ class _FinFlowAppState extends State<FinFlowApp> {
       BlocProvider<AuthCubit>(create: (_) => getIt()),
       BlocProvider<ConnectionCubit>(create: (_) => getIt()),
       BlocProvider<CategoriesBloc>(create: (_) => getIt()),
-      BlocProvider<DashboardBloc>(create: (_) => getIt()),
-      BlocProvider<TransactionsBloc>(create: (_) => getIt()),
-      BlocProvider<BudgetsBloc>(create: (_) => getIt()),
-      BlocProvider<AnalyticsBloc>(create: (_) => getIt()),
       BlocProvider<ThemeCubit>(create: (_) => getIt()),
       BlocProvider<LocaleCubit>(create: (_) => getIt()),
       BlocProvider<SettingsCubit>(create: (_) => getIt()),
+    ],
+    child: BlocListener<AuthCubit, AuthState>(
+      listenWhen: (previous, current) =>
+          previous.user?.uid != current.user?.uid,
+      listener: (_, state) {
+        if (state.status == AuthStatus.authenticated) {
+          router.go(AppRoutes.dashboard);
+        } else if (state.status == AuthStatus.unauthenticated) {
+          router.go(AppRoutes.login);
+        }
+      },
+      child: BlocBuilder<AuthCubit, AuthState>(
+        buildWhen: (previous, current) =>
+            previous.user?.uid != current.user?.uid,
+        builder: (_, authState) => _FinanceScope(
+          key: ValueKey(authState.user?.uid ?? 'signed-out'),
+          router: router,
+        ),
+      ),
+    ),
+  );
+}
+
+class _FinanceScope extends StatelessWidget {
+  const _FinanceScope({super.key, required this.router});
+
+  final RouterConfig<Object> router;
+
+  @override
+  Widget build(BuildContext context) => MultiBlocProvider(
+    providers: [
+      BlocProvider<DashboardBloc>(
+        create: (_) => getIt()..add(const DashboardRequested()),
+      ),
+      BlocProvider<TransactionsBloc>(
+        create: (_) => getIt()..add(const TransactionsRequested()),
+      ),
+      BlocProvider<BudgetsBloc>(
+        create: (_) => getIt()..add(const BudgetsRequested()),
+      ),
+      BlocProvider<AnalyticsBloc>(
+        create: (_) => getIt()..add(const AnalyticsRequested()),
+      ),
     ],
     child: BlocBuilder<ThemeCubit, ThemeMode>(
       builder: (context, themeMode) => BlocBuilder<LocaleCubit, Locale>(

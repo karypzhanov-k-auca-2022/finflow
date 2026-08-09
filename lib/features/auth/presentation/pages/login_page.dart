@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../app/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/extensions/l10n_x.dart';
 import '../bloc/auth_cubit.dart';
@@ -54,9 +52,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.authenticated) {
-          context.go(AppRoutes.dashboard);
-        } else if (state.failure != null) {
+        if (state.failure != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.failure!.message),
@@ -359,22 +355,26 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: AppSpacing.large),
 
-                      OutlinedButton.icon(
-                        onPressed: () {
-                          context.read<AuthCubit>().signInAnonymously();
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: AppSpacing.medium,
+                      BlocBuilder<AuthCubit, AuthState>(
+                        builder: (context, state) => OutlinedButton.icon(
+                          onPressed: state.status == AuthStatus.loading
+                              ? null
+                              : () => context
+                                    .read<AuthCubit>()
+                                    .signInAnonymously(),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.medium,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          icon: const Icon(Icons.no_accounts_outlined),
+                          label: Text(
+                            context.l10n.continueAsGuestOffline,
+                            style: const TextStyle(fontSize: 14),
                           ),
-                        ),
-                        icon: const Icon(Icons.no_accounts_outlined),
-                        label: Text(
-                          context.l10n.continueAsGuestOffline,
-                          style: const TextStyle(fontSize: 14),
                         ),
                       ),
                     ],

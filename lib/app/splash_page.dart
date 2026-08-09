@@ -4,11 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'app_routes.dart';
 import '../core/extensions/l10n_x.dart';
 import '../core/theme/app_spacing.dart';
-import '../features/analytics/presentation/bloc/analytics_bloc.dart';
 import '../features/auth/presentation/bloc/auth_cubit.dart';
-import '../features/budgets/presentation/bloc/budgets_bloc.dart';
-import '../features/dashboard/presentation/bloc/dashboard_bloc.dart';
-import '../features/transactions/presentation/transactions_list/bloc/transactions_bloc.dart';
 import 'app_initializer.dart';
 
 class SplashPage extends StatefulWidget {
@@ -30,11 +26,6 @@ class _SplashPageState extends State<SplashPage> {
     try {
       await widget.initializer.initialize();
       if (mounted) {
-        context.read<DashboardBloc>().add(const DashboardRequested());
-        context.read<TransactionsBloc>().add(const TransactionsRequested());
-        context.read<BudgetsBloc>().add(const BudgetsRequested());
-        context.read<AnalyticsBloc>().add(const AnalyticsRequested());
-
         final authState = context.read<AuthCubit>().state;
         if (authState.user != null) {
           context.go(AppRoutes.dashboard);

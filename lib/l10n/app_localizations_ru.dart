@@ -291,7 +291,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get guestAccount => 'Гостевой аккаунт';
 
   @override
-  String get cloudSyncActive => 'Облачная синхронизация активна';
+  String get dataStoredOnThisDevice =>
+      'Вход выполнен; данные хранятся на этом устройстве';
 
   @override
   String get signOut => 'Выйти';

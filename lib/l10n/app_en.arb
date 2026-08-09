@@ -94,7 +94,7 @@
   "account": "Account",
   "notLoggedIn": "Not logged in",
   "guestAccount": "Guest account",
-  "cloudSyncActive": "Cloud sync active",
+  "dataStoredOnThisDevice": "Signed in; data stored on this device",
   "signOut": "Sign out",
   "signIn": "Sign in",
   "theme": "Theme",

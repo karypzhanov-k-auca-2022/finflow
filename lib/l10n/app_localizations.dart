@@ -638,11 +638,11 @@ abstract class AppLocalizations {
   /// **'Guest account'**
   String get guestAccount;
 
-  /// No description provided for @cloudSyncActive.
+  /// No description provided for @dataStoredOnThisDevice.
   ///
   /// In en, this message translates to:
-  /// **'Cloud sync active'**
-  String get cloudSyncActive;
+  /// **'Signed in; data stored on this device'**
+  String get dataStoredOnThisDevice;
 
   /// No description provided for @signOut.
   ///

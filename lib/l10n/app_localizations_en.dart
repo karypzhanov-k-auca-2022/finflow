@@ -290,7 +290,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guestAccount => 'Guest account';
 
   @override
-  String get cloudSyncActive => 'Cloud sync active';
+  String get dataStoredOnThisDevice => 'Signed in; data stored on this device';
 
   @override
   String get signOut => 'Sign out';
