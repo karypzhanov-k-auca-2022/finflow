@@ -293,13 +293,13 @@ abstract class AppLocalizations {
   /// No description provided for @noTransactions.
   ///
   /// In en, this message translates to:
-  /// **'No transactions'**
+  /// **'No transactions yet'**
   String get noTransactions;
 
   /// No description provided for @noTransactionsMessage.
   ///
   /// In en, this message translates to:
-  /// **'Add your first transaction to start tracking.'**
+  /// **'Add your first transaction to start tracking your finances.'**
   String get noTransactionsMessage;
 
   /// No description provided for @nothingFound.

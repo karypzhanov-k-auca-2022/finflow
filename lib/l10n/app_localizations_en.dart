@@ -108,11 +108,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTransactions => 'Search by title or note';
 
   @override
-  String get noTransactions => 'No transactions';
+  String get noTransactions => 'No transactions yet';
 
   @override
   String get noTransactionsMessage =>
-      'Add your first transaction to start tracking.';
+      'Add your first transaction to start tracking your finances.';
 
   @override
   String get nothingFound => 'Nothing found';

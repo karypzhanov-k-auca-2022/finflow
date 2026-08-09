@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flutter Review"
+  short_description: "Review Flutter changes without first editing"
+  default_prompt: "Use $flutter-review to review the current FinFlow diff for correctness and repository-specific risks."

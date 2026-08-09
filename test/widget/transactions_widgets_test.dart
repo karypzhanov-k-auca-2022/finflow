@@ -11,6 +11,7 @@ import 'package:finflow/features/transactions/presentation/transaction_form/cubi
 import 'package:finflow/features/transactions/presentation/transaction_form/pages/transaction_form_page.dart';
 import 'package:finflow/features/transactions/presentation/transactions_list/bloc/transactions_bloc.dart';
 import 'package:finflow/features/transactions/presentation/transactions_list/pages/transactions_page.dart';
+import 'package:finflow/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -54,8 +55,14 @@ void main() {
     final bloc = _bloc(
       const TransactionsState(status: TransactionsStatus.empty),
     );
-    await tester.pumpWidget(_transactionsApp(bloc));
-    expect(find.text('No transactions'), findsOneWidget);
+    await tester.pumpWidget(_transactionsApp(bloc, locale: const Locale('ru')));
+
+    expect(find.byIcon(Icons.inbox_outlined), findsOneWidget);
+    expect(find.text('Пока нет транзакций'), findsOneWidget);
+    expect(
+      find.text('Добавьте первую операцию, чтобы начать отслеживать финансы.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('displays transaction list items', (tester) async {
@@ -248,7 +255,13 @@ MockCategoriesBloc _catBloc() {
   return bloc;
 }
 
-Widget _transactionsApp(TransactionsBloc bloc) => MaterialApp(
+Widget _transactionsApp(
+  TransactionsBloc bloc, {
+  Locale locale = const Locale('en'),
+}) => MaterialApp(
+  locale: locale,
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
   home: MultiBlocProvider(
     providers: [
       BlocProvider<TransactionsBloc>.value(value: bloc),

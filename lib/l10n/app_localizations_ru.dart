@@ -108,11 +108,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get searchTransactions => 'Поиск по названию или заметке';
 
   @override
-  String get noTransactions => 'Операций пока нет';
+  String get noTransactions => 'Пока нет транзакций';
 
   @override
   String get noTransactionsMessage =>
-      'Добавьте первую операцию, чтобы начать учёт.';
+      'Добавьте первую операцию, чтобы начать отслеживать финансы.';
 
   @override
   String get nothingFound => 'Ничего не найдено';

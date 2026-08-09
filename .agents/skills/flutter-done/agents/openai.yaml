@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flutter Done"
+  short_description: "Verify Flutter changes and report exact checks"
+  default_prompt: "Use $flutter-done to choose justified checks, inspect the diff, and report completion accurately."

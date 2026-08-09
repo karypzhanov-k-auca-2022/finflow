@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flutter Tests"
+  short_description: "Add focused tests using repository conventions"
+  default_prompt: "Use $flutter-tests to add or improve focused tests for this FinFlow behavior."
