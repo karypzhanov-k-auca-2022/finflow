@@ -6,6 +6,8 @@ import 'package:finflow/features/auth/domain/repositories/auth_repository.dart';
 import 'package:finflow/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:finflow/features/auth/presentation/pages/login_page.dart';
 import 'package:finflow/features/auth/presentation/pages/register_page.dart';
+import 'package:finflow/features/settings/domain/settings_repository.dart';
+import 'package:finflow/features/settings/presentation/bloc/locale_cubit.dart';
 import 'package:finflow/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,9 +17,13 @@ import 'package:mocktail/mocktail.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
+class MockSettingsRepository extends Mock implements SettingsRepository {}
+
 void main() {
   late MockAuthRepository repository;
+  late MockSettingsRepository settingsRepository;
   late AuthCubit cubit;
+  late LocaleCubit localeCubit;
   late GoRouter router;
 
   setUp(() {
@@ -26,7 +32,13 @@ void main() {
     when(
       () => repository.onAuthStateChanged,
     ).thenAnswer((_) => const Stream<AppUser?>.empty());
+    settingsRepository = MockSettingsRepository();
+    when(() => settingsRepository.loadLocale()).thenReturn(const Locale('en'));
+    when(
+      () => settingsRepository.saveLocale(const Locale('ru')),
+    ).thenAnswer((_) async {});
     cubit = AuthCubit(repository);
+    localeCubit = LocaleCubit(settingsRepository);
     router = GoRouter(
       initialLocation: AppRoutes.login,
       routes: [
@@ -42,20 +54,54 @@ void main() {
   tearDown(() async {
     router.dispose();
     await cubit.close();
+    await localeCubit.close();
   });
 
   Future<void> pumpAuthApp(WidgetTester tester) => tester.pumpWidget(
-    BlocProvider<AuthCubit>.value(
-      value: cubit,
-      child: MaterialApp.router(
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        routerConfig: router,
+    MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthCubit>.value(value: cubit),
+        BlocProvider<LocaleCubit>.value(value: localeCubit),
+      ],
+      child: BlocBuilder<LocaleCubit, Locale>(
+        builder: (context, locale) => MaterialApp.router(
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          locale: locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     ),
   );
+
+  testWidgets('language switcher stays available across auth routes', (
+    tester,
+  ) async {
+    await pumpAuthApp(tester);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('auth-language-switcher')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('RU'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('С возвращением'), findsOneWidget);
+    verify(() => settingsRepository.saveLocale(const Locale('ru'))).called(1);
+
+    await tester.tap(find.text('Нет аккаунта? Зарегистрироваться'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('auth-language-switcher')),
+      findsOneWidget,
+    );
+    expect(find.text('Создать аккаунт FinFlow'), findsOneWidget);
+  });
 
   testWidgets('login and registration are separate routes', (tester) async {
     await pumpAuthApp(tester);
