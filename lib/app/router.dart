@@ -13,6 +13,7 @@ import '../features/transactions/domain/entities/transaction.dart';
 import '../features/transactions/presentation/transaction_form/cubit/transaction_form_cubit.dart';
 import '../features/transactions/presentation/transaction_form/pages/transaction_form_page.dart';
 import '../features/transactions/presentation/transactions_list/bloc/transactions_bloc.dart';
+import '../features/transactions/presentation/transactions_list/pages/transaction_filters_page.dart';
 import '../features/transactions/presentation/transactions_list/pages/transactions_page.dart';
 import 'app_routes.dart';
 import 'app_initializer.dart';
@@ -94,6 +95,12 @@ GoRouter createRouter(AppInitializer initializer) => GoRouter(
           ],
         ),
       ],
+    ),
+    GoRoute(
+      path: AppRoutes.transactionFilters,
+      builder: (context, _) => TransactionFiltersPage(
+        initialFilter: context.read<TransactionsBloc>().state.filter,
+      ),
     ),
     GoRoute(
       path: AppRoutes.newTransaction,

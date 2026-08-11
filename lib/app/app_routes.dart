@@ -4,6 +4,7 @@ abstract final class AppRoutes {
   static const register = '/register';
   static const dashboard = '/dashboard';
   static const transactions = '/transactions';
+  static const transactionFilters = '/transactions/filters';
   static const newTransaction = '/transactions/new';
   static const editTransaction = '/transactions/:id/edit';
   static const budgets = '/budgets';

@@ -51,7 +51,7 @@ class _TransactionFormPageState extends State<TransactionFormPage>
     note = RestorableTextEditingController(text: item?.note ?? '');
     typeIndex = RestorableInt((item?.type ?? TransactionType.expense).index);
     categoryId = RestorableString(item?.category.id ?? 'groceries');
-    date = RestorableDateTime(item?.date ?? DateTime.now());
+    date = RestorableDateTime(_notAfterToday(item?.date ?? DateTime.now()));
   }
 
   @override
@@ -62,6 +62,8 @@ class _TransactionFormPageState extends State<TransactionFormPage>
     registerForRestoration(typeIndex, 'type');
     registerForRestoration(categoryId, 'category');
     registerForRestoration(date, 'date');
+    final allowedDate = _notAfterToday(date.value);
+    if (allowedDate != date.value) date.value = allowedDate;
     if (!_listenersAttached) {
       title.value.addListener(markDirty);
       amount.value.addListener(markDirty);
@@ -342,15 +344,15 @@ class _TransactionFormPageState extends State<TransactionFormPage>
                     ),
                     field(
                       InkWell(
+                        key: const Key('transaction_date_field'),
                         borderRadius: BorderRadius.circular(14),
                         onTap: () async {
+                          final today = DateUtils.dateOnly(DateTime.now());
                           final selected = await showDatePicker(
                             context: context,
-                            initialDate: date.value,
+                            initialDate: _notAfterToday(date.value),
                             firstDate: DateTime(2020),
-                            lastDate: DateTime.now().add(
-                              const Duration(days: 365),
-                            ),
+                            lastDate: today,
                           );
                           if (selected != null) {
                             setState(() {
@@ -431,11 +433,16 @@ class _TransactionFormPageState extends State<TransactionFormPage>
         amount: double.parse(amount.value.text.replaceAll(',', '.')),
         type: TransactionType.values[typeIndex.value],
         category: selectedCategory,
-        date: date.value,
+        date: _notAfterToday(date.value),
         note: note.value.text.trim(),
         createdAt: old?.createdAt ?? now,
         updatedAt: now,
       ),
     );
+  }
+
+  DateTime _notAfterToday(DateTime value) {
+    final today = DateUtils.dateOnly(DateTime.now());
+    return value.isAfter(today) ? today : value;
   }
 }

@@ -10,6 +10,7 @@ import 'package:finflow/features/transactions/domain/usecases/transaction_use_ca
 import 'package:finflow/features/transactions/presentation/transaction_form/cubit/transaction_form_cubit.dart';
 import 'package:finflow/features/transactions/presentation/transaction_form/pages/transaction_form_page.dart';
 import 'package:finflow/features/transactions/presentation/transactions_list/bloc/transactions_bloc.dart';
+import 'package:finflow/features/transactions/presentation/transactions_list/pages/transaction_filters_page.dart';
 import 'package:finflow/features/transactions/presentation/transactions_list/pages/transactions_page.dart';
 import 'package:finflow/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -105,6 +106,55 @@ void main() {
 
     expect(find.text('Weekly groceries'), findsNothing);
     expect(find.text('July Salary'), findsOneWidget);
+  });
+
+  testWidgets('filters are edited on a separate page and returned on apply', (
+    tester,
+  ) async {
+    final categoriesBloc = _catBloc();
+    TransactionFilter? result;
+
+    await tester.pumpWidget(
+      BlocProvider<CategoriesBloc>.value(
+        value: categoriesBloc,
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: FilledButton(
+                  onPressed: () async {
+                    result = await Navigator.push<TransactionFilter>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const TransactionFiltersPage(
+                          initialFilter: TransactionFilter(),
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('Open filters'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open filters'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('transaction_filters_page')), findsOneWidget);
+    expect(find.byType(BottomSheet), findsNothing);
+
+    await tester.tap(find.text('Expenses'));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('apply_transaction_filters')));
+    await tester.pumpAndSettle();
+
+    expect(result?.type, TransactionType.expense);
   });
 
   testWidgets('error state contains Retry button and dispatches reload event', (
@@ -229,6 +279,39 @@ void main() {
     );
     expect(restoredTitle.controller?.text, 'Restored draft');
     expect(restoredAmount.controller?.text, '900');
+  });
+
+  testWidgets('transaction date picker does not allow future dates', (
+    tester,
+  ) async {
+    final repository = MockTransactionRepository();
+    final cubit = TransactionFormCubit(TransactionUseCases(repository));
+    final catBloc = _catBloc();
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider<TransactionFormCubit>.value(value: cubit),
+            BlocProvider<CategoriesBloc>.value(value: catBloc),
+          ],
+          child: const TransactionFormPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('transaction_date_field')));
+    await tester.pumpAndSettle();
+
+    final dialog = tester.widget<DatePickerDialog>(
+      find.byType(DatePickerDialog),
+    );
+    final today = DateUtils.dateOnly(DateTime.now());
+    expect(dialog.lastDate, today);
+    expect(dialog.initialDate, isNotNull);
+    expect(dialog.initialDate!.isAfter(today), isFalse);
   });
 }
 

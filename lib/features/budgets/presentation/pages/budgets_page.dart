@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,6 +39,7 @@ class BudgetsPage extends StatefulWidget {
 }
 
 class _BudgetsPageState extends State<BudgetsPage> {
+  final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   List<Category> availableCategories = defaultCategoryModels;
 
   @override
@@ -55,66 +58,72 @@ class _BudgetsPageState extends State<BudgetsPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.l10n.budgets)),
-    floatingActionButton: FloatingActionButton.extended(
-      heroTag: 'budgets_fab',
-      onPressed: () => _openForm(context, null, availableCategories),
-      icon: const Icon(Icons.add),
-      label: Text(context.l10n.newBudget),
-    ),
-    body: BlocBuilder<BudgetsBloc, BudgetsState>(
-      builder: (context, state) => switch (state.status) {
-        BudgetsStatus.initial || BudgetsStatus.loading => const LoadingView(),
-        BudgetsStatus.failure => ErrorState(
-          message: state.failure?.message ?? context.l10n.pleaseTryAgain,
-          onRetry: () =>
-              context.read<BudgetsBloc>().add(const BudgetsRequested()),
-        ),
-        BudgetsStatus.empty => EmptyState(
-          title: context.l10n.noBudgets,
-          message: context.l10n.noBudgetsMessage,
-          action: FilledButton(
-            onPressed: () => _openForm(context, null, availableCategories),
-            child: Text(context.l10n.createBudget),
+  Widget build(BuildContext context) => ScaffoldMessenger(
+    key: scaffoldMessengerKey,
+    child: Scaffold(
+      appBar: AppBar(title: Text(context.l10n.budgets)),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'budgets_fab',
+        onPressed: () => _openForm(context, null, availableCategories),
+        icon: const Icon(Icons.add),
+        label: Text(context.l10n.newBudget),
+      ),
+      body: BlocBuilder<BudgetsBloc, BudgetsState>(
+        builder: (context, state) => switch (state.status) {
+          BudgetsStatus.initial || BudgetsStatus.loading => const LoadingView(),
+          BudgetsStatus.failure => ErrorState(
+            message: state.failure?.message ?? context.l10n.pleaseTryAgain,
+            onRetry: () =>
+                context.read<BudgetsBloc>().add(const BudgetsRequested()),
           ),
-        ),
-        BudgetsStatus.success => RefreshIndicator(
-          onRefresh: () async {
-            context.read<BudgetsBloc>().add(
-              const BudgetsRequested(refresh: true),
-            );
-            await context.read<BudgetsBloc>().stream.firstWhere(
-              (value) => value.status != BudgetsStatus.loading,
-            );
-          },
-          child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.large,
-              AppSpacing.small,
-              AppSpacing.large,
-              AppSpacing.pageBottom,
+          BudgetsStatus.empty => EmptyState(
+            title: context.l10n.noBudgets,
+            message: context.l10n.noBudgetsMessage,
+            action: FilledButton(
+              onPressed: () => _openForm(context, null, availableCategories),
+              child: Text(context.l10n.createBudget),
             ),
-            itemCount: state.budgets.length,
-            itemBuilder: (context, index) => _BudgetCard(
-              budget: state.budgets[index],
-              categories: availableCategories,
-              onTap: () => _openBudgetDetails(
-                context,
-                state.budgets[index],
-                _resolveCategory(
-                  state.budgets[index].categoryId,
+          ),
+          BudgetsStatus.success => RefreshIndicator(
+            onRefresh: () async {
+              context.read<BudgetsBloc>().add(
+                const BudgetsRequested(refresh: true),
+              );
+              await context.read<BudgetsBloc>().stream.firstWhere(
+                (value) => value.status != BudgetsStatus.loading,
+              );
+            },
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.large,
+                AppSpacing.small,
+                AppSpacing.large,
+                AppSpacing.pageBottom,
+              ),
+              itemCount: state.budgets.length,
+              itemBuilder: (context, index) => _BudgetCard(
+                budget: state.budgets[index],
+                categories: availableCategories,
+                onTap: () => _openBudgetDetails(
+                  context,
+                  state.budgets[index],
+                  _resolveCategory(
+                    state.budgets[index].categoryId,
+                    availableCategories,
+                  ),
+                ),
+                onEdit: () => _openForm(
+                  context,
+                  state.budgets[index],
                   availableCategories,
                 ),
+                onDelete: () async =>
+                    _deleteBudget(context, state.budgets[index]),
               ),
-              onEdit: () =>
-                  _openForm(context, state.budgets[index], availableCategories),
-              onDelete: () async =>
-                  _deleteBudget(context, state.budgets[index]),
             ),
           ),
-        ),
-      },
+        },
+      ),
     ),
   );
 
@@ -166,11 +175,11 @@ class _BudgetsPageState extends State<BudgetsPage> {
       message: context.l10n.budgetWillBeRemoved(cat.localizedName(context)),
     );
     if (confirmed) {
-      await HapticFeedback.mediumImpact();
+      unawaited(HapticFeedback.mediumImpact());
       if (!context.mounted) return;
       context.read<BudgetsBloc>().add(BudgetDeleted(budget.id));
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessengerKey.currentState?.clearSnackBars();
+      scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
           content: Text(context.l10n.budgetDeleted(cat.localizedName(context))),
           action: SnackBarAction(
@@ -398,19 +407,23 @@ class _BudgetFormState extends State<_BudgetForm> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: AppSpacing.large),
-              DropdownButtonFormField<String>(
-                initialValue: categoryId,
-                decoration: InputDecoration(labelText: context.l10n.category),
-                items: widget.categories
-                    .where((c) => c.id != 'salary')
-                    .map(
-                      (c) => DropdownMenuItem(
-                        value: c.id,
-                        child: Text(c.localizedName(context)),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) => setState(() => categoryId = value!),
+              InkWell(
+                key: const Key('budget_category_field'),
+                borderRadius: BorderRadius.circular(14),
+                onTap: _selectCategory,
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: context.l10n.category,
+                    prefixIcon: const Icon(Icons.category_outlined),
+                    suffixIcon: const Icon(Icons.keyboard_arrow_down),
+                  ),
+                  child: Text(
+                    _resolveCategory(
+                      categoryId,
+                      widget.categories,
+                    ).localizedName(context),
+                  ),
+                ),
               ),
               const SizedBox(height: AppSpacing.medium),
               TextFormField(
@@ -482,6 +495,80 @@ class _BudgetFormState extends State<_BudgetForm> {
             ],
           ),
         ),
+      ),
+    ),
+  );
+
+  Future<void> _selectCategory() async {
+    FocusScope.of(context).unfocus();
+    final categories = widget.categories
+        .where((value) => value.id != 'salary')
+        .toList();
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) =>
+          _BudgetCategoryPicker(categories: categories, selectedId: categoryId),
+    );
+    if (selected != null && mounted) {
+      setState(() => categoryId = selected);
+    }
+  }
+}
+
+class _BudgetCategoryPicker extends StatelessWidget {
+  const _BudgetCategoryPicker({
+    required this.categories,
+    required this.selectedId,
+  });
+
+  final List<Category> categories;
+  final String selectedId;
+
+  @override
+  Widget build(BuildContext context) => DraggableScrollableSheet(
+    expand: false,
+    initialChildSize: 0.55,
+    minChildSize: 0.3,
+    maxChildSize: 0.9,
+    builder: (context, scrollController) => SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.extraLarge,
+              0,
+              AppSpacing.extraLarge,
+              AppSpacing.medium,
+            ),
+            child: Text(
+              context.l10n.category,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              controller: scrollController,
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: category.color.withValues(alpha: 0.15),
+                    child: Icon(category.icon, color: category.color),
+                  ),
+                  title: Text(category.localizedName(context)),
+                  trailing: category.id == selectedId
+                      ? const Icon(Icons.check)
+                      : null,
+                  onTap: () => Navigator.pop(context, category.id),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     ),
   );
