@@ -8,12 +8,6 @@
       "deviceId": "android"
     },
     {
-      "name": "FinFlow (iOS Simulator)",
-      "request": "launch",
-      "type": "dart",
-      "deviceId": "87F1DE65-44DB-4A5F-885B-6C6C1BEA9FCB"
-    },
-    {
       "name": "FinFlow (iOS Auto)",
       "request": "launch",
       "type": "dart",

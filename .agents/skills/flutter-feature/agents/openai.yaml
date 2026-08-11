@@ -1,4 +1,0 @@
-interface:
-  display_name: "Flutter Feature"
-  short_description: "Add Flutter features using nearby patterns"
-  default_prompt: "Use $flutter-feature to implement this FinFlow feature following the nearest existing pattern."

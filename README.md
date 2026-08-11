@@ -17,10 +17,6 @@ FinFlow is a complete Flutter application for tracking income, expenses, and mon
 - Responsive bottom navigation/NavigationRail and a rotation-safe transaction form;
 - Optional synchronization with REST API and fallback to local cache.
 
-## Screenshots
-
-The `docs/screenshots/` folder is prepared for the portfolio. After running, add `dashboard.png`, `transactions.png`, `budgets.png`, `analytics.png` there and replace this block with images. This was intentionally not replaced with drawn mocks: screenshots should show the actual build running on your device.
-
 ## Technologies
 
 Flutter 3.41.2, Dart 3.11, Material 3, `flutter_bloc`, `equatable`, `go_router`, `dio`, `get_it`, `intl`, `fl_chart`, `shared_preferences`, `bloc_test`, `mocktail`, `flutter_test`.
@@ -84,7 +80,7 @@ if the activity is recreated.
 
 ## Dependency Injection
 
-`get_it` is configured once in `dependency_injection.dart`. DataSource, Repository, and UseCase are lazy singletons; BLoC/Cubit are factories. Business classes receive dependencies via constructor and do not access the service locator. `getIt` is only used in the composition root.
+`get_it` is configured once in `dependency_injection.dart`. DataSource, Repository, and UseCase are lazy singletons; BLoC/Cubit are factories. Business classes receive dependencies through constructors. A few route-local presentation actions resolve existing use cases from `get_it` directly.
 
 ## Errors
 

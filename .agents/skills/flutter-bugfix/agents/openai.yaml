@@ -1,4 +1,0 @@
-interface:
-  display_name: "Flutter Bugfix"
-  short_description: "Fix Flutter defects with focused verification"
-  default_prompt: "Use $flutter-bugfix to diagnose and fix this FinFlow defect with the smallest correct change."
